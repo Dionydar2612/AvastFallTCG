@@ -105,6 +105,8 @@
   const pic = d => (d.img ? `<img loading="lazy" src="${esc(d.img)}" alt="${esc(d.name)}">` : `<div class="noimg">${esc(d.name)}</div>`);
   const costTxt = d => (d.kind === 'Unit' ? 'Cost ' + d.cost : d.noCost ? '' : 'Spend ' + d.cost);
   const opt = (v, cur, label) => `<option value="${esc(v)}" ${cur === v ? 'selected' : ''}>${esc(label == null ? v : label)}</option>`;
+  /* แจ้งหน้าเกม (ถ้าฝังอยู่) ว่ารายการเด็คเปลี่ยน เพื่อให้หน้าเลือกเด็คอัปเดตทันที */
+  const notify = () => { try { if (window.parent && window.parent !== window) window.parent.postMessage({ afDecksChanged: 1 }, location.origin); } catch (e) { } };
   let toastT = 0;
   function toast(msg) {
     const t = $('dbt'); if (!t) return; t.textContent = msg; t.classList.add('on');
@@ -125,7 +127,7 @@
     <div id="dlist"></div>
     <div id="dedit" hidden>
     <div class="db-topbar"><button class="chip" data-a="back">← กลับไปรายการเด็ค</button><h1>Deckbuilder</h1></div>
-    <p class="db-sub">จัดเด็ค 60 ใบ (Avatar 1 + Main Deck 59) ชื่อซ้ำได้ไม่เกิน 4 ใบ และ Element Deck 8 ใบ — เสร็จแล้วกด <b>แชร์ / คัดลอกข้อความ</b> แล้วนำไปวางที่ <b>"นำเข้าจากข้อความ"</b> ใน AvastFallTCGsim</p>
+    <p class="db-sub">จัดเด็ค 60 ใบ (Avatar 1 + Main Deck 59) ชื่อซ้ำได้ไม่เกิน 4 ใบ และ Element Deck 8 ใบ — เสร็จแล้วกด <b>บันทึกเด็ค</b> เด็คจะไปอยู่ในหน้าเลือกเด็คของแท็บ Playtest ทันที (ส่งให้เพื่อนใช้ <b>แชร์ / คัดลอกข้อความ</b>)</p>
     <div class="db-wrap">
       <section class="db-pool">
         <input id="dq" class="search" type="search" placeholder="ค้นหาชื่อ / รหัส / เผ่า">
@@ -197,7 +199,7 @@
     $('dmini').innerHTML = mine.map(d => `<div class="db-m" title="${esc(d.name)}"><div class="db-img">${pic(d)}<span class="db-pill">${S.counts[d.id]}</span></div>
       <div class="db-step"><button data-a="sub" data-id="${esc(d.id)}" aria-label="ลด">−</button><button data-a="add" data-id="${esc(d.id)}" ${(nc[d.name] || 0) >= 4 ? 'disabled' : ''} aria-label="เพิ่ม">+</button></div></div>`).join('')
       || '<span class="db-muted">ยังไม่มีการ์ดในเด็ค คลิกการ์ดทางซ้ายเพื่อใส่ลงเด็ค</span>';
-    $('dbot').innerHTML = (errs.length ? `<div class="db-warn">${errs.map(esc).join('<br>')}</div>` : '<div class="good">✓ เด็คถูกต้อง พร้อมนำไปเล่นใน AvastFallTCGsim</div>') +
+    $('dbot').innerHTML = (errs.length ? `<div class="db-warn">${errs.map(esc).join('<br>')}</div>` : '<div class="good">✓ เด็คถูกต้อง พร้อมใช้เล่น กดบันทึกแล้วไปเลือกที่แท็บ Playtest</div>') +
       `<div class="db-acts"><button class="chip pri" data-a="share">📤 แชร์ / คัดลอกข้อความ</button><button class="chip" data-a="save">💾 บันทึกเด็ค</button><button class="chip" data-a="import">📥 นำเข้าจากข้อความ</button><button class="chip" data-a="clear">ล้างเด็ค</button></div>`;
     renderPool();
   }
@@ -211,7 +213,7 @@
     d = shareD = d || S; const text = toText(d), errs = validate(d);
     openOv(`<h2>แชร์เด็ค: ${esc(d.name)}</h2>
       ${errs.length ? `<div class="db-warn">เด็คนี้ยังไม่ถูกต้องตามกติกา (นำเข้าได้ แต่ต้องแก้ก่อนเล่น):<br>${errs.map(esc).join('<br>')}</div>` : ''}
-      <p class="db-muted">คัดลอกข้อความนี้ แล้วไปที่ AvastFallTCGsim → <b>เด็คของฉัน → นำเข้าจากข้อความ</b> แล้ววาง</p>
+      <p class="db-muted">คัดลอกข้อความนี้ส่งให้เพื่อน แล้วให้เพื่อนกด <b>นำเข้าจากข้อความ</b> ที่แท็บ Deckbuilder ของเขาแล้ววาง (เด็คที่บันทึกของคุณเองใช้เล่นในแท็บ Playtest ได้เลย ไม่ต้องคัดลอก)</p>
       <textarea id="dtxt" class="db-ta" readonly>${esc(text)}</textarea>
       <div class="db-acts"><button class="chip pri" data-a="copytxt">คัดลอกข้อความ</button><button class="chip" data-a="copylink">คัดลอกลิงก์แชร์</button><a class="chip pri" href="${esc(simLink(d))}" target="_blank" rel="noopener">▶ เปิดใน Playtest (นำเข้าอัตโนมัติ)</a><button class="chip" data-a="dl">ดาวน์โหลด .txt</button>
       <button class="chip" data-a="closeov">ปิด</button></div>
@@ -259,7 +261,7 @@
         <div class="db-acts"><button class="chip pri" data-a="edit" data-id="${esc(d.id)}">แก้ไข</button><button class="chip" data-a="lshare" data-id="${esc(d.id)}">แชร์ / คัดลอกข้อความ</button><button class="chip" data-a="dup" data-id="${esc(d.id)}">ทำสำเนา</button>
         <button class="chip ${sure ? 'danger' : ''}" data-a="del" data-id="${esc(d.id)}">${sure ? 'ยืนยันลบ' : 'ลบ'}</button></div></div></div>`;
     }).join('');
-    $('dlist').innerHTML = `<h1>Deckbuilder</h1><p class="db-sub">สร้างและเก็บเด็คของคุณ (เก็บในเบราว์เซอร์นี้) แล้วกด <b>แชร์ / คัดลอกข้อความ</b> เพื่อนำไปวางที่ <b>"นำเข้าจากข้อความ"</b> ใน AvastFallTCGsim</p>
+    $('dlist').innerHTML = `<h1>Deckbuilder</h1><p class="db-sub">ที่นี่คือที่เดียวสำหรับสร้างและแก้ไขเด็คทั้งหมด (เก็บในเบราว์เซอร์นี้) เด็คที่บันทึกแล้วจะไปให้เลือกในแท็บ Playtest เอง ส่งให้เพื่อนด้วย <b>แชร์ / คัดลอกข้อความ</b>sim</p>
       <div class="db-lgrid">${cards}<button class="db-deck db-add" data-a="create"><span>＋</span>สร้างเด็คใหม่</button></div>
       <div class="db-acts"><button class="chip" data-a="import">📥 นำเข้าจากข้อความ / ลิงก์</button></div>`;
   }
@@ -269,7 +271,8 @@
     const rec = { id, name: (S.name || '').trim() || DEFAULT_NAME, avatar: S.avatar, counts: JSON.parse(JSON.stringify(S.counts)), edeck: S.edeck ? Object.assign({}, S.edeck) : null, updated: Date.now() };
     const i = a.findIndex(x => x.id === id); if (i >= 0) a[i] = rec; else a.push(rec);
     S.id = id; S.name = rec.name; base = snap();
-    toast(lsSet(LS_DECKS, a) ? 'บันทึกเด็คแล้ว ✓ (เก็บในเบราว์เซอร์นี้)' : 'บันทึกลงเครื่องไม่ได้');
+    const okSave = lsSet(LS_DECKS, a); if (okSave) notify();
+    toast(okSave ? 'บันทึกเด็คแล้ว ✓ ใช้เลือกเล่นในแท็บ Playtest ได้เลย' : 'บันทึกลงเครื่องไม่ได้');
     renderSide();
   }
   function add(id, dlt) {
@@ -309,8 +312,8 @@
       case 'back': return backToList();
       case 'edit': return loadDeck(id);
       case 'lshare': { const d = loadSaved().find(x => x.id === id); if (d) shareModal(d); return; }
-      case 'dup': { const a = loadSaved(), d = a.find(x => x.id === id); if (!d) return; a.push(Object.assign(JSON.parse(JSON.stringify(d)), { id: 'd' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), name: d.name + ' (สำเนา)', updated: Date.now() })); lsSet(LS_DECKS, a); return renderList(); }
-      case 'del': { if (confirmDel !== id) { confirmDel = id; return renderList(); } lsSet(LS_DECKS, loadSaved().filter(x => x.id !== id)); confirmDel = null; toast('ลบเด็คแล้ว'); return renderList(); }
+      case 'dup': { const a = loadSaved(), d = a.find(x => x.id === id); if (!d) return; a.push(Object.assign(JSON.parse(JSON.stringify(d)), { id: 'd' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), name: d.name + ' (สำเนา)', updated: Date.now() })); lsSet(LS_DECKS, a); notify(); return renderList(); }
+      case 'del': { if (confirmDel !== id) { confirmDel = id; return renderList(); } lsSet(LS_DECKS, loadSaved().filter(x => x.id !== id)); notify(); confirmDel = null; toast('ลบเด็คแล้ว'); return renderList(); }
       case 'save': return saveDeck();
       case 'clear': if (Object.keys(S.counts).length && !confirm('ล้างการ์ดทั้งหมดในเด็คนี้?')) return; S.counts = {}; return renderSide();
       case 'avopen': return avatarModal();
@@ -343,8 +346,15 @@
     return false;
   }
 
+  /* รับเด็คจากหน้าเกม: { id } แก้เด็คที่บันทึกไว้ · { text, name } ใส่เป็นเด็คใหม่ที่ยังไม่บันทึก (เช่นคัดลอกเด็คตัวอย่างมาแก้) */
+  function openDeck(p) {
+    if (S.mode === 'edit' && dirty() && !confirm('มีการแก้ไขที่ยังไม่ได้บันทึก ทิ้งแล้วเปิดเด็คอื่น?')) return;
+    showView('deck'); closeOv();
+    if (p && p.id) { const d = loadSaved().find(x => x.id === p.id); if (d) return setDeck(d); toast('ไม่พบเด็คนี้ในที่เก็บ'); return setMode('list'); }
+    if (p && p.text) { const r = parseText(p.text); return setDeck({ id: null, name: p.name || r.name, avatar: r.avatar, counts: r.counts, edeck: r.edeck, fresh: true }); }
+  }
   window.DB = {
-    show: showView,
+    show: showView, openDeck, ready: () => inited,
     init() {
       if (inited) return; inited = true;
       buildDefs(); skeleton(); renderFilters();
@@ -352,6 +362,7 @@
       setMode('list');
       fromHash();
       addEventListener('hashchange', fromHash);
+      if (window.__afDeckQ) { const q = window.__afDeckQ; window.__afDeckQ = null; openDeck(q); }
     }
   };
 })();

@@ -25,7 +25,7 @@ function render(){
   /* เก็บโฟกัส/ตำแหน่งเคอร์เซอร์ของช่องกรอก (เช่นฟอร์มข้อเสนอแนะ) ไม่ให้หลุดเมื่อมีการ render ซ้ำ */
   const ae=document.activeElement;let fk=null;
   if(ae&&ae.dataset&&ae.dataset.fb){try{fk={k:ae.dataset.fb,s:ae.selectionStart,e:ae.selectionEnd}}catch(_){fk={k:ae.dataset.fb}}}
-  root.innerHTML=ui.screen==='setup'?(ui.page==='mydecks'?mydecksHTML():ui.page==='guide'?guideHTML():setupHTML()):gameHTML();
+  root.innerHTML=ui.screen==='setup'?(ui.page==='guide'?guideHTML():setupHTML()):gameHTML();
   document.querySelectorAll('[data-ks]').forEach(e=>{if(ks[e.dataset.ks]!=null)e.scrollTop=ks[e.dataset.ks]});
   document.documentElement.classList.toggle('fit',ui.screen==='game'&&ui.cover===null);
   if(fk){const el=document.querySelector('[data-fb="'+fk.k+'"]');if(el){el.focus();try{if(fk.s!=null)el.setSelectionRange(fk.s,fk.e)}catch(_){}}}

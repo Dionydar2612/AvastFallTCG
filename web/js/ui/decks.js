@@ -6,8 +6,26 @@ function loadCfg(){let c=defaultCfg();try{const s=JSON.parse(localStorage.getIte
   try{const q=new URLSearchParams(location.search).get('api');if(q&&/^https?:\/\//.test(q))c.api=q}catch(e){}
   return c}
 function saveCfg(){try{localStorage.setItem('af-playtest',JSON.stringify(ui.cfg))}catch(e){}}
-function loadMy(){try{const a=JSON.parse(localStorage.getItem('af-mydecks')||'[]');return Array.isArray(a)?a:[]}catch(e){return[]}}
-function saveMy(){try{localStorage.setItem('af-mydecks',JSON.stringify(ui.my))}catch(e){ui.toast='บันทึกลงเครื่องไม่ได้'}}
+/* เด็คของฉัน = เด็คที่บันทึกจากแท็บ Deckbuilder (localStorage คีย์ 'cl-decks' ร่วมกับ iframe ของ Deckbuilder เพราะอยู่โดเมนเดียวกัน)
+   ฝั่งเกมอ่านอย่างเดียว ไม่สร้าง/แก้/ลบเด็คเอง */
+const MY_KEY='cl-decks',LEGACY_MY_KEY='af-mydecks';
+function loadMy(){
+  let a=[];try{const x=JSON.parse(localStorage.getItem(MY_KEY)||'[]');if(Array.isArray(x))a=x}catch(e){}
+  /* ย้ายเด็คที่เคยสร้างในเกมรุ่นเก่า (af-mydecks) เข้าที่เก็บร่วม ครั้งเดียว */
+  try{const old=JSON.parse(localStorage.getItem(LEGACY_MY_KEY)||'null');
+    if(Array.isArray(old)&&old.length){const ids=new Set(a.map(d=>d.id));let ch=false;for(const d of old)if(d&&d.id&&!ids.has(d.id)){a.push(d);ch=true}
+      if(ch)localStorage.setItem(MY_KEY,JSON.stringify(a))}
+    if(old!==null)localStorage.removeItem(LEGACY_MY_KEY)}catch(e){}
+  return a.filter(d=>d&&d.id&&d.avatar&&d.counts);
+}
+/* โหลดเด็คจาก Deckbuilder ใหม่ (เรียกเมื่อกลับมาแท็บ Playtest หรือที่เก็บเปลี่ยน) */
+function refreshMy(){
+  const next=loadMy();if(JSON.stringify(next)===JSON.stringify(ui.my))return;
+  ui.my=next;
+  if(ui.screen==='setup'){fixSelections();saveCfg();render()}
+}
+addEventListener('storage',e=>{if(e.key===MY_KEY||e.key===null)refreshMy()});
+addEventListener('af-decks-sync',refreshMy);
 function presetDecks(){return DATA.series.map(s=>{const a=AF.autoDeck(s);return {key:'preset:'+s,name:DATA.raw.DECKS[s].name,series:s,avatar:a.avatar,counts:a.counts,edeck:null,preset:true}})}
 function allDecks(){return [...presetDecks(),...ui.my.map(d=>({key:'my:'+d.id,name:d.name,series:(AF.defs[d.avatar]||{}).deck||'',avatar:d.avatar,counts:d.counts,edeck:d.edeck,preset:false,id:d.id}))]}
 function deckByKey(k){return allDecks().find(d=>d.key===k)||null}

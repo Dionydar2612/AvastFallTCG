@@ -163,8 +163,10 @@ async function boot(){
 }
 addEventListener("DOMContentLoaded",boot);
 /* ฝังอยู่ในหน้าเกม: แถบเมนูบนสุดของหน้าหลักเป็นตัวสลับ Card List ↔ Deckbuilder */
-addEventListener("message",e=>{if(e.origin!==location.origin||!e.data||!e.data.afView)return;window.DB&&DB.show&&DB.show(e.data.afView==="deck"?"deck":"cards")});
+addEventListener("message",e=>{if(e.origin!==location.origin||!e.data)return;
+ if(e.data.afView)window.DB&&DB.show&&DB.show(e.data.afView==="deck"?"deck":"cards");
+ if(e.data.afDeck){if(window.DB&&DB.ready&&DB.ready())DB.openDeck(e.data.afDeck);else window.__afDeckQ=e.data.afDeck}});
 
 </script>
-<script src="/cards/deckbuilder.js?v=2"></script>
+<script src="/cards/deckbuilder.js?v=3"></script>
 </body></html>

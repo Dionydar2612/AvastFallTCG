@@ -83,40 +83,16 @@ function modalHTML(){
     return `<div class="ov"><div class="dlg"><h2>ดึงการ์ดจากเด็คขึ้นมือ</h2><p class="muted">เครื่องมือผู้ทดสอบ จะสับเด็คหลังดึง</p><div class="cgrid">${[...P.deck].sort((a,b)=>a.def.id.localeCompare(b.def.id)).map(c=>`<button class="pc" data-act="fetchc" data-id="${c.uid}"><div class="card ${cardArt(c.def.id)}" data-pop="${c.uid}"></div><small>${esc(c.def.name)}</small></button>`).join('')}</div>${close}</div></div>`;
   }
   if(m.t==='pile')return `<div class="ov"><div class="dlg narrow"><h2>Main Deck ของ ${esc(G.players[m.p].name)}</h2><p>เหลือ ${G.players[m.p].deck.length} ใบ</p>${close}</div></div>`;
-  if(m.t==='ded'&&ui.ed){
-    const e=ui.ed;
-    const all=Object.values(AF.defs);
-    const defs=all.filter(d=>d.kind!=='Avatar').sort((x,y)=>x.deck.localeCompare(y.deck)||x.no.localeCompare(y.no));
-    const decksF=[...new Set(all.map(d=>d.deck))];
-    const kinds=['Unit','Enchant','Counter','Equipment','Domain','Ultimate'];
-    const els=[...new Set(all.map(d=>d.el).filter(Boolean))];
-    const nameCount={};for(const [id,n] of Object.entries(e.counts)){const nm=AF.defs[id]?AF.defs[id].name:id;nameCount[nm]=(nameCount[nm]||0)+n}
-    const q=e.q.trim().toLowerCase();
-    const sel=(k,v,opts,all0)=>`<select data-chg="edf" data-k="${k}"><option value="">${all0}</option>${opts.map(o=>`<option value="${esc(o)}" ${v===o?'selected':''}>${esc(o)}</option>`).join('')}</select>`;
-    const tiles=defs.filter(d=>(!e.fd||d.deck===e.fd)&&(!e.ft||d.kind===e.ft)&&(!e.fe||d.el===e.fe)&&(!e.fin||(e.counts[d.id]||0)>0)).map(d=>{
-      const n=e.counts[d.id]||0;const hay=(d.name+' '+d.id+' '+d.tribe).toLowerCase();const hid=q&&!hay.includes(q);
-      const full=(nameCount[d.name]||0)>=4;
-      return `<div class="pt ${n?'in':''}" ${hid?'hidden':''} data-q="${esc(hay)}"><div class="card ${cardArt(d.id)}" data-pdef="${esc(d.id)}">${n?`<span class="cnt">${n}</span>`:''}</div><small class="nm">${esc(d.name)}</small><small class="mt">${esc(d.id)} · ${esc(d.kind)}${d.kind==='Unit'?' · Cost '+d.cost:d.noCost?'':' · Spend '+d.cost}</small>${d.isNew?'<small class="tg new">ใหม่</small>':''}${d.unscripted?'<small class="tg warn" title="ยังไม่มีสคริปต์เอฟเฟกต์">⚠ ไม่มีสคริปต์</small>':d.stale?'<small class="tg warn" title="ข้อความต่างจากที่สคริปต์เขียนไว้">⚠ ข้อความเปลี่ยน</small>':''}<div class="step"><button data-act="edc" data-id="${esc(d.id)}" data-d="-1" aria-label="ลด">−</button><b>${n}</b><button data-act="edc" data-id="${esc(d.id)}" data-d="1" ${full?'disabled':''} aria-label="เพิ่ม">+</button></div></div>`}).join('')||'<span class="muted">ไม่พบการ์ดตามตัวกรอง</span>';
-    const tot=AF.deckSize({counts:e.counts});const errs=edErrors(e);
-    const byKind={};for(const [id,n] of Object.entries(e.counts)){const k=AF.defs[id]?AF.defs[id].kind:'?';byKind[k]=(byKind[k]||0)+n}
-    const ed=edEdeck(e);const edTot=Object.values(ed).reduce((a,b)=>a+b,0);
-    const ELS=Object.keys(ELEMENTS);
-    const list=Object.keys(e.counts).filter(id=>e.counts[id]>0).sort((x,y)=>x.localeCompare(y)).map(id=>{const d=AF.defs[id];return `<div class="li"><span class="nm" data-pdef="${esc(id)}">${esc(d?d.name:id)}</span><span class="muted">${esc(id)}</span><div class="step"><button data-act="edc" data-id="${esc(id)}" data-d="-1">−</button><b>${e.counts[id]}</b><button data-act="edc" data-id="${esc(id)}" data-d="1" ${(nameCount[d?d.name:id]||0)>=4?'disabled':''}>+</button></div></div>`}).join('')||'<span class="muted">ยังไม่มีการ์ดในเด็ค</span>';
-    const avs=all.filter(d=>d.kind==='Avatar');
-    return `<div class="ov"><div class="dlg wide"><div class="edpool"><h2>${e.id?'แก้ไขเด็ค':'สร้างเด็คของฉัน'}</h2>
-      <div class="fbar"><input id="edq" type="search" placeholder="ค้นหาชื่อ / รหัส / เผ่า" value="${esc(e.q)}" aria-label="ค้นหา">${sel('fd',e.fd,decksF,'ทุกเด็ค')}${sel('ft',e.ft,kinds,'ทุกประเภท')}${sel('fe',e.fe,els,'ทุกธาตุ')}<label class="chk"><input type="checkbox" data-chg="edf" data-k="fin" ${e.fin?'checked':''}> เฉพาะที่อยู่ในเด็ค</label></div>
-      <div class="pgrid" data-ks="pool">${tiles}</div></div>
-      <aside class="edside" data-ks="side"><label class="fl">ชื่อเด็ค<input id="edname" type="text" maxlength="40" value="${esc(e.name)}"></label>
-      <label class="fl">เริ่มจากเด็ค<select data-chg="edfrom"><option value="">เลือกเพื่อคัดลอกการ์ดมาใส่…</option>${presetDecks().map(d=>`<option value="preset:${esc(d.series)}">${esc(d.name)}</option>`).join('')}${ui.my.filter(d=>d.id!==e.id).map(d=>`<option value="my:${esc(d.id)}">${esc(d.name)} (ของฉัน)</option>`).join('')}</select></label>
-      <div class="fl">Avatar<div class="avrow">${avs.map(d=>`<button class="avp ${e.avatar===d.id?'on':''}" data-act="edav" data-id="${esc(d.id)}" title="${esc(d.name)}"><div class="card ${cardArt(d.id)}"></div><small>${esc(d.name)}</small></button>`).join('')}</div></div>
-      <div class="sum"><b>${tot}</b>/60 ใบ ${tot===60?'<span class="good">ครบ</span>':`<span class="bad">${tot<60?'ขาด '+(60-tot):'เกิน '+(tot-60)} ใบ</span>`}<div class="muted">${Object.entries(byKind).map(([k,n])=>k+' '+n).join(' · ')||'—'}</div></div>
-      <div class="fl"><span>Element Deck <b>${edTot}</b>/8 ${edTot===8?'<span class="good">ครบ</span>':''}</span><div class="elst">${ELS.map(k=>`<div class="step">${elIcon(k,16)}<span>${esc(k)}</span><button data-act="ede" data-k="${esc(k)}" data-d="-1">−</button><b>${ed[k]||0}</b><button data-act="ede" data-k="${esc(k)}" data-d="1">+</button></div>`).join('')}</div><button class="btn sm" data-act="edeauto">ตามธาตุ Avatar (8 ใบ)</button></div>
-      ${errs.length?`<div class="warnbox">${errs.map(esc).join('<br>')}</div>`:'<div class="good">✓ เด็คถูกต้อง</div>'}
-      <div class="fl">การ์ดในเด็ค<div class="dlist">${list}</div></div>
-      <div class="acts"><button class="btn" data-act="edcancel">ยกเลิก</button><button class="btn pri" data-act="edsave">บันทึกเด็ค</button></div></aside></div></div>`;
+  if(m.t==='pickdeck'){
+    const i=+m.p,cur=ui.cfg.sel[i],all=allDecks();
+    const grp=(t,a)=>a.length?`<h3>${t}</h3><div class="decks">${a.map(d=>deckTile(d,i,d.key===cur)).join('')}</div>`:'';
+    const mine=all.filter(d=>!d.preset);
+    return `<div class="ov"><div class="dlg"><h2>เปลี่ยนเด็ค${m.title?' · '+esc(m.title):''}</h2>
+      <p class="muted">เลือกเด็คที่ต้องการใช้ เด็คของฉันมาจากแท็บ Deckbuilder (สร้างและแก้ไขที่นั่นที่เดียว)</p>
+      ${grp('เด็คของฉัน (จาก Deckbuilder)',mine)}${mine.length?'':'<div class="note">ยังไม่มีเด็คของคุณ กด "สร้างเด็คที่ Deckbuilder" เพื่อสร้าง แล้วกลับมาเลือกที่นี่</div>'}
+      ${grp('เด็คตัวอย่าง',all.filter(d=>d.preset))}
+      <div class="acts"><button class="btn pri" data-act="closemodal" data-go="deck">＋ สร้างเด็คที่ Deckbuilder</button><button class="btn" data-act="closemodal">ปิด</button></div></div></div>`;
   }
-  if(m.t==='dtext')return `<div class="ov"><div class="dlg narrow"><h2>ข้อความเด็ค: ${esc(m.name)}</h2><p class="muted">คัดลอกแล้วส่งให้เพื่อน หรือเก็บไว้ ใช้ "นำเข้าจากข้อความ" เพื่อนำกลับมา</p><textarea id="dtxt" class="ta" readonly>${esc(m.text)}</textarea><div class="acts"><button class="btn" data-act="copytxt">คัดลอก</button><button class="btn" data-act="closemodal">ปิด</button></div></div></div>`;
-  if(m.t==='dimport')return `<div class="ov"><div class="dlg narrow"><h2>นำเข้าเด็คจากข้อความ</h2><p class="muted">บรรทัดแรก # ชื่อเด็ค · Avatar รหัส · Element ธาตุ จำนวน · แล้วตามด้วย "รหัสการ์ด x จำนวน" บรรทัดละใบ (ใช้ชื่อการ์ดแทนรหัสก็ได้)</p><textarea id="imptxt" class="ta" placeholder="# เด็คของฉัน&#10;Avatar SD01-001&#10;Element ทอง 8&#10;SD01-002 x3">${esc(m.text||'')}</textarea>${m.warns&&m.warns.length?`<div class="warnbox">${m.warns.map(esc).join('<br>')}</div>`:''}<div class="acts"><button class="btn pri" data-act="doimport">นำเข้า</button><button class="btn" data-act="closemodal">ปิด</button></div></div></div>`;
   if(m.t==='data'){
     const st=DATA.status,iss=DATA.issues();
     const stTxt=st.state==='loading'?'กำลังโหลด…':st.state==='live'?'เชื่อมต่อ card-api สำเร็จ':st.state==='cache'?'ใช้การ์ดที่บันทึกไว้ในเบราว์เซอร์':'ใช้การ์ดที่ฝังมากับหน้านี้';

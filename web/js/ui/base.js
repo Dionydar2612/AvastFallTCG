@@ -11,4 +11,4 @@ const elIcons=(d,s=13)=>((d&&d.els)||[]).map(k=>elIcon(k,s)).join('');
 const elIcon=(n,s=20)=>{const e=ELEMENTS[n];return e?`<svg width="${s}" height="${s}" viewBox="0 0 18 18"><path d="${e.p}" fill="${e.c}"/></svg>`:''};
 
 /* ------------------------------------------------------------------ state */
-const ui={fb:{cat:'suggest',text:'',name:'',contact:'',busy:false,msg:'',ok:false},screen:'setup',cfg:null,G:null,token:0,pending:null,viewer:0,inspect:null,sel:null,menu:null,modal:null,tab:'card',cover:null,seen:0,toast:'',peek:false,edit:null,over:null,err:'',fresh:[],page:'play',my:[],ed:null,confirmDel:null};
+const ui={fb:{cat:'suggest',text:'',name:'',contact:'',busy:false,msg:'',ok:false},screen:'setup',cfg:null,G:null,token:0,pending:null,viewer:0,inspect:null,sel:null,menu:null,modal:null,tab:'card',cover:null,seen:0,toast:'',peek:false,edit:null,over:null,err:'',fresh:[],page:'play',my:[]};

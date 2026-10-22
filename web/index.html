@@ -7,7 +7,6 @@
 <meta name="description" content="เปิดให้ทดลองเล่น AvastFall TCG (Open Test) เล่นกับบอทหรือเล่นกับเพื่อนได้ทันที ไม่ต้องสมัคร">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mali:wght@400;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap">
 <link rel="stylesheet" href="css/style.css">
-<link rel="stylesheet" href="css/deckbuilder.css"><!-- หน้าสร้างเด็ค -->
 <link rel="stylesheet" href="css/site.css"><!-- แถบเมนูเดียว Playtest · Card List · Deckbuilder -->
 <link rel="stylesheet" href="css/theme.css"><!-- ธีมรวมให้เหมือนหน้า Card List (ต้องโหลดหลังสุด) -->
 <style id="imgcss"></style><!-- CSS รูปการ์ด สร้างจาก URL ของ card-api (js/ui/data-sync.js) -->
@@ -15,6 +14,10 @@
 <body>
 <header class="site-bar" id="siteBar">
   <a class="site-brand" href="/" data-go="play" aria-label="AvastFall TCG"><i>A</i><span>AvastFall TCG</span><em>OPEN TEST</em></a>
+  <div class="site-tools" id="siteTools" aria-label="ทางลัด">
+    <button type="button" class="site-tool" data-hdr="guide" id="hdrGuide">วิธีเล่น</button>
+    <button type="button" class="site-tool" data-hdr="notes" id="hdrNotes" aria-label="Update Note"><svg class="bell" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg><span>Update Note</span><i class="dot" id="hdrNotesDot" hidden></i></button>
+  </div>
   <div class="site-sw" id="siteSw" role="tablist" aria-label="เมนูเว็บ" data-tab="play">
     <span class="pill" aria-hidden="true"></span>
     <button role="tab" data-tab="play" aria-selected="true" aria-controls="panePlay" id="tabPlay">Playtest</button>
@@ -61,8 +64,7 @@
 <script src="js/ui/game.js"></script>
 <script src="js/ui/modals.js"></script>
 <script src="js/ui/events.js"></script>
-<script src="js/ui/deckbuilder.js"></script><!-- หน้าสร้างเด็ค (ต้องอยู่หลัง events.js ก่อน main.js) -->
 <script src="js/ui/main.js"></script>
-<script src="js/site.js"></script><!-- แท็บเลื่อน ต้องโหลดหลังสุด -->
+<script src="js/site.js?v=2"></script><!-- แท็บเลื่อน ต้องโหลดหลังสุด -->
 </body>
 </html>

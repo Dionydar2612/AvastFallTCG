@@ -20,10 +20,23 @@
 .site-pane{width:50%;flex:none;min-width:0}
 .site-pane.off{height:0;overflow:hidden;visibility:hidden}
 #cardsFrame{display:block;width:100%;height:calc(100vh - var(--bar-h,56px));height:calc(100dvh - var(--bar-h,56px));border:0;background:var(--paper)}
+/* ทางลัดบนแถบเมนู: วิธีเล่น · กระดิ่ง Update Note */
+.site-tools{display:flex;align-items:center;gap:8px;margin-left:auto}
+.site-tool{position:relative;display:inline-flex;align-items:center;gap:6px;border:2px solid var(--line);border-radius:99px;background:var(--panel);color:var(--ink);padding:4px 14px;font:700 14px/1.2 inherit;font-family:inherit;cursor:pointer;white-space:nowrap}
+.site-tool:hover{background:var(--gold);color:#111}
+.site-tool:focus-visible{outline:3px solid var(--teal);outline-offset:2px}
+.site-tool .dot{position:absolute;top:-4px;right:-3px;width:11px;height:11px;border-radius:50%;background:var(--coral,#e5484d);border:2px solid var(--paper)}
+.site-tool .bell{flex:none}
+.site-tool:hover .bell,.site-tool:focus-visible .bell{animation:bellring .6s ease-in-out}
+@keyframes bellring{0%,100%{transform:rotate(0)}20%{transform:rotate(16deg)}40%{transform:rotate(-14deg)}60%{transform:rotate(9deg)}80%{transform:rotate(-5deg)}}
+.curdeck .dk{max-width:230px}
+@media (prefers-reduced-motion:reduce){.site-tool:hover .bell{animation:none}}
 @media (max-width:560px){
-  .site-bar{padding-block:8px;gap:8px}
+  .site-bar{padding-block:8px;gap:8px;flex-wrap:wrap}
   .site-brand span,.site-brand em{display:none}
-  .site-sw{flex:1;grid-template-columns:repeat(3,1fr)}
+  .site-tools{order:1;flex:1;justify-content:flex-end}
+  .site-tool{padding:3px 12px;font-size:13px}
+  .site-sw{order:2;flex:1 1 100%;grid-template-columns:repeat(3,1fr)}
   .site-sw button{padding:6px 4px;font-size:13.5px}
 }
 @media (prefers-reduced-motion:reduce){.site-sw .pill,.site-track{transition:none}}

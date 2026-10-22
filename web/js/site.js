@@ -20,7 +20,19 @@
   fit(); addEventListener('resize', fit);
 
   const tell = v => { try { frame.contentWindow.postMessage({ afView: v }, location.origin); } catch (e) { } };
-  frame.addEventListener('load', () => { ready = true; tell(cur === 'deck' ? 'deck' : 'cards'); });
+  let pendingDeck = null;
+  const sendDeck = () => { if (pendingDeck && ready) { try { frame.contentWindow.postMessage({ afDeck: pendingDeck }, location.origin); pendingDeck = null; } catch (e) { } } };
+  frame.addEventListener('load', () => { ready = true; tell(cur === 'deck' ? 'deck' : 'cards'); sendDeck(); });
+  /* Deckbuilder (iframe) แจ้งว่าบันทึก/ลบเด็คแล้ว → ให้ฝั่งเกมโหลดรายการเด็คใหม่ */
+  addEventListener('message', e => { if (e.origin === location.origin && e.data && e.data.afDecksChanged) window.dispatchEvent(new Event('af-decks-sync')); });
+  /* เปิด Deckbuilder พร้อมเด็คที่ระบุ: { id } = แก้เด็คที่บันทึกไว้ · { text, name } = ใส่เด็ค (เช่นเด็คตัวอย่าง) เป็นเด็คใหม่ */
+  function openDeck(p) { pendingDeck = p; go('deck', { force: true }); sendDeck(); }
+  /* ปุ่มบนแถบเมนู: วิธีเล่น · Update Note */
+  document.addEventListener('click', e => {
+    const b = e.target.closest && e.target.closest('[data-hdr]'); if (!b) return;
+    e.preventDefault(); go('play');
+    if (window.AFApp && AFApp[b.dataset.hdr]) AFApp[b.dataset.hdr]();
+  });
 
   function go(tab, opts) {
     if (!TITLE[tab]) return;
@@ -41,7 +53,7 @@
     if (reduce || opts.instant) done(); else timer = setTimeout(done, 400);
     try { history.replaceState(null, '', tab === 'cards' ? '#cards' : tab === 'deck' ? '#deckbuilder' : location.pathname + location.search); } catch (e) { }
     document.title = TITLE[tab];
-    if (tab === 'play') window.dispatchEvent(new Event('resize'));
+    if (tab === 'play') { window.dispatchEvent(new Event('resize')); window.dispatchEvent(new Event('af-decks-sync')); }   // กลับมาเล่น: โหลดเด็คที่เพิ่งบันทึกใน Deckbuilder
   }
 
   btns.forEach(b => b.addEventListener('click', () => go(b.dataset.tab)));
@@ -66,5 +78,5 @@
 
   panes.cards.classList.add('off');
   if (/^#(cards|deckbuilder|deck=)/.test(location.hash)) { cur = 'play'; fromHash(true); }
-  window.AFSite = { go, get tab() { return cur; } };
+  window.AFSite = { go, openDeck, get tab() { return cur; } };
 })();
