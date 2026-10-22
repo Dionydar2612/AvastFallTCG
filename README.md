@@ -11,7 +11,7 @@
 | `/recommece?key=...` | อ่านข้อเสนอแนะจากผู้เล่น (`/recommend` ใช้ได้เหมือนกัน) | `lib/playtest.js` |
 | `/api/feedback`, `/api/room/*` | รับข้อเสนอแนะ / ห้องออนไลน์ (SSE) | `lib/playtest.js` |
 
-**แถบเมนูเดียว:** หน้าแรกมีแถบบนสุดเดียว Playtest / Card List / Deckbuilder (`web/js/site.js`, `web/css/site.css`) Card List กับ Deckbuilder โหลดใน iframe `/cards/?embed=1` ตอนกดครั้งแรก (ตัดเมนูของตัวเองทิ้งเมื่อฝังอยู่) สลับแล้วเกมที่ค้างอยู่ไม่หาย · เปิดตรงด้วย `/#cards`, `/#deckbuilder` · `/cards/` ยังเปิดแบบหน้าเดี่ยวได้ · ธีมของเกมให้ตรงกับ Card List อยู่ที่ตัวแปรสีใน `web/css/style.css` (`:root`) และ `web/css/theme.css`
+**แท็บเลื่อน:** หน้าแรกมีแท็บ 🎮 Playtest / 📚 Card List ด้านบน (`web/js/site.js`, `web/css/site.css`) Card List โหลดใน iframe `/cards/?embed=1` ตอนกดครั้งแรก สลับแล้วเกมที่ค้างอยู่ไม่หาย · เปิดตรงที่แท็บ Card List ด้วย `/#cards` · `/cards/` ยังเปิดแบบหน้าเดี่ยวได้
 
 เกมดึงการ์ดและรูปจาก `/api` บนเซิร์ฟเวอร์เดียวกันโดยอัตโนมัติ (ไม่ต้องตั้งที่อยู่ card-api อีก) แก้การ์ดผ่าน `/admin` แล้วเกมเห็นทันทีที่โหลดหน้าใหม่
 

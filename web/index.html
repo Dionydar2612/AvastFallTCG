@@ -8,18 +8,15 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mali:wght@400;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap">
 <link rel="stylesheet" href="css/style.css">
 <link rel="stylesheet" href="css/deckbuilder.css"><!-- หน้าสร้างเด็ค -->
-<link rel="stylesheet" href="css/site.css"><!-- แถบเมนูเดียว Playtest · Card List · Deckbuilder -->
-<link rel="stylesheet" href="css/theme.css"><!-- ธีมรวมให้เหมือนหน้า Card List (ต้องโหลดหลังสุด) -->
+<link rel="stylesheet" href="css/site.css"><!-- แท็บเลื่อน Playtest ↔ Card List -->
 <style id="imgcss"></style><!-- CSS รูปการ์ด สร้างจาก URL ของ card-api (js/ui/data-sync.js) -->
 </head>
 <body>
 <header class="site-bar" id="siteBar">
-  <a class="site-brand" href="/" data-go="play" aria-label="AvastFall TCG"><i>A</i><span>AvastFall TCG</span><em>OPEN TEST</em></a>
   <div class="site-sw" id="siteSw" role="tablist" aria-label="เมนูเว็บ" data-tab="play">
     <span class="pill" aria-hidden="true"></span>
-    <button role="tab" data-tab="play" aria-selected="true" aria-controls="panePlay" id="tabPlay">Playtest</button>
-    <button role="tab" data-tab="cards" aria-selected="false" aria-controls="paneCards" id="tabCards" tabindex="-1">Card List</button>
-    <button role="tab" data-tab="deck" aria-selected="false" aria-controls="paneCards" id="tabDeck" tabindex="-1">Deckbuilder</button>
+    <button role="tab" data-tab="play" aria-selected="true" aria-controls="panePlay" id="tabPlay">🎮 Playtest</button>
+    <button role="tab" data-tab="cards" aria-selected="false" aria-controls="paneCards" id="tabCards" tabindex="-1">📚 Card List</button>
   </div>
 </header>
 <div class="site-view" id="siteView" data-tab="play"><div class="site-track">

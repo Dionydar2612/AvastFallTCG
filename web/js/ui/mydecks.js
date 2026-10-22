@@ -10,7 +10,7 @@ function mydecksHTML(){
       <button class="btn sm" data-act="mdedit" data-id="${d.id}">แก้ไข</button><button class="btn sm" data-act="mddup" data-id="${d.id}">ทำสำเนา</button><button class="btn sm" data-act="mdtext" data-id="${d.id}">คัดลอกเป็นข้อความ</button>
       <button class="btn sm ${sure?'danger':''}" data-act="mddel" data-id="${d.id}">${sure?'ยืนยันลบ':'ลบ'}</button></div></div>`}).join('');
   return `${navHTML()}
-  <div class="hero"><h1>เด็คของฉัน</h1><p class="muted">สร้างเด็คจากการ์ดทั้งหมดใน card-api เด็ค 60 ใบ (รวม Avatar) ชื่อซ้ำได้ไม่เกิน 4 ใบ และ Element Deck 8 ใบ แบ่งธาตุเองได้ เด็คเก็บไว้ในเบราว์เซอร์นี้ (ส่งต่อให้เพื่อนด้วยข้อความได้)</p></div>
+  <div class="hero"><h1>Deckbuilder</h1><p class="muted">สร้างและจัดการเด็คทั้งหมดจากหน้านี้เท่านั้น โดยเด็คที่บันทึกจะใช้ร่วมกับหน้าเลือกเด็คใน Playtest เด็ค 60 ใบ (รวม Avatar) ชื่อซ้ำได้ไม่เกิน 4 ใบ และ Element Deck 8 ใบ แบ่งธาตุเองได้ เด็คเก็บไว้ในเบราว์เซอร์นี้ (ส่งต่อให้เพื่อนด้วยข้อความได้)</p></div>
   <div class="go" style="margin-top:0"><button class="btn pri" data-act="newdeck" data-p="-1">＋ สร้างเด็คใหม่</button><button class="btn" data-act="mdimport">นำเข้าจากข้อความ</button></div>
   <div class="mdlist">${rows||'<p class="muted">ยังไม่มีเด็คของคุณ กด "สร้างเด็คใหม่" หรือเริ่มจากเด็คตัวอย่างโดยกด "คัดลอกไปแก้เป็นเด็คของฉัน" ในหน้า "เล่น"</p>'}</div>
   ${ui.modal?modalHTML():''}`;

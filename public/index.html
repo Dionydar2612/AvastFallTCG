@@ -4,7 +4,7 @@
 <title>การ์ดทั้งหมด – Card Battle</title>
 <link href="https://fonts.googleapis.com/css2?family=Mali:wght@400;600;700&display=swap" rel="stylesheet">
 <script>if(/[?&]embed=1/.test(location.search))document.documentElement.classList.add("embed")</script>
-<style>.embed .sitetabs{display:none}.embed main{padding-top:16px}</style>
+<style>.embed .sitetabs a[href="/"]{display:none}</style>
 <style>
 .sitetabs{display:inline-flex;border:3px solid var(--ink);border-radius:14px;overflow:hidden;background:var(--card);box-shadow:3px 3px 0 var(--ink);margin:0 0 16px}.sitetabs a{padding:6px 18px;font-weight:700;color:var(--ink);text-decoration:none;white-space:nowrap}.sitetabs a.on{background:var(--ink);color:var(--bg)}.sitetabs a+a{border-left:3px solid var(--ink)}
 :root{--bg:#fbfbf7;--ink:#111;--card:#fff;--line:#bfe3ea;--gold:#ffc20e;--mut:#666;--pap:#fff8ec;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -93,7 +93,7 @@ h3{color:var(--mut);margin:10px 0 6px}
 .chip.danger{background:#c0121f;color:#fff;border-color:#c0121f}
 @media(max-width:900px){.db-wrap{grid-template-columns:1fr}.db-side{position:static;max-height:none}}
 .noimg{aspect-ratio:170/241;display:flex;align-items:center;justify-content:center;text-align:center;padding:8px;border:2px solid var(--ink);border-radius:10px;background:var(--pap)}.meta{margin-top:14px;padding-top:10px;border-top:1px dashed var(--mut);font-size:.85rem;color:var(--mut)}</style></head><body><main>
-<nav class="sitetabs" aria-label="เมนูเว็บ"><a class="on" href="/cards/" data-v="cards" aria-current="page">Card List</a><a href="#deckbuilder" data-v="deck">Deckbuilder</a><a href="/" target="_blank" rel="noopener">Playtest ↗</a></nav>
+<nav class="sitetabs" aria-label="เมนูเว็บ"><a class="on" href="/cards/" data-v="cards" aria-current="page">Card List</a><a href="#deckbuilder" data-v="deck">Deckbuilder</a><a href="/">Playtest</a></nav>
 <div id="v-cards">
 <h1>การ์ดทั้งหมด</h1>
 <p style="margin:-4px 0 12px"><a href="/api/docs" target="_blank" rel="noopener" style="color:var(--ink)">📘 API สำหรับนักพัฒนา</a></p>
@@ -162,8 +162,6 @@ async function boot(){
  }catch(err){document.getElementById("cnt").textContent="โหลดข้อมูลจาก API ไม่สำเร็จ: "+err.message}
 }
 addEventListener("DOMContentLoaded",boot);
-/* ฝังอยู่ในหน้าเกม: แถบเมนูบนสุดของหน้าหลักเป็นตัวสลับ Card List ↔ Deckbuilder */
-addEventListener("message",e=>{if(e.origin!==location.origin||!e.data||!e.data.afView)return;window.DB&&DB.show&&DB.show(e.data.afView==="deck"?"deck":"cards")});
 
 </script>
 <script src="/cards/deckbuilder.js?v=2"></script>

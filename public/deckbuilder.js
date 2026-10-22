@@ -7,7 +7,7 @@
   'use strict';
   const $ = id => document.getElementById(id);
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
-  const LS_DECKS = 'cl-decks';
+  const LS_DECKS = 'af-mydecks';
   const TABS = [['Unit', 'Unit'], ['Spell', 'Spell'], ['Ultimate', 'Ultimate'], ['ALL', 'ALL']];
   const KORD = { Unit: 0, Enchant: 1, Counter: 2, Equipment: 3, Domain: 4, Ultimate: 5 };
   const KINDS = ['Unit', 'Enchant', 'Counter', 'Equipment', 'Domain', 'Ultimate'];
@@ -259,7 +259,7 @@
         <div class="db-acts"><button class="chip pri" data-a="edit" data-id="${esc(d.id)}">แก้ไข</button><button class="chip" data-a="lshare" data-id="${esc(d.id)}">แชร์ / คัดลอกข้อความ</button><button class="chip" data-a="dup" data-id="${esc(d.id)}">ทำสำเนา</button>
         <button class="chip ${sure ? 'danger' : ''}" data-a="del" data-id="${esc(d.id)}">${sure ? 'ยืนยันลบ' : 'ลบ'}</button></div></div></div>`;
     }).join('');
-    $('dlist').innerHTML = `<h1>Deckbuilder</h1><p class="db-sub">สร้างและเก็บเด็คของคุณ (เก็บในเบราว์เซอร์นี้) แล้วกด <b>แชร์ / คัดลอกข้อความ</b> เพื่อนำไปวางที่ <b>"นำเข้าจากข้อความ"</b> ใน AvastFallTCGsim</p>
+    $('dlist').innerHTML = `<h1>Deckbuilder</h1><p class="db-sub">สร้างและเก็บเด็คของคุณ (เก็บร่วมกับ Playtest ในเบราว์เซอร์นี้) แล้วกด <b>แชร์ / คัดลอกข้อความ</b> เพื่อนำไปวางที่ <b>"นำเข้าจากข้อความ"</b> ใน AvastFallTCGsim</p>
       <div class="db-lgrid">${cards}<button class="db-deck db-add" data-a="create"><span>＋</span>สร้างเด็คใหม่</button></div>
       <div class="db-acts"><button class="chip" data-a="import">📥 นำเข้าจากข้อความ / ลิงก์</button></div>`;
   }
@@ -269,7 +269,7 @@
     const rec = { id, name: (S.name || '').trim() || DEFAULT_NAME, avatar: S.avatar, counts: JSON.parse(JSON.stringify(S.counts)), edeck: S.edeck ? Object.assign({}, S.edeck) : null, updated: Date.now() };
     const i = a.findIndex(x => x.id === id); if (i >= 0) a[i] = rec; else a.push(rec);
     S.id = id; S.name = rec.name; base = snap();
-    toast(lsSet(LS_DECKS, a) ? 'บันทึกเด็คแล้ว ✓ (เก็บในเบราว์เซอร์นี้)' : 'บันทึกลงเครื่องไม่ได้');
+    toast(lsSet(LS_DECKS, a) ? 'บันทึกเด็คแล้ว ✓ (เก็บร่วมกับ Playtest ในเบราว์เซอร์นี้)' : 'บันทึกลงเครื่องไม่ได้');
     renderSide();
   }
   function add(id, dlt) {
@@ -344,7 +344,6 @@
   }
 
   window.DB = {
-    show: showView,
     init() {
       if (inited) return; inited = true;
       buildDefs(); skeleton(); renderFilters();
