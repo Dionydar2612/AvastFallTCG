@@ -13,6 +13,3 @@
 .site-pane.off{height:0;overflow:hidden;visibility:hidden}
 #cardsFrame{display:block;width:100%;height:calc(100vh - var(--bar-h,56px));height:calc(100dvh - var(--bar-h,56px));border:0;background:var(--paper)}
 @media (prefers-reduced-motion:reduce){.site-sw .pill,.site-track{transition:none}}
-
-/* Shared top navigation */
-.site-tabs{display:inline-flex;gap:0;border:3px solid var(--ink);border-radius:999px;overflow:hidden;background:var(--panel);padding:0;margin:0}.site-tabs button{border:0!important;border-radius:0!important;padding:7px 18px!important;white-space:nowrap}.site-tabs button+button{border-left:2px solid var(--ink)!important}.site-tabs button.on{background:var(--ink);color:var(--bg)}.note-bell{position:relative}.note-bell span{font-size:1.1em;margin-left:4px}.note-bell .bell-dot{position:absolute;right:7px;top:4px;width:7px;height:7px;border-radius:50%;background:#e33;display:block}@media(max-width:720px){.site-tabs button{padding:6px 9px!important;font-size:.82rem}.site-bar .chip{display:none}}

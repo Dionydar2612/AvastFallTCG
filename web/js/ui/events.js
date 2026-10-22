@@ -84,10 +84,7 @@ root.addEventListener('click',e=>{
 function handle(act,d,el,e){
   const G=ui.G;const pd=pdOf();
   switch(act){
-    case 'sel':ui.cfg.sel[+d.p]=d.k;ui.changeDeckFor=null;saveCfg();return render();
-    case 'changedeck':ui.changeDeckFor=ui.changeDeckFor===+d.p?null:+d.p;return render();
-    case 'cardspage':location.href='/cards/';return;
-    case 'deckbuilderpage':location.href='/cards/#deckbuilder';return;
+    case 'sel':ui.cfg.sel[+d.p]=d.k;saveCfg();return render();
     case 'page':ui.page=d.v;ui.modal=null;ui.confirmDel=null;return render();
     case 'data':ui.modal={t:'data'};return render();
     case 'apiapply':{const v=(document.getElementById('apiurl')||{}).value||'';if(/^https?:\/\//.test(v.trim()))ui.cfg.api=v.trim();DATA.setApi(ui.cfg.api);saveCfg();ui.modal=null;DATA.load();return render()}
