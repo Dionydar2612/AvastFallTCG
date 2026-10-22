@@ -157,7 +157,7 @@ function gameHTML(){
   const G=ui.G;const fresh=freshLog();const v=ui.viewer;
   if(ui.cover!==null)return `<div class="cover"><div style="display:grid;gap:14px;justify-items:center"><h1>ส่งอุปกรณ์ให้ ${esc(G.players[ui.cover].name)}</h1><p>ให้ผู้เล่นอีกฝั่งหันหน้าหนี แล้วกดเมื่อพร้อม</p><button class="btn" data-act="ready">พร้อมแล้ว</button></div></div>`;
   const opp=1-v;
-  return `<div class="top"><div class="brand"><i>A</i>AvastFall Playtest</div><span class="pill">เทิร์น ${G.turn}</span>${phaseBar()}<span class="spacer"></span><button class="btn sm" data-act="settings">⚙ ตั้งค่า</button><button class="btn sm" data-act="help">กติกา</button>${ui.cfg.mode==="online"?"":`<button class="btn sm" data-act="restart">เริ่มใหม่</button>`}<button class="btn sm" data-act="surrender">ยอมแพ้</button></div>
+  return `<div class="top"><span class="pill">เทิร์น ${G.turn}</span>${phaseBar()}<span class="spacer"></span><button class="btn sm" data-act="settings">⚙ ตั้งค่า</button><button class="btn sm" data-act="help">กติกา</button>${ui.cfg.mode==="online"?"":`<button class="btn sm" data-act="restart">เริ่มใหม่</button>`}<button class="btn sm" data-act="surrender">ยอมแพ้</button></div>
   <div class="game"><main style="min-width:0">${sideHTML(opp,true,fresh)}${chainHTML()}${barHTML()}${sideHTML(v,false,fresh)}${handHTML()}</main>${panelHTML()}</div>
   ${ui.menu?menuHTML():''}${ui.over?overHTML():''}${pendingModalHTML()}${ui.modal?modalHTML():''}${ui.settings?settingsHTML():''}`;
 }

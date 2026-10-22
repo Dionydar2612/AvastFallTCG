@@ -1,24 +1,25 @@
 /* Layout concept: a paper-and-ink playmat that follows the designer's own board sketch — two bordered halves,
    coral zone labels, a teal Action Zone band across the middle, card inspector + log in a side panel. */
 :root{
-  --paper:#f7f6f0; --panel:#ffffff; --ink:#173646; --ink2:#5a7280; --line:#173646; --soft:#d9e0dc;
-  --coral:#e4604a; --teal:#4fb8a8; --tealtint:rgba(79,184,168,.16); --gold:#f2b705;
-  --mat:#eef2ec; --good:#2e9d5c; --bad:#d4443a; --warn:#c98a00; --shade:rgba(23,54,70,.5);
-  --f-disp:'Mali','Noto Sans Thai',Tahoma,sans-serif; --f-body:'Noto Sans Thai','Mali',Tahoma,sans-serif;
+  /* ธีมเดียวกับหน้า Card List: กระดาษมีเส้นบรรทัด · หมึกดำ · ทอง · เส้นขอบหนา + เงาออฟเซ็ต */
+  --paper:#fbfbf7; --panel:#ffffff; --ink:#111111; --ink2:#666666; --line:#111111; --soft:#e6e4dc; --rule:#bfe3ea;
+  --coral:#c0121f; --teal:#1b6fd8; --tealtint:rgba(27,111,216,.10); --gold:#ffc20e;
+  --mat:#fff8ec; --good:#1a8a3a; --bad:#c0121f; --warn:#9a6700; --shade:rgba(0,0,0,.75);
+  --f-disp:'Mali','Noto Sans Thai',Tahoma,sans-serif; --f-body:'Mali','Noto Sans Thai',Tahoma,sans-serif;
   --cwb:clamp(50px,5.4vw,82px);
-  --r:12px;
+  --r:14px; --sh:4px 4px 0 var(--line);
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --paper:#11181c; --panel:#1a252b; --ink:#e8f0f2; --ink2:#9bb2bc; --line:#5f7a88; --soft:#2a3a42;
-  --coral:#f27d66; --teal:#63cbbb; --tealtint:rgba(99,203,187,.14); --gold:#f5c423;
-  --mat:#162026; --good:#52c180; --bad:#f06a60; --warn:#e8b030; --shade:rgba(0,0,0,.6); color-scheme:dark}}
+  --paper:#15171a; --panel:#22252a; --ink:#f2f2f2; --ink2:#aaaaaa; --line:#f2f2f2; --soft:#34383e; --rule:#2a3a40;
+  --coral:#ff6b6b; --teal:#5aa2ff; --tealtint:rgba(90,162,255,.14); --gold:#ffc20e;
+  --mat:#2d2a22; --good:#4cc16b; --bad:#ff6b6b; --warn:#e3b341; --shade:rgba(0,0,0,.8); color-scheme:dark}}
 :root[data-theme="dark"]{
-  --paper:#11181c; --panel:#1a252b; --ink:#e8f0f2; --ink2:#9bb2bc; --line:#5f7a88; --soft:#2a3a42;
-  --coral:#f27d66; --teal:#63cbbb; --tealtint:rgba(99,203,187,.14); --gold:#f5c423;
-  --mat:#162026; --good:#52c180; --bad:#f06a60; --warn:#e8b030; --shade:rgba(0,0,0,.6); color-scheme:dark}
+  --paper:#15171a; --panel:#22252a; --ink:#f2f2f2; --ink2:#aaaaaa; --line:#f2f2f2; --soft:#34383e; --rule:#2a3a40;
+  --coral:#ff6b6b; --teal:#5aa2ff; --tealtint:rgba(90,162,255,.14); --gold:#ffc20e;
+  --mat:#2d2a22; --good:#4cc16b; --bad:#ff6b6b; --warn:#e3b341; --shade:rgba(0,0,0,.8); color-scheme:dark}
 *{box-sizing:border-box}
 html,body{height:auto}
-body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:14px;line-height:1.5;padding-inline:16px;padding-block:12px 40px}
+body{background:var(--paper) repeating-linear-gradient(transparent 0 31px,var(--rule) 31px 32px);color:var(--ink);font-family:var(--f-body);font-size:14px;line-height:1.5;padding-inline:16px;padding-block:12px 40px}
 button{font:inherit;color:inherit;cursor:pointer}
 h1,h2,h3{font-family:var(--f-disp);margin:0;text-wrap:balance}
 :focus-visible{outline:3px solid var(--gold);outline-offset:2px}
