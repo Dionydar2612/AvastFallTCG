@@ -1,15 +1,29 @@
-/* แท็บเลื่อนระหว่าง Playtest ↔ Card List (web/js/site.js) */
-.site-bar{position:sticky;top:0;z-index:50;display:flex;justify-content:center;padding:8px 12px;background:var(--paper);border-bottom:2px solid var(--line)}
-.site-sw{position:relative;display:grid;grid-template-columns:1fr 1fr;width:min(360px,100%);padding:3px;border:2px solid var(--line);border-radius:999px;background:var(--panel);box-shadow:3px 3px 0 var(--line)}
-.site-sw .pill{position:absolute;top:3px;bottom:3px;left:3px;width:calc(50% - 3px);border-radius:999px;background:var(--ink);transition:transform .38s cubic-bezier(.65,.05,.25,1)}
+/* แถบเมนูเดียวของทั้งเว็บ: Playtest · Card List · Deckbuilder  (web/js/site.js)
+   สไตล์เดียวกับแถบ .sitetabs ของหน้า Card List (ขอบหนา 3px + เงาออฟเซ็ต + ป้ายสีหมึกเลื่อนตามแท็บ) */
+.site-bar{margin:0 -16px;position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px max(16px,env(safe-area-inset-right)) 10px max(16px,env(safe-area-inset-left));background:var(--paper);border-bottom:3px solid var(--line)}
+.site-brand{display:flex;align-items:center;gap:10px;font:700 20px/1.1 var(--f-disp);color:var(--ink);text-decoration:none;min-width:0;white-space:nowrap}
+.site-brand i{display:inline-grid;place-items:center;width:34px;height:34px;flex:none;border:3px solid var(--line);border-radius:10px;background:var(--gold);color:#111;font-style:normal;box-shadow:2px 2px 0 var(--line)}
+.site-brand em{font:700 10px/1 var(--f-body);font-style:normal;letter-spacing:.06em;border:2px solid var(--line);border-radius:6px;padding:3px 6px;background:var(--gold);color:#111}
+.site-sw{position:relative;display:grid;grid-template-columns:repeat(3,1fr);padding:0;border:3px solid var(--line);border-radius:14px;overflow:hidden;background:var(--panel);box-shadow:3px 3px 0 var(--line)}
+.site-sw .pill{position:absolute;top:0;bottom:0;left:0;width:33.3333%;border-radius:0;background:var(--ink);border:0;padding:0;transition:transform .38s cubic-bezier(.65,.05,.25,1),width .38s cubic-bezier(.65,.05,.25,1)}
 .site-sw[data-tab="cards"] .pill{transform:translateX(100%)}
-.site-sw button{position:relative;z-index:1;border:0;background:none;font:inherit;font-weight:700;padding:7px 10px;border-radius:999px;color:var(--ink);cursor:pointer;transition:color .3s;white-space:nowrap}
+.site-sw[data-tab="deck"] .pill{transform:translateX(200%)}
+.site-sw button{position:relative;z-index:1;border:0;background:none;font:inherit;font-weight:700;padding:6px 20px;border-radius:0;color:var(--ink);cursor:pointer;transition:color .3s;white-space:nowrap}
+.site-sw button+button{border-left:3px solid var(--line)}
 .site-sw button[aria-selected="true"]{color:var(--paper)}
-.site-sw button:focus-visible{outline:3px solid var(--coral);outline-offset:2px}
+.site-sw button:focus-visible{outline:3px solid var(--teal);outline-offset:-5px}
 .site-view{overflow-x:clip}
-.site-track{display:flex;width:200%;transition:transform .38s cubic-bezier(.65,.05,.25,1);will-change:transform}
-.site-view[data-tab="cards"] .site-track{transform:translateX(-50%)}
+.site-track{display:flex;width:200%;transition:transform .38s cubic-bezier(.65,.05,.25,1)}
+/* ห้ามมี transform/will-change ค้างตอนอยู่แท็บ Playtest: ไม่งั้นหน้าต่างป๊อปอัป (position:fixed) จะอ้างอิงแทร็กกว้าง 200% แล้วเลื่อนหลุดไปทางขวา */
+.site-view[data-tab="play"] .site-track{transform:none}
+.site-view[data-tab="cards"] .site-track,.site-view[data-tab="deck"] .site-track{transform:translateX(-50%)}
 .site-pane{width:50%;flex:none;min-width:0}
 .site-pane.off{height:0;overflow:hidden;visibility:hidden}
 #cardsFrame{display:block;width:100%;height:calc(100vh - var(--bar-h,56px));height:calc(100dvh - var(--bar-h,56px));border:0;background:var(--paper)}
+@media (max-width:560px){
+  .site-bar{padding-block:8px;gap:8px}
+  .site-brand span,.site-brand em{display:none}
+  .site-sw{flex:1;grid-template-columns:repeat(3,1fr)}
+  .site-sw button{padding:6px 4px;font-size:13.5px}
+}
 @media (prefers-reduced-motion:reduce){.site-sw .pill,.site-track{transition:none}}

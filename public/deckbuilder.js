@@ -344,6 +344,7 @@
   }
 
   window.DB = {
+    show: showView,
     init() {
       if (inited) return; inited = true;
       buildDefs(); skeleton(); renderFilters();

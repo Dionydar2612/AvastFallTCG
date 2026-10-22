@@ -1,0 +1,100 @@
+/* ธีมรวม — ปรับหน้าเกมให้เป็นภาษาออกแบบเดียวกับหน้า Card List (public/index.html)
+   หมึกดำ · กระดาษมีเส้นบรรทัด · ทอง · เส้นขอบหนา 3px + เงาออฟเซ็ต 4px · ปุ่มทรงแคปซูล · ฟอนต์ Mali
+   โหลดหลังสุด เพื่อทับสไตล์เดิมของเกมโดยไม่ต้องแก้ทีละจุด (ตัวแปรสีหลักอยู่ที่ :root ใน style.css) */
+
+body{margin:0;padding-top:0}
+#panePlay{padding-top:12px}
+
+/* ---------- ปุ่ม / chip / segmented ---------- */
+.btn{border:2px solid var(--line);border-radius:99px;padding:5px 16px;font-weight:700;box-shadow:none;transition:background .12s,color .12s,transform .08s}
+.btn:hover{background:var(--gold);color:#111;transform:translateY(-1px)}
+.btn:active{transform:none}
+.btn.pri{background:var(--gold);color:#111;border-color:var(--line);box-shadow:3px 3px 0 var(--line)}
+.btn.pri:hover{background:var(--ink);color:var(--paper)}
+.btn.sm{padding:2px 12px;font-size:12.5px;box-shadow:none}
+.btn.danger{background:var(--bad);color:#fff;border-color:var(--bad)}
+.btn[disabled]{opacity:.4;box-shadow:none;transform:none}.btn[disabled]:hover{background:var(--panel);color:inherit}
+.btn.pri[disabled]:hover{background:var(--gold);color:#111}
+.chip{border:2px solid var(--line);font-weight:700}
+.seg{border:2px solid var(--line);border-radius:99px;background:var(--panel)}
+.seg button{padding:4px 16px;font-weight:700}
+.seg button:hover:not(.on){background:var(--gold);color:#111}
+/* แท็บย่อยในหน้าเกม (เล่น / เด็คของฉัน / วิธีเล่น) = ชิปแบบเดียวกับปุ่ม "เรียงตาม" ใน Card List */
+.tabs{gap:8px;border:0;background:none;border-radius:0;overflow:visible}
+.tabs button,.tabs a{border:2px solid var(--line);border-radius:99px;background:var(--panel);color:var(--ink);padding:4px 16px;font-weight:700;font-size:14px}
+.tabs button:hover:not(.on),.tabs a:hover{background:var(--gold);color:#111}
+.tabs button.on{background:var(--ink);color:var(--paper)}
+.tabs a{border-left:2px solid var(--line)}
+.panel .tabs{display:flex;gap:0;border:0;border-bottom:3px solid var(--line);border-radius:0}
+.panel .tabs button{border:0;border-radius:0;border-right:1.5px solid var(--soft);padding:8px 4px;font-size:13px}
+.panel .tabs button:hover:not(.on){background:var(--tealtint);color:var(--ink)}
+
+/* ---------- กล่อง = .box ของ Card List ---------- */
+.pbox,.opts,.mdk,.panel,.gd-phases li{border:3px solid var(--line);border-radius:var(--r);box-shadow:var(--sh)}
+.gd-phases li{box-shadow:3px 3px 0 var(--line)}
+.bar{border:3px solid var(--line);border-radius:var(--r);box-shadow:3px 3px 0 var(--line)}
+.bar.you{border-color:var(--line);background:var(--mat);box-shadow:3px 3px 0 var(--gold),0 0 0 3px var(--gold)}
+.dlg{border:3px solid var(--line);border-radius:18px;box-shadow:var(--sh)}
+.side{border:3px solid var(--line);border-radius:var(--r);background:var(--mat)}
+.zone{border:2px solid var(--line);background:var(--panel)}
+.azone{border:2px dashed var(--teal);background:var(--tealtint)}
+.menu{border:3px solid var(--line);box-shadow:var(--sh)}
+#cardpop{border:3px solid var(--line);box-shadow:var(--sh)}
+.zlab{color:var(--ink2);font-weight:700}
+.eldeck small{color:var(--ink2)}
+.card{border:2px solid var(--line)}
+.card.back{border-color:var(--line)}
+.dk{border-width:2px;border-radius:12px}
+.dk.add .plus{color:var(--ink)}
+.dk.add:hover{background:var(--gold);color:#111}
+.dk.on{outline-color:var(--gold)}
+.dk .art{border-bottom-width:2px}
+
+/* ---------- ป้าย / แท็ก / ตัวเลข ---------- */
+.ot-badge{background:var(--gold);color:#111;border-color:var(--line)}
+.ot-badge i{background:#111}
+.ot-tag{color:var(--ink);border-color:var(--line);background:var(--gold)}
+.ot-rev{border-width:3px;border-radius:12px}
+.s.d{background:#1b4aa8}.s.a{background:#c0121f}
+.gd-phases li::before{background:var(--gold);color:#111;border:2px solid var(--line)}
+.kw{border-radius:6px}
+
+/* ---------- ช่องกรอก = input ของ Card List ---------- */
+.fbar input[type=search],.fl input[type=text],.fl input[type=url],.fl select,.fbar select,.dbx-pick-h input,.dbx-pick-h select,.dbx-name input{border:2px solid var(--line);border-radius:12px;padding:6px 12px;background:var(--panel)}
+.ta{border-width:3px;border-radius:12px}
+
+/* ---------- หน้าสร้างเด็คในเกม ---------- */
+.dlg.dbx{border-radius:18px}
+.dbx-box{background:linear-gradient(155deg,var(--gold) 0%,#d9a400 100%);box-shadow:4px 4px 0 var(--line)}
+.dbx-box:hover{box-shadow:6px 6px 0 var(--line)}
+.dbx-box::before{border-color:rgba(17,17,17,.35)}
+.dbx-rib{background:rgba(17,17,17,.9)}
+.dbx-empty{color:#111;border-color:rgba(17,17,17,.55)}
+.dbx-tabs{border:3px solid var(--line);border-radius:12px}
+.dbx-tab.on{background:var(--gold);color:#111;border-bottom-color:var(--line)}
+.dbx-tab.on b{color:#111}
+.dbx-bar{border:2px solid var(--line);height:10px}
+.dbx-bar i{background:#d9a400}
+.dbx-bar i.ok{background:var(--good)}.dbx-bar i.over{background:var(--bad)}
+.dbx-bot{border-top:3px solid var(--line)}
+.dbx-av:hover{border-color:var(--line);background:var(--tealtint)}
+.cpill{background:var(--gold);color:#111;border-color:#111}
+.pt.in{border-color:var(--line);background:var(--panel)}
+.cnt{background:var(--gold);color:#111;border-color:#111}
+
+/* ---------- ปิดท้าย ---------- */
+.cover{background:var(--paper);color:var(--ink)}
+.cover .btn{background:var(--gold);color:#111}
+:focus-visible{outline:3px solid var(--teal);outline-offset:2px}
+
+/* ---------- จอแคบ ---------- */
+@media (max-width:560px){
+  .seg{display:grid;grid-template-columns:1fr 1fr;border-radius:14px;width:100%}
+  .seg button{padding:6px 8px;border-bottom:2px solid var(--line)}
+  .seg button:nth-child(odd){border-right:2px solid var(--line)}
+  .seg button:nth-last-child(-n+2){border-bottom:0}
+  .seg button:last-child:nth-child(odd){grid-column:1/-1;border-right:0}
+  .seg button:nth-last-child(2):nth-child(odd){border-bottom:2px solid var(--line)}
+  .tabs{flex-wrap:wrap}
+}
+@media (max-width:560px){:root{--cwb:42px}}

@@ -4,7 +4,7 @@
 <title>การ์ดทั้งหมด – Card Battle</title>
 <link href="https://fonts.googleapis.com/css2?family=Mali:wght@400;600;700&display=swap" rel="stylesheet">
 <script>if(/[?&]embed=1/.test(location.search))document.documentElement.classList.add("embed")</script>
-<style>.embed .sitetabs a[href="/"]{display:none}</style>
+<style>.embed .sitetabs{display:none}.embed main{padding-top:16px}</style>
 <style>
 .sitetabs{display:inline-flex;border:3px solid var(--ink);border-radius:14px;overflow:hidden;background:var(--card);box-shadow:3px 3px 0 var(--ink);margin:0 0 16px}.sitetabs a{padding:6px 18px;font-weight:700;color:var(--ink);text-decoration:none;white-space:nowrap}.sitetabs a.on{background:var(--ink);color:var(--bg)}.sitetabs a+a{border-left:3px solid var(--ink)}
 :root{--bg:#fbfbf7;--ink:#111;--card:#fff;--line:#bfe3ea;--gold:#ffc20e;--mut:#666;--pap:#fff8ec;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -162,6 +162,8 @@ async function boot(){
  }catch(err){document.getElementById("cnt").textContent="โหลดข้อมูลจาก API ไม่สำเร็จ: "+err.message}
 }
 addEventListener("DOMContentLoaded",boot);
+/* ฝังอยู่ในหน้าเกม: แถบเมนูบนสุดของหน้าหลักเป็นตัวสลับ Card List ↔ Deckbuilder */
+addEventListener("message",e=>{if(e.origin!==location.origin||!e.data||!e.data.afView)return;window.DB&&DB.show&&DB.show(e.data.afView==="deck"?"deck":"cards")});
 
 </script>
 <script src="/cards/deckbuilder.js?v=2"></script>
