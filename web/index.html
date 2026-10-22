@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AvastFall TCG · Open Test ทดลองเล่น</title>
+<meta name="description" content="เปิดให้ทดลองเล่น AvastFall TCG (Open Test) เล่นกับบอทหรือเล่นกับเพื่อนได้ทันที ไม่ต้องสมัคร">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mali:wght@400;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/deckbuilder.css"><!-- หน้าสร้างเด็ค -->
+<style id="imgcss"></style><!-- CSS รูปการ์ด สร้างจาก URL ของ card-api (js/ui/data-sync.js) -->
+</head>
+<body>
+<div class="wrap" id="app"></div>
+
+<!-- 1) กฎและเอนจิน (ไม่แตะ DOM) -->
+<script src="js/engine/engine.js"></script>
+
+<!-- 2) เอฟเฟกต์การ์ด: แก้/เพิ่มสคริปต์การ์ดที่นี่ (_kit = ตัวช่วยร่วม ต้องโหลดก่อนชุดการ์ด) -->
+<script src="js/effects/_kit.js"></script>
+<script src="js/effects/sd01.js"></script>
+<script src="js/effects/sd02.js"></script>
+<script src="js/effects/sd03.js"></script>
+<script src="js/effects/sd04.js"></script>
+<script src="js/effects/sd05.js"></script>
+<script src="js/effects/sd06.js"></script>
+<script src="js/effects/bt01.js"></script>
+
+<!-- 3) บอท -->
+<script src="js/bot.js"></script>
+
+<!-- 4) ข้อมูลการ์ด: snapshot สำรอง + ดึงข้อมูล/รูปจาก card-api -->
+<script src="js/data/snapshot.js"></script>
+<script src="js/data/cards-api.js"></script>
+<script src="js/data/feedback-api.js"></script>
+
+<!-- 5) หน้าจอ (UI) -->
+<script src="js/ui/base.js"></script>
+<script src="js/ui/notes.js"></script>
+<script src="js/ui/data-sync.js"></script>
+<script src="js/ui/decks.js"></script>
+<script src="js/ui/render.js"></script>
+<script src="js/ui/setup.js"></script>
+<script src="js/ui/mydecks.js"></script>
+<script src="js/ui/guide.js"></script>
+<script src="js/ui/online.js"></script>
+<script src="js/ui/game.js"></script>
+<script src="js/ui/modals.js"></script>
+<script src="js/ui/events.js"></script>
+<script src="js/ui/deckbuilder.js"></script><!-- หน้าสร้างเด็ค (ต้องอยู่หลัง events.js ก่อน main.js) -->
+<script src="js/ui/main.js"></script>
+</body>
+</html>

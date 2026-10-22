@@ -1,0 +1,26 @@
+# Render Blueprint: เว็บเดียวรวมทุกอย่าง (เกมทดลองเล่น + Card List + card-api + /admin + ข้อเสนอแนะ)
+services:
+  - type: web
+    name: avastfall-tcg
+    runtime: node
+    plan: starter                 # Persistent Disk ใช้ได้เฉพาะแพ็กเกจที่เสียเงิน
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    disk:
+      name: avastfall-data
+      mountPath: /var/data
+      sizeGB: 1
+    envVars:
+      - key: DATA_DIR             # การ์ด/รูป/ข้อมูลสำรองที่แก้ผ่าน /admin และ feedback.json อยู่ที่นี่ (ถาวรเพราะผูกดิสก์)
+        value: /var/data
+      - key: ADMIN_PASSWORD       # รหัสเข้า /admin (ตั้งเองตอน deploy)
+        sync: false
+      - key: ADMIN_SECRET
+        generateValue: true
+      - key: ADMIN_KEY            # รหัสเปิด /recommece?key=...  (Render สุ่มให้ ดูได้ที่ Dashboard > Environment)
+        generateValue: true
+      - key: RESEND_API_KEY       # คีย์จาก resend.com สำหรับอีเมลสำเนาข้อเสนอแนะ (ไม่ใส่ = ไม่ส่งอีเมล)
+        sync: false
+      - key: NOTIFY_EMAIL
+        value: saknarinnumber8@gmail.com
