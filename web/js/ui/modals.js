@@ -127,7 +127,7 @@ function modalHTML(){
       ${st.err?`<div class="note"><b>ต่อ card-api ไม่ได้:</b> ${esc(st.err)}<br><span class="muted">หน้านี้จะเปิดผ่านโฮสต์ของคุณจึงจะเรียก API ได้ (หน้าตัวอย่างในแอปเรียกเว็บภายนอกไม่ได้) ระหว่างนี้ใช้ข้อมูลที่บันทึกไว้/ฝังไว้ได้ตามปกติ รูปการ์ดดึงจาก card-api เช่นกัน</span></div>`:''}
       ${DATA.pending?'<div class="note">มีข้อมูลใหม่จาก card-api รอใช้ จะอัปเดตเมื่อกลับหน้าตั้งค่า</div>':''}
       <label class="fl">ที่อยู่ card-api<input id="apiurl" type="url" value="${esc(ui.cfg.api)}"></label>
-      <div class="acts" style="justify-content:flex-start"><button class="btn pri" data-act="apiapply">โหลดการ์ดใหม่</button><a class="btn" href="${esc(DATA.cardListUrl())}" target="_blank" rel="noopener">เปิด Card List ↗</a></div>
+      <div class="acts" style="justify-content:flex-start"><button class="btn pri" data-act="apiapply">โหลดการ์ดใหม่</button><a class="btn" href="${esc(DATA.cardListUrl())}" ${DATA.cardListUrl()==='/cards/'?'data-go="cards"':'target="_blank" rel="noopener"'}>เปิด Card List ↗</a></div>
       <h3>การ์ดที่ไม่มีในชุดสำรอง (เพิ่มใหม่ใน card-api)</h3><ul class="dl">${li(iss.isNew)}</ul>
       <h3>ยังไม่มีสคริปต์เอฟเฟกต์</h3><p class="muted">เล่นได้ (Unit ใช้ค่า ATK/DEF/CRI ตามจริง) แต่เอฟเฟกต์บนการ์ดไม่ทำงาน ใช้แถบ "เครื่องมือ" ทำผลเอง หรือส่งรายการนี้ให้ Claude เขียนสคริปต์เพิ่ม (ไฟล์ js/effects/)</p><ul class="dl">${li(iss.unscripted)}</ul>
       <h3>ข้อความ/ค่าสถานะต่างจากที่สคริปต์เขียนไว้</h3><p class="muted">มีคนแก้การ์ดใน card-api หลังจากเขียนสคริปต์ เอฟเฟกต์อาจไม่ตรงกับข้อความใหม่</p><ul class="dl">${li(iss.stale,diff)}</ul>

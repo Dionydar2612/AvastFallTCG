@@ -3,6 +3,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>การ์ดทั้งหมด – Card Battle</title>
 <link href="https://fonts.googleapis.com/css2?family=Mali:wght@400;600;700&display=swap" rel="stylesheet">
+<script>if(/[?&]embed=1/.test(location.search))document.documentElement.classList.add("embed")</script>
+<style>.embed .sitetabs a[href="/"]{display:none}</style>
 <style>
 .sitetabs{display:inline-flex;border:3px solid var(--ink);border-radius:14px;overflow:hidden;background:var(--card);box-shadow:3px 3px 0 var(--ink);margin:0 0 16px}.sitetabs a{padding:6px 18px;font-weight:700;color:var(--ink);text-decoration:none;white-space:nowrap}.sitetabs a.on{background:var(--ink);color:var(--bg)}.sitetabs a+a{border-left:3px solid var(--ink)}
 :root{--bg:#fbfbf7;--ink:#111;--card:#fff;--line:#bfe3ea;--gold:#ffc20e;--mut:#666;--pap:#fff8ec;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -94,7 +96,7 @@ h3{color:var(--mut);margin:10px 0 6px}
 <nav class="sitetabs" aria-label="เมนูเว็บ"><a class="on" href="/cards/" data-v="cards" aria-current="page">Card List</a><a href="#deckbuilder" data-v="deck">Deckbuilder</a><a href="/" target="_blank" rel="noopener">Playtest ↗</a></nav>
 <div id="v-cards">
 <h1>การ์ดทั้งหมด</h1>
-<p style="margin:-4px 0 12px"><a href="/api/docs" style="color:var(--ink)">📘 API สำหรับนักพัฒนา</a></p>
+<p style="margin:-4px 0 12px"><a href="/api/docs" target="_blank" rel="noopener" style="color:var(--ink)">📘 API สำหรับนักพัฒนา</a></p>
 <input id="q" class="search" placeholder="ค้นหาการ์ดด้วยชื่อ เลขการ์ด หรือข้อความในเอฟเฟกต์...">
 <div class="row"><span>เรียงตาม:</span><span id="sorts"></span></div>
 <div class="box filters"><div><label>เด็ค/ซีรีส์</label><select id="fd"><option value="">ทั้งหมด</option></select></div><div><label>Rotation</label><select id="fo"><option value="">ทั้งหมด</option></select></div><div><label>ประเภทการ์ด</label><select id="ft"><option value="">ทั้งหมด</option></select></div><div><label>ธาตุ</label><select id="fe"><option value="">ทั้งหมด</option></select></div><div><label>ความหายาก</label><select id="fr"><option value="">ทั้งหมด</option></select></div><div><label>Keyword</label><select id="fk"><option value="">ทั้งหมด</option></select></div>

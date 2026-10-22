@@ -6,7 +6,7 @@ function navHTML(){
   const txt=st.state==='loading'?'กำลังโหลดการ์ดจาก card-api…':st.state==='live'?`การ์ดจาก card-api · ${st.count} ใบ`:st.state==='cache'?`การ์ดที่บันทึกไว้ · ${st.count} ใบ (ต่อ card-api ไม่ได้)`:`การ์ดที่ฝังไว้ · ${st.count} ใบ (ต่อ card-api ไม่ได้)`;
   const warn=iss.unscripted.length+iss.stale.length;
   return `<div class="top"><div class="brand"><i>A</i>AvastFall Playtest<span class="ot-tag">OPEN TEST</span></div>
-  <nav class="tabs"><button class="${ui.page==='play'?'on':''}" data-act="page" data-v="play">เล่น</button><button class="${ui.page==='mydecks'?'on':''}" data-act="page" data-v="mydecks">เด็คของฉัน${ui.my.length?` (${ui.my.length})`:''}</button><button class="${ui.page==='guide'?'on':''}" data-act="page" data-v="guide">วิธีเล่น</button><a href="${esc(DATA.cardListUrl())}" target="_blank" rel="noopener">Card List ↗</a></nav>
+  <nav class="tabs"><button class="${ui.page==='play'?'on':''}" data-act="page" data-v="play">เล่น</button><button class="${ui.page==='mydecks'?'on':''}" data-act="page" data-v="mydecks">เด็คของฉัน${ui.my.length?` (${ui.my.length})`:''}</button><button class="${ui.page==='guide'?'on':''}" data-act="page" data-v="guide">วิธีเล่น</button></nav>
   <span class="spacer"></span><button class="chip ${st.state}" data-act="data" title="ข้อมูลการ์ด"><i></i>${esc(txt)}${warn?` · ⚠ ${warn}`:''}</button><button class="btn sm" data-act="help">กติกาโดยย่อ</button><button class="btn sm" data-act="notes">Update Note</button><button class="btn sm" data-act="feedback">ข้อเสนอแนะ</button></div>`;
 }
 function deckTile(d,i,on){
