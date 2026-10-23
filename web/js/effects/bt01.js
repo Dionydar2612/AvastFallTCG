@@ -222,6 +222,25 @@ FX['BT01-002'] = {
     resolve: async ({ G, p }) => { H.draw(G, p, 1); } }]
 };
 
+/* ---- 003 เซนโง มุรามาสะ (Avatar น้ำ) */
+FX['BT01-003'] = {
+  deckAllowCard: c => (c.name || '').includes('ดาบ'),         // ใส่การ์ดที่มีคำว่า "ดาบ" ในชื่อเข้าเด็คได้ทุกธาตุ
+  anyElementFor: c => (c.def.name || '').includes('ดาบ'),      // จ่าย Cost การ์ดเหล่านั้นด้วย Element ธาตุใดก็ได้
+  abilities: [{ id: 'forge', kw: 'ACTIVATE 1/turn', zone: 'avatar', label: 'เลือก Equipment "ดาบ" จาก Main Deck นำเข้า Action Zone เป็น Unit (Cost 3 ATK 4 DEF 4 CRI 1) แล้วสับ Main Deck',
+    can: ({ G, p }) => AF.freeSlot(G.players[p]) && G.players[p].deck.some(c => c.def.kind === 'Equipment' && (c.def.name || '').includes('ดาบ')),
+    resolve: async ({ G, p, self }) => {
+      const P = G.players[p];
+      const [c] = await H.pickCards(G, p, { title: `${self.def.name}: เลือก Equipment ที่มีคำว่า "ดาบ" ในชื่อ จาก Main Deck`, cards: P.deck.filter(x => x.def.kind === 'Equipment' && (x.def.name || '').includes('ดาบ')), private: true });
+      if (!c) return;
+      const orig = c.def;
+      c.def = Object.assign({}, orig, { kind: 'Unit', type: 'Unit', sub: null, cost: 3, atk: 4, def: 4, cri: 1, swordUnit: true });
+      c.host = c;   // เอฟเฟกต์ "Unit ที่สวมใส่" ส่งผลต่อการ์ดใบนี้เอง
+      if (!(await fxk.enterByEffect(G, p, c)) || c.zone !== 'field') { c.def = orig; c.host = null; AF.shuffleDeck(G, p); return; }
+      AF.shuffleDeck(G, p);
+      log(G, `${self.def.name}: ${orig.name} กลายเป็น Unit (Cost 3 / ATK 4 / DEF 4 / CRI 1) นำเข้า Action Zone แล้วสับ Main Deck`, p);
+    } }]
+};
+
 /* ---- 004 ราชาผู้พิชิต อิสกันดาร์ (Avatar ดิน) */
 FX['BT01-004'] = {
   aura: {
@@ -853,6 +872,7 @@ NOTES['BT01-018'] = 'ส่ง 5 ใบบนสุดลงกองทิ้�
 
 
 /* ---- หมายเหตุสำหรับหน้า Update Note: การ์ดชุดเพิ่ม (002, 004, 021–096) */
+NOTES['BT01-003'] = 'ใส่ในเด็คได้เฉพาะการ์ดที่มีคำว่า "ดาบ" ในชื่อโดยไม่จำกัดธาตุ และจ่าย Cost ของการ์ดเหล่านั้นด้วย Element ธาตุใดก็ได้ (ใช้กับ Unit/Equipment ที่ชื่อมีคำว่า ดาบ) · ACTIVATE 1/turn: การ์ดที่ถูกเลือกกลายเป็น Unit Cost 3 ATK 4 DEF 4 CRI 1 ยังคงความสามารถทั้งหมด เอฟเฟกต์ของ Equipment ที่ระบุ "Unit ที่สวมใส่" ส่งผลต่อการ์ดใบนี้เอง (เช่น ATK/DEF โบนัส, ความสามารถตอนโจมตี) เมื่อออกจากสนามกลับเป็น Equipment ตามเดิม (ADVENT ไม่ทำงาน) ข้อจำกัด: ความสามารถ Equipment ที่ต้องมี Unit ผู้สวมเป็นตัวอื่นอาจไม่ครบทุกใบ'; 
 NOTES['BT01-002'] = 'AUTO: ใช้กับ Unit ฝ่ายเราที่ไม่มีข้อความความสามารถ (นอกจาก COST) ณ ปัจจุบัน (คำนวณสด) · ACTIVATE 1/turn: Spend 1 Element จั่ว 1 ใบ';
 NOTES['BT01-004'] = 'AUTO ข้อ 1: เมื่อ Unit ฝ่ายเราทำลาย Unit ฝ่ายตรงข้ามสำเร็จจากการต่อสู้ เปลี่ยน Element ที่นอนอยู่ 1 ใบเป็น Stand (เลือกให้อัตโนมัติ) · ข้อ 2: Unit เผ่า "ผู้พิชิต" ได้ ATK +1 CRI +1';
 NOTES['BT01-021'] = 'ADVENT: โจมตีได้ทันทีในเทิร์นที่ลง (จนจบเทิร์น)';
