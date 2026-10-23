@@ -84,6 +84,8 @@ AF.edeckOf = function (d) {
 /* กฎจัดเด็ค: Avatar กำหนดธาตุที่ใส่ได้ — การ์ดที่ธาตุทุกสีอยู่ในธาตุของ Avatar หรือการ์ดที่ไม่ระบุธาตุ */
 AF.allowedInDeck = function (av, card) {
   if (!card || !card.els || !card.els.length) return true;
+  const afx = av && av.id && AF.FX && AF.FX[av.id];   // ข้อยกเว้นบน Avatar เช่น BT01-003 (ใส่การ์ดที่มีคำว่า "ดาบ" ได้ทุกธาตุ)
+  if (afx && afx.deckAllowCard && afx.deckAllowCard(card)) return true;
   const da = card.id && AF.FX && AF.FX[card.id] && AF.FX[card.id].deckAllow;   // ข้อยกเว้นบนการ์ด เช่น BT01-006 (Avatar ชื่อ ฮัมบาบา)
   if (da && da(av)) return true;
   const ok = (av && av.els) || [];
@@ -175,6 +177,7 @@ function detach(G, c) {
 function place(G, c, zone, opts = {}) {
   const z0 = c.zone;
   detach(G, c);
+  if (z0 === 'field' && c.def.swordUnit) { c.def = AF.defs[c.def.id]; c.host = null; }   // Equipment ที่ถูกแปลงเป็น Unit (BT01-003) กลับเป็นการ์ดเดิมเมื่อออกจากสนาม
   const P = G.players[c.owner];
   if ((zone === 'deckTop' || zone === 'deckBottom') && z0 && z0 !== 'deck') AF.onDeckReturn(G, c, z0);   // การ์ดถูกส่งกลับ Main Deck (ไม่นับการเรียงใหม่ภายในเด็ค)
   switch (zone) {
@@ -232,7 +235,7 @@ AF.units = (G, p) => G.players[p].field.filter(Boolean);
 const silenced = (G, u) => !!(u.mods && u.mods.some(m => m.silence)) || (u.zone === 'field' && G.players.some(P => P.magic.some(m => m && m.linger && FXOF(m).silenceUnits)));   // silenceUnits: Unit ทุกใบใช้ความสามารถไม่ได้ (SD06-010)
 AF.silenced = silenced;
 const hasFlag = (u, f) => !!(u.mods && u.mods.some(m => m.flag === f)) ||
-  !!(u.zone === 'field' && u.equips && u.equips.some(e => { const q = FXOF(e).equip; return q && ((q.flags && q.flags.includes(f)) || (q.flagIf && q.flagIf(u, f))); }));   // Equipment ให้ flag แก่ผู้สวมใส่ (equip.flags / equip.flagIf) เช่น BT01-094, BT01-054
+  !!(u.zone === 'field' && u.equips && [...u.equips, ...(u.def.swordUnit ? [u] : [])].some(e => { const q = FXOF(e).equip; return q && ((q.flags && q.flags.includes(f)) || (q.flagIf && q.flagIf(u, f))); }));   // Equipment ให้ flag แก่ผู้สวมใส่ (equip.flags / equip.flagIf) เช่น BT01-094, BT01-054
 AF.hasFlag = hasFlag;
 
 function aura(G, u, k) {
@@ -253,6 +256,7 @@ function stat(G, u, k) {
   let v = u.def[k] || 0;
   for (const m of u.mods) if (m[k]) v += m[k];
   for (const e of u.equips) { const fe = FXOF(e).equip; if (fe && fe[k]) v += fe[k]; }
+  if (u.def.swordUnit) { const fe = FXOF(u).equip; if (fe && fe[k]) v += fe[k]; }   // เอฟเฟกต์ "Unit ที่สวมใส่" ส่งผลต่อตัวมันเอง
   v += aura(G, u, k);
   if (k === 'atk' && hasFlag(u, 'atkInf')) v = 9999;
   return Math.max(0, v);
@@ -276,6 +280,9 @@ AF.addMod = (G, u, m) => {
 };
 
 /* ---------------------------------------------------------------- elements */
+/* Avatar ที่ให้จ่าย Cost ของการ์ดบางใบด้วย Element ธาตุใดก็ได้ (fx.anyElementFor เช่น BT01-003) */
+const anyElFor = (G, p, card) => { const a = FXOF(G.players[p].avatar.card).anyElementFor; return !!(a && a(card)); };
+AF.anyElFor = anyElFor;
 const standElems = (P, el) => P.elems.filter(e => e.state === 'stand' && (!el || (Array.isArray(el) ? el.includes(e.el) : e.el === el)));
 AF.standElems = standElems;
 function spendElems(G, p, n, el = null) {
@@ -644,7 +651,7 @@ function abilityList(G, p, phase) {
   };
   const A = card => (FXOF(card).abilities || []);
   add && A(P.avatar.card).forEach(ab => add(P.avatar.card, ab, 'avatar'));
-  for (const u of P.field) { if (!u || silenced(G, u)) continue; A(u).filter(a => (a.zone || 'field') === 'field').forEach(ab => add(u, ab, 'field')); for (const e of u.equips) A(e).filter(a => a.zone === 'equip').forEach(ab => add(e, ab, 'equip')); }
+  for (const u of P.field) { if (!u || silenced(G, u)) continue; A(u).filter(a => (a.zone || 'field') === 'field').forEach(ab => add(u, ab, 'field')); for (const e of u.equips) A(e).filter(a => a.zone === 'equip').forEach(ab => add(e, ab, 'equip')); if (u.def.swordUnit) A(u).filter(a => a.zone === 'equip').forEach(ab => add(u, ab, 'field')); }
   for (const d of P.domains) A(d).filter(a => a.zone === 'domain').forEach(ab => add(d, ab, 'domain'));
   for (const c of P.discard) A(c).filter(a => a.zone === 'discard').forEach(ab => add(c, ab, 'discard'));
   for (const c of P.hand) A(c).filter(a => a.zone === 'hand').forEach(ab => add(c, ab, 'hand'));
@@ -658,13 +665,13 @@ function whyNot(G, p, card) {
   if (d.kind === 'Unit') {
     if (fx.cantSummonFromHand) return 'อัญเชิญจากมือไม่ได้ (ดูความสามารถ ANNOUNCE)';
     if (!AF.freeSlot(P)) return `Action Zone เต็ม (${P.fieldCap ?? 4} ช่อง)`;
-    if (standElems(P, fx.anyElementCost ? null : d.els).length < AF.unitCost(G, p, card)) return `Element ธาตุ${d.els.join('/')}ที่พร้อมใช้ไม่พอ (ต้องการ ${AF.unitCost(G, p, card)})`;
+    if (standElems(P, fx.anyElementCost || anyElFor(G, p, card) ? null : d.els).length < AF.unitCost(G, p, card)) return `Element ธาตุ${d.els.join('/')}ที่พร้อมใช้ไม่พอ (ต้องการ ${AF.unitCost(G, p, card)})`;
     return null;
   }
   if (d.kind === 'Counter') return 'ใช้ตอบโต้ได้เท่านั้น (ตอนคู่ต่อสู้ทำอะไรบางอย่าง)';
   if (d.kind === 'Enchant' || d.kind === 'Equipment' || d.kind === 'Domain') {
     const cost = spellCost(G, p, card);
-    if (standElems(P, fx.costEl).length < cost) return `Element${fx.costEl ? 'ธาตุ' + fx.costEl : ''}ที่พร้อมใช้ไม่พอ (ต้องการ ${cost})`;
+    if (standElems(P, anyElFor(G, p, card) ? null : fx.costEl).length < cost) return `Element${fx.costEl ? 'ธาตุ' + fx.costEl : ''}ที่พร้อมใช้ไม่พอ (ต้องการ ${cost})`;
     if (d.kind === 'Enchant' && !P.magic.includes(null)) return 'Magic Area เต็ม 3 ช่อง';
     if (d.kind === 'Equipment') { if (!equipTargets(G, p, card).length) return 'ไม่มี Unit ที่สวมใส่ได้'; }
     if (d.kind === 'Domain') {
@@ -735,7 +742,7 @@ AF.legalAttacks = function (G, p) {
 async function payAndCast(G, p, card, kind) {
   const P = G.players[p]; const fx = FXOF(card);
   const bk = {}; const cost = spellCost(G, p, card, false, bk);
-  spendElems(G, p, cost, fx.costEl || null);   // costEl = ค่าร่ายต้องเป็น Element ธาตุนี้ (เช่น "Spend 1 fire Element")
+  spendElems(G, p, cost, anyElFor(G, p, card) ? null : (fx.costEl || null));   // costEl = ค่าร่ายต้องเป็น Element ธาตุนี้ (เช่น "Spend 1 fire Element")
   if (bk.book) AF.useBook(G, p);
   if (fx.castLife) { P.avatar.hp -= fx.castLife; log(G, `${P.name} จ่ายพลังชีวิต ${fx.castLife} หน่วย (HP ${P.avatar.hp})`, p); checkEnd(G); }   // ค่าร่ายเป็นพลังชีวิต
   if (P.counterDiscount && P.counterDiscount.turn === G.turn && !P.counterDiscount.used && kind === 'Counter') P.counterDiscount.used = true;
@@ -791,7 +798,7 @@ async function castDomain(G, p, card) {
 }
 async function summonFromHand(G, p, card) {
   const P = G.players[p];
-  const bk = {}; spendElems(G, p, AF.unitCost(G, p, card, bk), FXOF(card).anyElementCost ? null : card.def.els);
+  const bk = {}; spendElems(G, p, AF.unitCost(G, p, card, bk), FXOF(card).anyElementCost || anyElFor(G, p, card) ? null : card.def.els);
   if (bk.book) AF.useBook(G, p);
   place(G, card, 'field', { state: 'stand' });
   log(G, `${P.name} อัญเชิญ ${card.def.name} (Invite ${card.def.cost})`, p, { enter: card.uid });
