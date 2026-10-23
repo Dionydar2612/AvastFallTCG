@@ -78,5 +78,17 @@
 
   panes.cards.classList.add('off');
   if (/^#(cards|deckbuilder|deck=)/.test(location.hash)) { cur = 'play'; fromHash(true); }
+  /* เปิดซอง: หน้าต่างซ้อน (iframe /packs.html โหลดครั้งแรกที่กด) */
+  const ov = document.getElementById('pkOv'), pf = document.getElementById('pkFrame');
+  const packs = open => {
+    ov.hidden = !open;
+    if (open && !pf.getAttribute('src')) pf.src = pf.dataset.src;
+    document.body.style.overflow = open ? 'hidden' : '';
+    if (open) document.getElementById('pkClose').focus();
+  };
+  document.addEventListener('click', e => { if (e.target.closest && e.target.closest('[data-packs]')) { e.preventDefault(); packs(true); } });
+  document.getElementById('pkClose').addEventListener('click', () => packs(false));
+  ov.addEventListener('click', e => { if (e.target === ov) packs(false); });
+  addEventListener('keydown', e => { if (e.key === 'Escape' && !ov.hidden) packs(false); });
   window.AFSite = { go, openDeck, get tab() { return cur; } };
 })();
