@@ -254,6 +254,24 @@ FX['BT01-004'] = {
   } }
 };
 
+/* ---- 008 นักรบเกราะลาวา กุนธี */
+FX['BT01-008'] = { aura: { atk: (G, self, u) => u === self && self.state === 'rest' ? 2 : 0 } };
+
+/* ---- 019 นักดาบพเนจร ชาบูโร่ */
+FX['BT01-019'] = { advent: { resolve: async ({ G, p, self }) => {
+  const got = await H.search(G, p, { from: ['deck'], filter: c => (c.def.name || '').includes('กระบวนท่า'), title: `${self.def.name}: เลือกการ์ดที่มีคำว่า "กระบวนท่า" ในชื่อ จาก Main Deck` });
+  if (!got) log(G, 'ไม่พบการ์ดที่มีคำว่า "กระบวนท่า" ใน Main Deck (สับ Main Deck)', p);
+} } };
+
+/* ---- 020 ศิษย์ฝึกหัดแห่งสำนักมุรามาสะ */
+FX['BT01-020'] = { advent: { resolve: async ({ G, p, self }) => {
+  const P = G.players[p];
+  const [c] = await H.pickCards(G, p, { title: `${self.def.name}: เลือกการ์ดที่มีคำว่า "ดาบ" จากมือ เพื่อนำไปไว้ใต้ Main Deck`, cards: P.hand.filter(x => (x.def.name || '').includes('ดาบ')), optional: true });
+  if (!c) { log(G, 'ไม่ได้ส่งการ์ด "ดาบ" ลงใต้ Main Deck จึงไม่จั่ว', p); return; }
+  place(G, c, 'deckBottom'); log(G, `${self.def.name}: นำ ${c.def.name} ไปไว้ใต้ Main Deck`, p);
+  H.draw(G, p, 1);
+} } };
+
 /* ---- 021 เกนจิ */
 FX['BT01-021'] = { advent: { resolve: async ({ G, p, self }) => {
   if (self.zone === 'field') { addMod(G, self, { flag: 'haste', until: 'turnEnd' }); log(G, `${self.def.name} โจมตีได้ทันทีในเทิร์นนี้`, p); } } } };
@@ -872,6 +890,9 @@ NOTES['BT01-018'] = 'ส่ง 5 ใบบนสุดลงกองทิ้�
 
 
 /* ---- หมายเหตุสำหรับหน้า Update Note: การ์ดชุดเพิ่ม (002, 004, 021–096) */
+NOTES['BT01-008'] = 'AUTO: ขณะอยู่ในสภาพนอน ได้รับ ATK +2 (คำนวณสดตามสถานะ)';
+NOTES['BT01-019'] = 'ADVENT: ค้นการ์ดชื่อมีคำว่า "กระบวนท่า" 1 ใบจาก Main Deck แสดงให้ฝ่ายตรงข้ามดู นำขึ้นมือ แล้วสับ (ถ้าไม่มีก็สับอย่างเดียว)';
+NOTES['BT01-020'] = 'ADVENT: ส่งการ์ดมือที่ชื่อมีคำว่า "ดาบ" 1 ใบไปไว้ใต้ Main Deck เมื่อทำสำเร็จจั่ว 1 ใบ (ถ้าไม่มีหรือไม่เลือก ไม่จั่ว)';
 NOTES['BT01-003'] = 'ใส่ในเด็คได้เฉพาะการ์ดที่มีคำว่า "ดาบ" ในชื่อโดยไม่จำกัดธาตุ และจ่าย Cost ของการ์ดเหล่านั้นด้วย Element ธาตุใดก็ได้ (ใช้กับ Unit/Equipment ที่ชื่อมีคำว่า ดาบ) · ACTIVATE 1/turn: การ์ดที่ถูกเลือกกลายเป็น Unit Cost 3 ATK 4 DEF 4 CRI 1 ยังคงความสามารถทั้งหมด เอฟเฟกต์ของ Equipment ที่ระบุ "Unit ที่สวมใส่" ส่งผลต่อการ์ดใบนี้เอง (เช่น ATK/DEF โบนัส, ความสามารถตอนโจมตี) เมื่อออกจากสนามกลับเป็น Equipment ตามเดิม (ADVENT ไม่ทำงาน) ข้อจำกัด: ความสามารถ Equipment ที่ต้องมี Unit ผู้สวมเป็นตัวอื่นอาจไม่ครบทุกใบ'; 
 NOTES['BT01-002'] = 'AUTO: ใช้กับ Unit ฝ่ายเราที่ไม่มีข้อความความสามารถ (นอกจาก COST) ณ ปัจจุบัน (คำนวณสด) · ACTIVATE 1/turn: Spend 1 Element จั่ว 1 ใบ';
 NOTES['BT01-004'] = 'AUTO ข้อ 1: เมื่อ Unit ฝ่ายเราทำลาย Unit ฝ่ายตรงข้ามสำเร็จจากการต่อสู้ เปลี่ยน Element ที่นอนอยู่ 1 ใบเป็น Stand (เลือกให้อัตโนมัติ) · ข้อ 2: Unit เผ่า "ผู้พิชิต" ได้ ATK +1 CRI +1';
