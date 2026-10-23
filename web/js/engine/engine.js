@@ -84,8 +84,8 @@ AF.edeckOf = function (d) {
 /* กฎจัดเด็ค: Avatar กำหนดธาตุที่ใส่ได้ — การ์ดที่ธาตุทุกสีอยู่ในธาตุของ Avatar หรือการ์ดที่ไม่ระบุธาตุ */
 AF.allowedInDeck = function (av, card) {
   if (!card || !card.els || !card.els.length) return true;
-  const da = card.id && AF.FX && AF.FX[card.id] && AF.FX[card.id].deckAllow;   // ข้อยกเว้นบนการ์ด เช่น BT01-006 (Avatar ชื่อ ฮัมบาบา)
-  if (da && da(av)) return true;
+  const dfx = AF.FX && AF.FX[card.id];
+  if (dfx && dfx.deckAllow && av && dfx.deckAllow(av)) return true;   // การ์ดที่เขียนข้อยกเว้นการใส่เด็คไว้เอง (BT01-006)
   const ok = (av && av.els) || [];
   return card.els.every(e => ok.includes(e));
 };
@@ -384,9 +384,9 @@ async function destroyUnit(G, u, by) {
   let dest = 'discard';
   if (by.kind === 'battle' && !wasSilenced && fx.returnOnBattleDestroy) dest = 'hand';
   place(G, u, dest);
+  for (const e of equips) { const f = FXOF(e).onHostDestroyed; if (f) await f({ G, p: e.owner, self: e, host: u, by }); }   // Equipment ที่ทำงานเมื่อผู้สวมถูกทำลาย (BT01-016)
   const returnAll = equips.some(e => (FXOF(e).equip || {}).returnAllOnHostDestroyed);
   await AF.releaseEquips(G, u, equips, returnAll ? 'hand' : 'discard');
-  for (const e of equips) { const f = (FXOF(e).equip || {}).onHostDestroyed; if (f) await f({ G, p: e.owner, self: e, host: u }); }   // Equipment ที่มีผลเมื่อผู้สวมถูกทำลาย (BT01-016)
   log(G, `${u.def.name} ของ ${P.name} ถูกทำลาย${dest === 'hand' ? ' (กลับขึ้นมือ)' : ''}`, u.owner, { destroyed: u.uid });
   G.tf.destroyed[u.owner] = true;
   if (dest === 'discard' && !wasSilenced && fx.admonish) {
@@ -401,7 +401,6 @@ H.destroy = destroyUnit;
 
 /* ---------------------------------------------------------------- events */
 async function emit(G, name, payload) {
-  if (G.tmpHooks) for (const h of [...G.tmpHooks]) if (h.name === name) await h.fn(payload);   // ตัวดักเหตุการณ์ชั่วคราว (เช่น Counter BT01-014) หมดอายุเมื่อจบการต่อสู้
   const list = [];
   for (const pi of [G.active, opp(G.active)]) {
     const P = G.players[pi];
@@ -629,7 +628,7 @@ function abilityList(G, p, phase) {
     if (uses >= (ab.uses || 1)) return;
     const ctx = { G, p, self: card, ab };
     if (ab.can && !ab.can(ctx)) return;
-    if (ab.spend && standElems(P, ab.spendEl).length < ab.spend) return;
+    if (ab.spend && standElems(P).length < ab.spend) return;
     out.push({ t: 'ability', uid: card.uid, aid: ab.id, label: ab.label, kw: ab.kw, zone, ab, card });
   };
   const A = card => (FXOF(card).abilities || []);
@@ -648,13 +647,14 @@ function whyNot(G, p, card) {
   if (d.kind === 'Unit') {
     if (fx.cantSummonFromHand) return 'อัญเชิญจากมือไม่ได้ (ดูความสามารถ ANNOUNCE)';
     if (!AF.freeSlot(P)) return `Action Zone เต็ม (${P.fieldCap ?? 4} ช่อง)`;
+    if (fx.summonCond && !fx.summonCond(G, p, card)) return fx.summonCondReason || 'เงื่อนไขการอัญเชิญยังไม่ครบ';
     if (standElems(P, fx.anyElementCost ? null : d.els).length < AF.unitCost(G, p, card)) return `Element ธาตุ${d.els.join('/')}ที่พร้อมใช้ไม่พอ (ต้องการ ${AF.unitCost(G, p, card)})`;
     return null;
   }
   if (d.kind === 'Counter') return 'ใช้ตอบโต้ได้เท่านั้น (ตอนคู่ต่อสู้ทำอะไรบางอย่าง)';
   if (d.kind === 'Enchant' || d.kind === 'Equipment' || d.kind === 'Domain') {
     const cost = spellCost(G, p, card);
-    if (standElems(P, fx.costEl).length < cost) return `Element${fx.costEl ? 'ธาตุ' + fx.costEl : ''}ที่พร้อมใช้ไม่พอ (ต้องการ ${cost})`;
+    if (standElems(P).length < cost) return `Element ที่พร้อมใช้ไม่พอ (ต้องการ ${cost})`;
     if (d.kind === 'Enchant' && !P.magic.includes(null)) return 'Magic Area เต็ม 3 ช่อง';
     if (d.kind === 'Equipment') { if (!equipTargets(G, p, card).length) return 'ไม่มี Unit ที่สวมใส่ได้'; }
     if (d.kind === 'Domain') {
@@ -709,7 +709,9 @@ AF.legalAttacks = function (G, p) {
   const restOkAv = P.avatar && P.avatar.card && FXOF(P.avatar.card).restAttack;
   const restAttackOk = !!restOkAv;
   for (const u of P.field) {
-    if (!u || (u.enteredTurn === G.turn && !hasFlag(u, 'haste'))) continue;
+    if (!u) continue;
+    /* Unit ที่เพิ่งลงสนามในเทิร์นนี้ตีไม่ได้ ยกเว้นมี haste หรือ (Avatar มี restAttack เช่น BT01-001 และ Unit อยู่ในสภาพนอนอยู่แล้ว) */
+    if (u.enteredTurn === G.turn && !hasFlag(u, 'haste') && !(restAttackOk && u.state === 'rest')) continue;
     /* Avatar ที่มี restAttack (เช่น BT01-001): Unit ที่นอนอยู่ประกาศโจมตีได้ แต่ได้ครั้งเดียวต่อเทิร์น (กันโจมตีวนซ้ำ) */
     if (u.state !== 'stand' && !(restAttackOk && u.attackedTurn !== G.turn)) continue;
     if (hasFlag(u, 'noAttack')) continue;
@@ -725,7 +727,7 @@ AF.legalAttacks = function (G, p) {
 async function payAndCast(G, p, card, kind) {
   const P = G.players[p]; const fx = FXOF(card);
   const bk = {}; const cost = spellCost(G, p, card, false, bk);
-  spendElems(G, p, cost, fx.costEl || null);   // costEl = ค่าร่ายต้องเป็น Element ธาตุนี้ (เช่น "Spend 1 fire Element")
+  spendElems(G, p, cost);
   if (bk.book) AF.useBook(G, p);
   if (fx.castLife) { P.avatar.hp -= fx.castLife; log(G, `${P.name} จ่ายพลังชีวิต ${fx.castLife} หน่วย (HP ${P.avatar.hp})`, p); checkEnd(G); }   // ค่าร่ายเป็นพลังชีวิต
   if (P.counterDiscount && P.counterDiscount.turn === G.turn && !P.counterDiscount.used && kind === 'Counter') P.counterDiscount.used = true;
@@ -807,7 +809,7 @@ async function useAbility(G, p, a) {
   const key = card.uid + ':' + ab.id;
   const prev = P.used[key] && P.used[key].turn === G.turn ? P.used[key].n : 0;
   P.used[key] = { turn: G.turn, n: prev + 1 };
-  if (ab.spend) spendElems(G, p, ab.spend, ab.spendEl || null);
+  if (ab.spend) spendElems(G, p, ab.spend);
   if (ab.pay) await ab.pay({ G, p, self: card, ab });
   const kind = kindByZone[a.zone] || 'unit-ability';
   const run = ab.prophecy ? { resolve: async (ctx) => { await declareProphecy(G, p, card, () => ab.resolve(ctx, null)); } } : ab;
@@ -856,14 +858,20 @@ async function resolveAttack(G, item) {
     } else success = atk >= def;
     log(G, `${a.def.name} (ATK ${atk}) ต่อสู้กับ ${t.def.name} (DEF ${def}) → ${success ? 'โจมตีสำเร็จ' : 'โจมตีไม่สำเร็จ'}`, p, { battle: [a.uid, t.uid] });
     if (success) {
+      const av = t.flags && t.flags.avenge;   // อ่านก่อนทำลาย เพราะ flags ของ Unit ถูกล้างเมื่อออกจากสนาม
       const ok = await destroyUnit(G, t, { kind: 'battle', attacker: a, player: p });
+      // BT01-014: ถ้า Unit เป้าหมายถูกทำลายในการต่อสู้นี้ ทำลาย Unit ที่โจมตีด้วย
+      if (ok && av && av.attacker === a && a.zone === 'field') {
+        log(G, `${av.label}: ${t.def.name} ถูกทำลายในการต่อสู้ → ทำลาย ${a.def.name}`, t.owner);
+        await destroyUnit(G, a, { kind: 'effect', player: t.owner, source: av.source });
+      }
       await emit(G, 'attackSuccess', { attacker: a, target: t, destroyed: ok });
       if (ok && a.zone === 'field' && hasFlag(a, 'rekill')) { if (AF.setStand(G, a)) log(G, `${a.def.name} กลับเป็น Stand และโจมตีได้อีกครั้ง`, p); }
     }
   }
 }
 async function declareAttack(G, p, a, target) {
-  const wasRest = a.state !== 'stand';   // ประกาศโจมตีทั้งที่นอนอยู่ (ผ่าน BT01-001) ให้ Equipment อย่าง BT01-015 ตรวจได้
+  const wasRest = a.state === 'rest';   // สภาพก่อนประกาศโจมตี (BT01-015 ตรวจ "ประกาศโจมตีขณะนอน")
   a.state = 'rest'; a.attackedTurn = G.turn;
   const tn = target === 'avatar' ? `Avatar ของ ${G.players[opp(p)].name}` : target.def.name;
   log(G, `${G.players[p].name} สั่ง ${a.def.name} โจมตี ${tn}`, p, { attack: a.uid, target: target === 'avatar' ? 'avatar' : target.uid });
@@ -872,7 +880,7 @@ async function declareAttack(G, p, a, target) {
   await runChain(G, item);
   // end of battle: drop battle-long modifiers
   for (const P of G.players) for (const u of P.field) if (u) u.mods = u.mods.filter(m => m.until !== 'battle');
-  if (G.tmpHooks) G.tmpHooks = G.tmpHooks.filter(h => !h.battle);
+  if (target !== 'avatar' && target.flags) delete target.flags.avenge;   // BT01-014 หมดผลเมื่อจบการต่อสู้
   if (a.zone === 'field' && hasFlag(a, 'doubleStrike') && !a.flags.dsUsed) { a.flags.dsUsed = true; if (AF.setStand(G, a)) log(G, `${a.def.name} DoubleStrike: กลับเป็น Stand โจมตีได้อีกครั้ง`, p); }
   G.version++;
 }
@@ -889,7 +897,6 @@ H.freeAttack = async (G, p, a) => {   // attack as part of an effect (no declara
   a.state = 'rest';
   const target = id === 'avatar' ? 'avatar' : units.find(u => u.uid === id);
   await resolveAttack(G, { attacker: a, target });
-  if (G.tmpHooks) G.tmpHooks = G.tmpHooks.filter(h => !h.battle);
 };
 
 /* ---------------------------------------------------------------- turn loop */
