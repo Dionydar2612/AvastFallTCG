@@ -2551,34 +2551,6 @@
   "image": "/images/SD05-019.jpg"
  },
  {
-  "id": "BT01-001",
-  "deck": "BT01",
-  "no": "001",
-  "name": "ผู้คุมไฟนรก ซาลอุน",
-  "type": "Avatar",
-  "element": "ไฟ",
-  "elements": [
-   "ไฟ",
-   "มืด"
-  ],
-  "rarity": "R",
-  "rotation": "A",
-  "artist": "ChatGPT",
-  "tribe": "นรก / นักรบ",
-  "effects": [
-   {
-    "keyword": "AUTO",
-    "text": "Unit ฝ่ายคุณสามารถประกาศโจมตีได้แม้อยู่ในสภาพนอน โดย Unit ที่เพิ่งลงสนามจะได้รับผลนี้เช่นกัน"
-   },
-   {
-    "keyword": "ACTIVATE 1/turn",
-    "text": "ส่งการ์ด 3 ใบบนสุดของ Main Deck ของคุณลงกองทิ้ง ทำลาย Unit ฝ่ายตรงข้าม 1 ใบที่มี Cost เท่ากับจำนวน Unit ที่ถูกส่งลงกองทิ้งด้วยเอฟเฟกต์นี้"
-   }
-  ],
-  "flavor": "“จงลุกโชกช่วง”",
-  "image": "/images/BT01-001.jpg"
- },
- {
   "id": "SD06-001",
   "deck": "SD06",
   "no": "001",
@@ -3078,5 +3050,367 @@
   ],
   "flavor": "“ชัยชนะที่ยิ่งใหญ่ที่สุด คือชัยชนะที่ไม่มีใครต้องหลั่งเลือด”",
   "image": "/images/SD06-019.jpg"
+ },
+ {
+  "id": "BT01-001",
+  "deck": "BT01",
+  "no": "001",
+  "name": "ผู้คุมไฟนรก ซาลอุน",
+  "type": "Avatar",
+  "element": "ไฟ",
+  "elements": [
+   "ไฟ",
+   "มืด"
+  ],
+  "rarity": "R",
+  "rotation": "A",
+  "artist": "Takeuchi Takashi",
+  "tribe": "นรก / นักรบ",
+  "effects": [
+   {
+    "keyword": "AUTO",
+    "text": "Unit ฝ่ายคุณสามารถประกาศโจมตีได้แม้อยู่ในสภาพนอน โดย Unit ที่เพิ่งลงสนามจะได้รับผลนี้เช่นกัน"
+   },
+   {
+    "keyword": "ACTIVATE 1/turn",
+    "text": "ส่งการ์ด 3 ใบบนสุดของ Main Deck ของคุณลงกองทิ้ง ทำลาย Unit ฝ่ายตรงข้าม 1 ใบที่มี Cost เท่ากับจำนวน Unit ที่ถูกส่งลงกองทิ้งด้วยเอฟเฟกต์นี้"
+   }
+  ],
+  "flavor": "“จงลุกโชกช่วง”",
+  "image": "/images/BT01-001.jpg"
+ },
+ {
+  "id": "BT01-005",
+  "deck": "BT01",
+  "no": "005",
+  "name": "ทาสแห่งเปลวไฟนรก กิลรันทา",
+  "type": "Unit",
+  "element": "ไฟ",
+  "rotation": "A",
+  "artist": "Takeuchi Takashi",
+  "cost": 1,
+  "cri": 0,
+  "atk": 1,
+  "def": 1,
+  "tribe": "นรก / ทาส",
+  "effects": [
+   {
+    "keyword": "ACTIVATE 1/turn",
+    "text": "เปลี่ยนการ์ดนี้เป็นนอน ส่งการ์ดใบบนสุดของ Main Deck ของคุณลงกองทิ้ง"
+   }
+  ],
+  "flavor": "“ไฟที่เผาข้า คือไฟเดียวกับที่ข้าใช้เผาผู้อื่น”",
+  "image": "/images/BT01-005.jpg"
+ },
+ {
+  "id": "BT01-006",
+  "deck": "BT01",
+  "no": "006",
+  "name": "ฮัมบาบา ร่างอสูรเพลิงนรก",
+  "type": "Unit",
+  "element": "ไฟ",
+  "rotation": "A",
+  "artist": "Takeuchi Takashi",
+  "cost": 2,
+  "cri": 1,
+  "atk": 2,
+  "def": 2,
+  "tribe": "นรก / อสูร / เทพเจ้า",
+  "effects": [
+   {
+    "keyword": "",
+    "text": "สามารถสวมใส่การ์ดใบนี้ได้หาก Avatar ของคุณเป็นธาตุไฟ หรือมีชื่อว่า “ฮัมบาบา” โดยสามารถใช้ Element ธาตุใดก็ได้ในการจ่าย Cost ของการ์ดใบนี้"
+   },
+   {
+    "keyword": "ACTIVATE 1/turn",
+    "text": "ส่งการ์ดใบนี้ลงกองทิ้ง, นำการ์ดทุกใบใน Domain Zone ของผู้เล่นทั้งสองฝ่ายลงกองทิ้งของเจ้าของการ์ด"
+   }
+  ],
+  "flavor": "“มันรอคอยวันที่ได้ทำลายอาณาบริเวณ”",
+  "image": "/images/BT01-006.jpg"
+ },
+ {
+  "id": "BT01-007",
+  "deck": "BT01",
+  "no": "007",
+  "name": "ลานิสตา ผู้ฝึกกลาดิเอเตอร์",
+  "type": "Unit",
+  "element": "ไฟ",
+  "rotation": "A",
+  "artist": "Takeuchi Takashi",
+  "cost": 2,
+  "cri": 0,
+  "atk": 2,
+  "def": 2,
+  "tribe": "ผู้ฝึก / นักสู้กลาดิเอเตอร์",
+  "effects": [
+   {
+    "keyword": "ACTIVATE 1/turn",
+    "text": "[Spend 1 fire Element] เลือก Unit เผ่า “นักสู้กลาดิเอเตอร์” ฝ่ายคุณ 1 ใบ ได้รับ ATK +2 จนจบเทิร์น"
+   }
+  ],
+  "flavor": "“เจ้าไม่ได้เกิดมาเป็นนักสู้ เจ้าถูกสร้างขึ้นมาเป็นนักสู้”",
+  "image": "/images/BT01-007.jpg"
+ },
+ {
+  "id": "BT01-009",
+  "deck": "BT01",
+  "no": "009",
+  "name": "หมาป่าเพลิงเฝ้าประตู",
+  "type": "Unit",
+  "element": "ไฟ",
+  "rotation": "A",
+  "artist": "Takeuchi Takashi",
+  "cost": 3,
+  "cri": 1,
+  "atk": 3,
+  "def": 2,
+  "tribe": "นรก / อสูร",
+  "effects": [
+   {
+    "keyword": "ADVENT",
+    "text": "เมื่อการ์ดนี้เข้าสู่สนาม ส่งการ์ด 2 ใบบนสุดของ Main Deck ของคุณลงกองทิ้ง การ์ดนี้ได้รับ ATK +1 ต่อ Unit 1 ใบที่ถูกส่งลงกองทิ้งด้วยเอฟเฟกต์นี้ จนจบเทิร์น"
+   }
+  ],
+  "flavor": "“มันไม่เคยเห่า มันเพียงเฝ้ารอให้เจ้าก้าวผ่านประตู”",
+  "image": "/images/BT01-009.jpg"
+ },
+ {
+  "id": "BT01-010",
+  "deck": "BT01",
+  "no": "010",
+  "name": "ราชาลาวาผู้เผาผลาญ อิกซาน",
+  "type": "Unit",
+  "element": "ไฟ",
+  "rotation": "A",
+  "artist": "Takeuchi Takashi",
+  "cost": 5,
+  "cri": 2,
+  "atk": 5,
+  "def": 4,
+  "tribe": "นรก / นักรบ",
+  "effects": [
+   {
+    "keyword": "AUTO",
+    "text": "เมื่อการ์ดนี้ทำลาย Unit ฝ่ายตรงข้ามสำเร็จ สร้างความเสียหายใส่พลังชีวิตฝ่ายตรงข้าม 1 หน่วย"
+   }
+  ],
+  "flavor": "“ลาวาไหลไปถึงไหน ที่นั่นไม่มีคำว่าพรุ่งนี้”",
+  "image": "/images/BT01-010.jpg"
+ },
+ {
+  "id": "BT01-011",
+  "deck": "BT01",
+  "no": "011",
+  "name": "ถ่านแดงปะทุ",
+  "type": "Spell",
+  "sub": "Enchant",
+  "element": "ไฟ",
+  "rotation": "A",
+  "artist": "Takeuchi Takashi",
+  "cost": 1,
+  "sc": 1,
+  "tribe": "เพลิง",
+  "effects": [
+   {
+    "keyword": "COST",
+    "text": "SpellCost: Spend 1 fire Element"
+   },
+   {
+    "keyword": "",
+    "text": "เลือก Unit ของคุณ 1 ใบ ได้รับ ATK +2 จนจบเทิร์น แล้วเปลี่ยน Unit นั้นเป็นนอน"
+   }
+  ],
+  "flavor": "“จุดไฟให้ถ่านแดง ก่อนมันจะมอดลงไปเอง”",
+  "image": "/images/BT01-011.jpg"
+ },
+ {
+  "id": "BT01-012",
+  "deck": "BT01",
+  "no": "012",
+  "name": "คำพิพากษาแห่งเปลวเพลิง",
+  "type": "Spell",
+  "sub": "Enchant",
+  "element": "ไฟ",
+  "rotation": "A",
+  "artist": "Takeuchi Takashi",
+  "cost": 4,
+  "sc": 4,
+  "tribe": "เพลิง",
+  "effects": [
+   {
+    "keyword": "COST",
+    "text": "SpellCost: Spend 4 Element"
+   },
+   {
+    "keyword": "",
+    "text": "ส่งการ์ด 3 ใบบนสุดของ Main Deck ของคุณลงกองทิ้ง จากนั้นทำลาย Unit ฝ่ายตรงข้าม 1 ใบที่มี Cost ไม่เกินจำนวน Unit ที่ถูกส่งลงกองทิ้งด้วยเอฟเฟกต์นี้ + 2"
+   }
+  ],
+  "flavor": "“ผู้ใดถูกเอ่ยชื่อในกองเพลิง ผู้นั้นไม่มีวันรอดกลับ”",
+  "image": "/images/BT01-012.jpg"
+ },
+ {
+  "id": "BT01-013",
+  "deck": "BT01",
+  "no": "013",
+  "name": "เสียงเชียร์จากอัฒจันทร์",
+  "type": "Spell",
+  "sub": "Enchant",
+  "element": "ไฟ",
+  "rotation": "A",
+  "artist": "Takeuchi Takashi",
+  "cost": 1,
+  "sc": 1,
+  "tribe": "ปรากฏการณ์",
+  "effects": [
+   {
+    "keyword": "COST",
+    "text": "SpellCost: Spend 1 fire Element"
+   },
+   {
+    "keyword": "",
+    "text": "จั่วการ์ด 1 ใบจาก Main Deck ของคุณ หากคุณมี Unit เผ่า “นักสู้กลาดิเอเตอร์” อย่างน้อย 2 ใบบนสนาม จั่วเพิ่มอีก 1 ใบ"
+   }
+  ],
+  "flavor": "“เสียงเรียกชื่อของเจ้าดังกว่าเสียงโลหะกระทบกัน”",
+  "image": "/images/BT01-013.jpg"
+ },
+ {
+  "id": "BT01-014",
+  "deck": "BT01",
+  "no": "014",
+  "name": "ลุกโชนก่อนดับสูญ",
+  "type": "Spell",
+  "sub": "Counter",
+  "element": "ไฟ",
+  "rotation": "A",
+  "artist": "Takeuchi Takashi",
+  "cost": 2,
+  "sc": 2,
+  "tribe": "เพลิง",
+  "effects": [
+   {
+    "keyword": "COST",
+    "text": "SpellCost: Spend 2 Element"
+   },
+   {
+    "keyword": "",
+    "text": "เมื่อ Unit ของคุณตกเป็นเป้าหมายการโจมตี หาก Unit นั้นถูกทำลายในการต่อสู้ครั้งนี้ ให้ทำลาย Unit ที่โจมตีด้วย"
+   }
+  ],
+  "flavor": "ข้าอาจดับสูญ แต่เจ้าไม่มีวันเดินออกจากที่นี่",
+  "image": "/images/BT01-014.jpg"
+ },
+ {
+  "id": "BT01-015",
+  "deck": "BT01",
+  "no": "015",
+  "name": "ดาบโซ่เพลิงนรก อิกนิส",
+  "type": "Spell",
+  "sub": "Equipment",
+  "element": "ไฟ",
+  "rotation": "A",
+  "artist": "Takeuchi Takashi",
+  "cost": 3,
+  "sc": 3,
+  "tribe": "อาวุธ / นรก",
+  "effects": [
+   {
+    "keyword": "COST",
+    "text": "EquipCost: Spend 3 Element"
+   },
+   {
+    "keyword": "",
+    "text": "Unit ที่สวมใส่ได้รับ ATK +2"
+   },
+   {
+    "keyword": "AUTO",
+    "text": "เมื่อ Unit ที่สวมใส่ประกาศโจมตีขณะอยู่ในสภาพนอน ได้รับ CRI +1 จนจบเทิร์น"
+   }
+  ],
+  "flavor": "“ฟันดาบทุกครั้ง คือการเรียกเปลวไฟให้ตื่น”",
+  "image": "/images/BT01-015.jpg"
+ },
+ {
+  "id": "BT01-016",
+  "deck": "BT01",
+  "no": "016",
+  "name": "เกราะหนังแห่งสนามประลอง",
+  "type": "Spell",
+  "sub": "Equipment",
+  "element": "ไฟ",
+  "rotation": "A",
+  "artist": "Takeuchi Takashi",
+  "cost": 2,
+  "sc": 2,
+  "tribe": "อาวุธ / นักสู้กลาดิเอเตอร์",
+  "effects": [
+   {
+    "keyword": "COST",
+    "text": "EquipCost: Spend 2 Element"
+   },
+   {
+    "keyword": "",
+    "text": "Unit ที่สวมใส่ได้รับ DEF +3"
+   },
+   {
+    "keyword": "AUTO",
+    "text": "เมื่อ Unit ที่สวมใส่การ์ดใบนี้ถูกทำลาย จั่วการ์ด 1 ใบจาก Main Deck ของคุณ"
+   }
+  ],
+  "flavor": "“รอยแผลบนเกราะ คือบันทึกของผู้ที่ยังมีชีวิตอยู่”",
+  "image": "/images/BT01-016.jpg"
+ },
+ {
+  "id": "BT01-017",
+  "deck": "BT01",
+  "no": "017",
+  "name": "โรงตีดาบ",
+  "type": "Spell",
+  "sub": "Domain",
+  "element": "ไฟ",
+  "rotation": "A",
+  "artist": "Takeuchi Takashi",
+  "cost": 3,
+  "sc": 3,
+  "tribe": "โรงตี / สถานที่",
+  "effects": [
+   {
+    "keyword": "COST",
+    "text": "CastCost: Spend 3 Element"
+   },
+   {
+    "keyword": "ACTIVATE 1/turn",
+    "text": "เลือกการ์ดที่มีคำว่า “ดาบ” ในชื่อสูงสุด 2 ใบจากกองทิ้งของคุณ นำกลับเข้า Main Deck แล้วสับ"
+   }
+  ],
+  "flavor": "“ไฟในเตาไม่เคยดับ ตราบที่ยังมีดาบที่ต้องตีใหม่”",
+  "image": "/images/BT01-017.jpg"
+ },
+ {
+  "id": "BT01-018",
+  "deck": "BT01",
+  "no": "018",
+  "name": "ประตูนรกเปิดออก",
+  "type": "Ultimate",
+  "element": "ไฟ",
+  "rotation": "A",
+  "artist": "Takeuchi Takashi",
+  "cost": 5,
+  "sc": 5,
+  "tribe": "ปรากฏการณ์ / นรก",
+  "effects": [
+   {
+    "keyword": "COST",
+    "text": "CastCost: Spend 5 Element"
+   },
+   {
+    "keyword": "",
+    "text": "ส่งการ์ด 5 ใบบนสุดของ Main Deck ของคุณลงกองทิ้ง จากนั้นเลือก Unit ฝ่ายตรงข้ามได้สูงสุด 3 ใบ โดยจำนวนที่เลือกต้องไม่เกินจำนวน Unit ที่ถูกส่งลงกองทิ้งด้วยเอฟเฟกต์นี้ แล้วส่ง Unit ที่เลือกลงกองทิ้ง (ไม่นับว่าเป็นการถูกทำลาย และความสามารถ ADMONISH จะไม่ทำงาน) จากนั้นเลือก Unit Cost 3 หรือต่ำกว่า 1 ใบจาก Unit ที่ถูกส่งลงกองทิ้งด้วยเอฟเฟกต์นี้ นำเข้าสู่ Action Zone ของคุณในสภาพนอน (ความสามารถ Advent จะไม่ทำงาน)"
+   }
+  ],
+  "flavor": "“เมื่อประตูเปิด ใครก็ตามที่ถูกเรียกชื่อ ต้องก้าวเข้ามา”",
+  "image": "/images/BT01-018.jpg"
  }
 ]
