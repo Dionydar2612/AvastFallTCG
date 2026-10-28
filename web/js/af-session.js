@@ -4,7 +4,7 @@
    - window.AF.logout() ออกจากระบบ · หมดอายุ/ถูกออกจากระบบ (401) → กลับหน้า login อัตโนมัติ */
 (function () {
   'use strict';
-  var KEY = 'cl-decks', timer = 0, pending = null;
+  var KEY = 'cl-decks', timer = 0, pending = null, rawSet = Storage.prototype.setItem;
   var top_ = (function () { try { return window.top || window; } catch (e) { return window; } })();
 
   function toLogin() { try { top_.location.href = '/'; } catch (e) { location.href = '/'; } }
@@ -19,10 +19,12 @@
     var raw = pending, list; pending = null;
     try { list = JSON.parse(raw); } catch (e) { return; }
     if (!Array.isArray(list)) return;
-    api('PUT', '/api/me/decks', { decks: list }).then(function () { window.dispatchEvent(new CustomEvent('af-decks-saved')); })
+    api('PUT', '/api/me/decks', { decks: list }).then(function (j) {
+      if (j && j.decks) { try { rawSet.call(window.localStorage, KEY, JSON.stringify(j.decks)); } catch (e) { } window.dispatchEvent(new Event('af-decks-sync')); }   // เซิร์ฟเวอร์ตัดการ์ดที่ผู้ใช้ไม่มีออก → ใช้รายการที่แก้แล้ว
+      window.dispatchEvent(new CustomEvent('af-decks-saved'));
+    })
       .catch(function (e) { if (e.message !== 'unauthorized') console.warn('บันทึกเด็คขึ้นเซิร์ฟเวอร์ไม่สำเร็จ:', e.message); window.dispatchEvent(new CustomEvent('af-decks-save-error')); });
   }
-  var rawSet = Storage.prototype.setItem;
   Storage.prototype.setItem = function (k, v) {
     rawSet.apply(this, arguments);
     if (this === window.localStorage && k === KEY) { pending = String(v); clearTimeout(timer); timer = setTimeout(flush, 500); }

@@ -94,10 +94,10 @@ function modalHTML(){
     const grp=(t,a)=>a.length?`<h3>${t}</h3><div class="decks">${a.map(d=>deckTile(d,i,d.key===cur)).join('')}</div>`:'';
     const mine=all.filter(d=>!d.preset);
     return `<div class="ov"><div class="dlg"><h2>เปลี่ยนเด็ค${m.title?' · '+esc(m.title):''}</h2>
-      <p class="muted">เลือกเด็คที่ต้องการใช้ เด็คของฉันมาจากแท็บ Deckbuilder (สร้างและแก้ไขที่นั่นที่เดียว)</p>
-      ${grp('เด็คของฉัน (จาก Deckbuilder)',mine)}${mine.length?'':'<div class="note">ยังไม่มีเด็คของคุณ กด "สร้างเด็คที่ Deckbuilder" เพื่อสร้าง แล้วกลับมาเลือกที่นี่</div>'}
+      <p class="muted">เลือกเด็คที่ต้องการใช้ เด็คของฉันมาจากแท็บ Decks (สร้างและแก้ไขที่นั่นที่เดียว · ใช้ได้เฉพาะการ์ดที่คุณมี)</p>
+      ${grp('เด็คของฉัน (จาก Decks)',mine)}${mine.length?'':'<div class="note">ยังไม่มีเด็คของคุณ กด "สร้างเด็คที่ Decks" เพื่อสร้าง แล้วกลับมาเลือกที่นี่</div>'}
       ${grp('เด็คตัวอย่าง',all.filter(d=>d.preset))}
-      <div class="acts"><button class="btn pri" data-act="closemodal" data-go="deck">＋ สร้างเด็คที่ Deckbuilder</button><button class="btn" data-act="closemodal">ปิด</button></div></div></div>`;
+      <div class="acts"><button class="btn pri" data-act="closemodal" data-go="decks">＋ สร้างเด็คที่ Decks</button><button class="btn" data-act="closemodal">ปิด</button></div></div></div>`;
   }
   if(m.t==='data'){
     const st=DATA.status,iss=DATA.issues();

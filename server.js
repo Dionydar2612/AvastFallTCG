@@ -45,7 +45,8 @@ function page(file, onGuest) {
       res.set({ "Cache-Control": "no-store", "X-Robots-Tag": "noindex" });
       if (!sess) return onGuest(req, res);
       const decks = await me.decksOf(sess.user.id).catch(() => []);
-      const boot = `<script>window.__AF=${safeJson({ user: auth.publicUser(sess) })};try{localStorage.setItem("cl-decks",${safeJson(JSON.stringify(decks))})}catch(e){}</script><script src="/js/af-session.js"></script>`;
+      const owned = me.ownedBase(await me.ownedMap(sess.user.id).catch(() => ({})));   // การ์ดที่มี (รวมเวอร์ชันพิเศษเข้าใบหลัก) ให้ Deckbuilder/Playtest ตรวจสิทธิ์ใช้การ์ด
+      const boot = `<script>window.__AF=${safeJson({ user: auth.publicUser(sess), owned })};try{localStorage.setItem("cl-decks",${safeJson(JSON.stringify(decks))})}catch(e){}</script><script src="/js/af-session.js"></script>`;
       res.type("html").send(readTxt(file).replace(/<head[^>]*>/i, (m) => m + boot));
     } catch (e) { next(e); }
   };
@@ -54,7 +55,6 @@ const guestLogin = (_req, res) => res.type("html").send(readTxt("web/login.html"
 const guestBounce = (_req, res) => res.redirect(302, "/");
 app.get(["/", "/index.html"], page("web/index.html", guestLogin));
 app.get(["/hub.html"], page("web/hub.html", guestBounce));
-app.get(["/packs.html"], page("web/packs.html", guestBounce));
 app.get(["/cards", "/cards/", "/cards/index.html"], page("public/index.html", guestBounce));
 
 // ---------- รูป + หน้าเว็บ ----------

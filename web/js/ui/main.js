@@ -12,6 +12,14 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden&&ui.screen
 const noteKey=()=>{const u=UPDATE_NOTES[0];return u?(u.id||u.date)+'|'+u.title:''};
 function syncBell(){let seen='';try{seen=localStorage.getItem('af-notes-seen')||''}catch(e){}const d=document.getElementById('hdrNotesDot');if(d)d.hidden=seen===noteKey()}
 window.AFApp={
+  /* จากปุ่ม PLAY ที่ Home / ปุ่ม ▶ เล่น ที่ Decks: ตั้งโหมดและเด็คของผู้เล่น 1 แล้วแสดงหน้าตั้งค่าเกม (ไม่ทับเกมที่กำลังเล่นอยู่) */
+  launch(o){
+    if(ui.screen!=='setup'){return}
+    ui.page='play';ui.modal=null;
+    if(o.mode&&['bot','hot','spec','online'].includes(o.mode))ui.cfg.mode=o.mode;
+    if(o.deckId){ui.my=loadMy();const k='my:'+o.deckId;if(deckByKey(k))ui.cfg.sel[0]=k}
+    fixSelections();saveCfg();render();scrollTo(0,0)
+  },
   guide(){if(ui.screen==='setup'){ui.page='guide';ui.modal=null;render();scrollTo(0,0)}else{ui.modal={t:'help'};render()}},   // กำลังเล่นอยู่: เปิดกติกาโดยย่อแทน เกมไม่หาย
   notes(){ui.modal={t:'notes'};render();try{localStorage.setItem('af-notes-seen',noteKey())}catch(e){}syncBell();loadUpdateNotes().then(()=>{try{localStorage.setItem('af-notes-seen',noteKey())}catch(e){}syncBell()})}
 };

@@ -15,7 +15,8 @@
   const DEFAULT_NAME = 'เด็คใหม่', IMPORT_NAME = 'เด็คที่นำเข้า';
 
   let DEFS = {}, DECKS = {}, ELS = [], inited = false;
-  const S = { id: null, name: DEFAULT_NAME, avatar: null, counts: {}, edeck: null, tab: 'ALL', q: '', fd: '', ft: '', fe: '', sort: 'id', fin: false };
+  const owned = id => (((window.__AF || {}).owned) || {})[id] || 0;          // จำนวนที่ผู้ใช้มีจริง (รวมเวอร์ชันพิเศษเข้าใบหลักแล้ว)
+  const S = { own: true, id: null, name: DEFAULT_NAME, avatar: null, counts: {}, edeck: null, tab: 'ALL', q: '', fd: '', ft: '', fe: '', sort: 'id', fin: false };
 
   /* ---------------- storage (try/catch เสมอ) ---------------- */
   const lsGet = k => { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch (e) { return null; } };
@@ -55,6 +56,8 @@
       if (df.kind === 'Avatar') errs.push(df.name + ' เป็น Avatar ใส่ใน Main Deck ไม่ได้');
       else if (av && !allowed(av, df)) errs.push(df.name + ' (ธาตุ' + df.els.join('/') + ') ใส่ไม่ได้ Avatar เป็นธาตุ' + (av.els.join('/') || 'ไม่ระบุ'));
     }
+    for (const [id, n] of Object.entries(d.counts)) { const df = DEFS[id]; if (df && owned(id) < n) errs.push(df.name + ': ใส่ ' + n + ' ใบ แต่คุณมีแค่ ' + owned(id) + ' ใบ'); }
+    if (av && owned(av.id) < 1) errs.push('คุณยังไม่มี Avatar ' + av.name);
     for (const [nm, c] of Object.entries(nameCounts(d))) if (c > 4) errs.push(nm + ' ใส่ได้ไม่เกิน 4 ใบ (ตอนนี้ ' + c + ')');
     if (!av || av.kind !== 'Avatar') errs.push('ต้องเลือก Avatar 1 ใบ');
     const en = Object.values(edeckOf(d)).reduce((a, b) => a + b, 0);
@@ -70,6 +73,14 @@
     for (const [k, n] of Object.entries(edeckOf(d))) if (n > 0 && k) L.push('Element ' + k + ' ' + n);
     for (const id of Object.keys(d.counts).filter(i => d.counts[i] > 0).sort()) L.push(id + ' x' + d.counts[id] + '  # ' + ((DEFS[id] || {}).name || '?'));
     return L.join('\n');
+  }
+  /* เด็คที่นำเข้า/แชร์มา: ตัดการ์ดที่ผู้ใช้ไม่มีออก แล้วบอกว่าตัดอะไรไป */
+  function fitOwned(r) {
+    const cut = [];
+    for (const [id, n] of Object.entries(r.counts)) { const k = Math.min(n, owned(id)); if (k < n) cut.push(((DEFS[id] || {}).name || id) + ' ×' + (n - k)); if (k > 0) r.counts[id] = k; else delete r.counts[id]; }
+    if (r.avatar && !owned(r.avatar)) { cut.push('Avatar ' + ((DEFS[r.avatar] || {}).name || r.avatar)); r.avatar = null; }
+    if (cut.length) r.warns.push('ข้ามการ์ดที่คุณยังไม่มี: ' + cut.join(', '));
+    return r;
   }
   function parseText(txt) {
     const out = { name: IMPORT_NAME, avatar: null, counts: {}, edeck: null, warns: [] };
@@ -127,7 +138,7 @@
     <div id="dlist"></div>
     <div id="dedit" hidden>
     <div class="db-topbar"><button class="chip" data-a="back">← กลับไปรายการเด็ค</button><h1>Deckbuilder</h1></div>
-    <p class="db-sub">จัดเด็ค 60 ใบ (Avatar 1 + Main Deck 59) ชื่อซ้ำได้ไม่เกิน 4 ใบ และ Element Deck 8 ใบ — เสร็จแล้วกด <b>บันทึกเด็ค</b> เด็คจะไปอยู่ในหน้าเลือกเด็คของแท็บ Playtest ทันที (ส่งให้เพื่อนใช้ <b>แชร์ / คัดลอกข้อความ</b>)</p>
+    <p class="db-sub">จัดเด็ค 60 ใบ (Avatar 1 + Main Deck 59) ชื่อซ้ำได้ไม่เกิน 4 ใบ และ Element Deck 8 ใบ — เสร็จแล้วกด <b>บันทึกเด็ค</b> เด็คจะไปอยู่ในหน้าเลือกเด็คของแท็บ Play ทันที (ส่งให้เพื่อนใช้ <b>แชร์ / คัดลอกข้อความ</b>)</p>
     <div class="db-wrap">
       <section class="db-pool">
         <input id="dq" class="search" type="search" placeholder="ค้นหาชื่อ / รหัส / เผ่า">
@@ -163,7 +174,7 @@
     const sel = (k, items, all0) => `<select data-k="${k}" aria-label="${esc(all0)}"><option value="">${esc(all0)}</option>${items.map(o => Array.isArray(o) ? opt(o[0], S[k], o[1]) : opt(o, S[k])).join('')}</select>`;
     $('dfil').innerHTML = sel('fd', decks, 'ทุกเด็ค') + sel('ft', KINDS, 'ทุกประเภท') + sel('fe', els, 'ทุกธาตุ') +
       `<select data-k="sort" aria-label="เรียงลำดับ">${[['id', 'เรียงตามรหัส'], ['cost', 'Cost ต่ำ → สูง'], ['costd', 'Cost สูง → ต่ำ'], ['name', 'เรียงตามชื่อ']].map(([v, l]) => opt(v, S.sort, l)).join('')}</select>` +
-      `<label class="db-chk"><input type="checkbox" data-k="fin" ${S.fin ? 'checked' : ''}> เฉพาะที่อยู่ในเด็ค</label>`;
+      `<label class="db-chk"><input type="checkbox" data-k="own" ${S.own ? 'checked' : ''}> เฉพาะที่ฉันมี</label><label class="db-chk"><input type="checkbox" data-k="fin" ${S.fin ? 'checked' : ''}> เฉพาะที่อยู่ในเด็ค</label>`;
   }
 
   function renderPool() {
@@ -173,13 +184,13 @@
       : S.sort === 'name' ? (x, y) => x.name.localeCompare(y.name, 'th') || cmpId(x, y) : cmpId;
     const pool = Object.values(DEFS).filter(d => d.kind !== 'Avatar');
     const lib = pool.filter(d => (S.tab === 'ALL' || tabOf(d.kind) === S.tab) && (!S.fd || d.deck === S.fd) && (!S.ft || d.kind === S.ft) &&
-      (!S.fe || d.els.includes(S.fe)) && (!S.fin || (S.counts[d.id] || 0) > 0) &&
+      (!S.fe || d.els.includes(S.fe)) && (!S.fin || (S.counts[d.id] || 0) > 0) && (!S.own || owned(d.id) > 0 || (S.counts[d.id] || 0) > 0) &&
       (!q || (d.name + ' ' + d.id + ' ' + d.tribe).toLowerCase().includes(q))).sort(sorter);
     $('dcnt').innerHTML = `แสดง <b>${lib.length}</b> จาก <b>${pool.length}</b> ใบ`;
     $('dgrid').innerHTML = lib.map(d => {
-      const n = S.counts[d.id] || 0, bad = av && !allowed(av, d), full = (nc[d.name] || 0) >= 4 || bad;
-      return `<div class="db-t ${n ? 'in' : ''} ${bad ? 'off' : ''}" ${bad ? `title="ธาตุ${esc(d.els.join('/'))} ใส่ไม่ได้ Avatar เป็นธาตุ${esc(av.els.join('/') || 'ไม่ระบุ')}"` : ''}>
-        <button class="db-img" data-z="${esc(d.id)}" data-a="add" data-id="${esc(d.id)}" aria-label="เพิ่ม ${esc(d.name)}" ${full ? 'data-full="1"' : ''}>${pic(d)}${n ? `<span class="db-pill">${n}</span>` : ''}</button><button class="db-i" data-a="zoom" data-id="${esc(d.id)}" aria-label="ดูรายละเอียด ${esc(d.name)}">i</button>
+      const n = S.counts[d.id] || 0, have = owned(d.id), bad = av && !allowed(av, d), full = (nc[d.name] || 0) >= 4 || bad || n >= have;
+      return `<div class="db-t ${n ? 'in' : ''} ${bad || !have ? 'off' : ''}" ${bad ? `title="ธาตุ${esc(d.els.join('/'))} ใส่ไม่ได้ Avatar เป็นธาตุ${esc(av.els.join('/') || 'ไม่ระบุ')}"` : ''}>
+        <button class="db-img" data-z="${esc(d.id)}" data-a="add" data-id="${esc(d.id)}" aria-label="เพิ่ม ${esc(d.name)}" ${full ? 'data-full="1"' : ''}>${pic(d)}${n ? `<span class="db-pill">${n}</span>` : ''}<span class="db-own ${have ? '' : 'none'}">${have ? 'มี ' + have : 'ยังไม่มี'}</span></button><button class="db-i" data-a="zoom" data-id="${esc(d.id)}" aria-label="ดูรายละเอียด ${esc(d.name)}">i</button>
         <div class="db-nm">${esc(d.name)}</div><div class="db-mt">${d.els.map(e => ico(e, 12)).join('')} ${esc(d.id)} ${esc(costTxt(d))}</div>
         <div class="db-step"><button data-a="sub" data-id="${esc(d.id)}" ${n ? '' : 'disabled'} aria-label="ลด">−</button><b>${n}</b><button data-a="add" data-id="${esc(d.id)}" ${full ? 'disabled' : ''} aria-label="เพิ่ม">+</button></div></div>`;
     }).join('') || '<div class="empty">ไม่พบการ์ดตามตัวกรอง</div>';
@@ -201,9 +212,9 @@
       <div class="db-elg">${ELS.map(k => `<div class="db-elc">${ico(k, 16)}<span>${esc(k)}</span><button data-a="edm" data-k="${esc(k)}" data-d="-1" aria-label="ลด ${esc(k)}">−</button><b>${ed[k] || 0}</b><button data-a="edm" data-k="${esc(k)}" data-d="1" aria-label="เพิ่ม ${esc(k)}">+</button></div>`).join('')}</div>`;
     const mine = Object.keys(S.counts).filter(id => S.counts[id] > 0 && DEFS[id]).map(id => DEFS[id]).sort((x, y) => (KORD[x.kind] - KORD[y.kind]) || x.cost - y.cost || cmpId(x, y));
     $('dmini').innerHTML = mine.map(d => `<div class="db-m" data-z="${esc(d.id)}"><div class="db-img" data-a="zoomt" data-id="${esc(d.id)}">${pic(d)}<span class="db-pill">${S.counts[d.id]}</span></div>
-      <div class="db-step"><button data-a="sub" data-id="${esc(d.id)}" aria-label="ลด">−</button><button data-a="add" data-id="${esc(d.id)}" ${(nc[d.name] || 0) >= 4 ? 'disabled' : ''} aria-label="เพิ่ม">+</button></div></div>`).join('')
-      || '<span class="db-muted">ยังไม่มีการ์ดในเด็ค คลิกการ์ดทางซ้ายเพื่อใส่ลงเด็ค</span>';
-    $('dbot').innerHTML = (errs.length ? `<div class="db-warn">${errs.map(esc).join('<br>')}</div>` : '<div class="good">✓ เด็คถูกต้อง พร้อมใช้เล่น กดบันทึกแล้วไปเลือกที่แท็บ Playtest</div>') +
+      <div class="db-step"><button data-a="sub" data-id="${esc(d.id)}" aria-label="ลด">−</button><button data-a="add" data-id="${esc(d.id)}" ${(nc[d.name] || 0) >= 4 || S.counts[d.id] >= owned(d.id) ? 'disabled' : ''} aria-label="เพิ่ม">+</button></div></div>`).join('')
+      || '<span class="db-muted">ยังไม่มีการ์ดในเด็ค คลิกการ์ดทางซ้ายเพื่อใส่ลงเด็ค (ใส่ได้เท่าที่คุณมี)</span>';
+    $('dbot').innerHTML = (errs.length ? `<div class="db-warn">${errs.map(esc).join('<br>')}</div>` : '<div class="good">✓ เด็คถูกต้อง พร้อมใช้เล่น กดบันทึกแล้วเลือกเล่นที่แท็บ Play</div>') +
       `<div class="db-acts"><button class="chip pri" data-a="share">📤 แชร์ / คัดลอกข้อความ</button><button class="chip" data-a="save">💾 บันทึกเด็ค</button><button class="chip" data-a="import">📥 นำเข้าจากข้อความ</button><button class="chip" data-a="clear">ล้างเด็ค</button></div>`;
     $('dbar').innerHTML = `<button class="db-bav" data-a="avopen" aria-label="เปลี่ยน Avatar">${av ? pic(av) : '<span>Avatar</span>'}</button>
       <div class="db-bin"><b>${av ? esc(av.name) : 'ยังไม่ได้เลือก Avatar'}</b><span><b>${tot}</b>/60 ${tot === 60 ? '<span class="good">ครบ</span>' : `<span class="bad">${tot < 60 ? 'ขาด ' + (60 - tot) : 'เกิน ' + (tot - 60)}</span>`}</span></div>
@@ -221,9 +232,9 @@
     d = shareD = d || S; const text = toText(d), errs = validate(d);
     openOv(`<h2>แชร์เด็ค: ${esc(d.name)}</h2>
       ${errs.length ? `<div class="db-warn">เด็คนี้ยังไม่ถูกต้องตามกติกา (นำเข้าได้ แต่ต้องแก้ก่อนเล่น):<br>${errs.map(esc).join('<br>')}</div>` : ''}
-      <p class="db-muted">คัดลอกข้อความนี้ส่งให้เพื่อน แล้วให้เพื่อนกด <b>นำเข้าจากข้อความ</b> ที่แท็บ Deckbuilder ของเขาแล้ววาง (เด็คที่บันทึกของคุณเองใช้เล่นในแท็บ Playtest ได้เลย ไม่ต้องคัดลอก)</p>
+      <p class="db-muted">คัดลอกข้อความนี้ส่งให้เพื่อน แล้วให้เพื่อนกด <b>นำเข้าจากข้อความ</b> ที่แท็บ Deckbuilder ของเขาแล้ววาง (เด็คที่บันทึกของคุณเองเล่นได้ที่แท็บ Play เลย ไม่ต้องคัดลอก · เพื่อนต้องมีการ์ดครบตามเด็คจึงจะใช้ได้)</p>
       <textarea id="dtxt" class="db-ta" readonly>${esc(text)}</textarea>
-      <div class="db-acts"><button class="chip pri" data-a="copytxt">คัดลอกข้อความ</button><button class="chip" data-a="copylink">คัดลอกลิงก์แชร์</button><a class="chip pri" href="${esc(simLink(d))}" target="_blank" rel="noopener">▶ เปิดใน Playtest (นำเข้าอัตโนมัติ)</a><button class="chip" data-a="dl">ดาวน์โหลด .txt</button>
+      <div class="db-acts"><button class="chip pri" data-a="copytxt">คัดลอกข้อความ</button><button class="chip" data-a="copylink">คัดลอกลิงก์แชร์</button><button class="chip" data-a="dl">ดาวน์โหลด .txt</button>
       <button class="chip" data-a="closeov">ปิด</button></div>
       <p class="db-muted">ลิงก์แชร์เปิดแล้วจะโหลดเด็คนี้ในหน้า Deckbuilder นี้ (ผู้รับกดคัดลอกข้อความต่อเพื่อนำเข้า AvastFallTCGsim)</p>`);
   }
@@ -234,8 +245,8 @@
       <div class="db-acts"><button class="chip pri" data-a="doimport">นำเข้า</button><button class="chip" data-a="closeov">ปิด</button></div>`);
   }
   function avatarModal() {
-    const avs = Object.values(DEFS).filter(d => d.kind === 'Avatar').sort(cmpId);
-    openOv(`<h2>เลือก Avatar</h2><div class="db-avg">${avs.map(d => `<button class="db-avc ${S.avatar === d.id ? 'on' : ''}" data-z="${esc(d.id)}" data-a="avpick" data-id="${esc(d.id)}">${pic(d)}<b>${esc(d.name)}</b><small>${d.els.map(e => ico(e, 13)).join('')} ${esc(d.id)}</small></button>`).join('') || '<span class="db-muted">ไม่พบ Avatar</span>'}</div>
+    const avs = Object.values(DEFS).filter(d => d.kind === 'Avatar').sort((a, b) => (owned(b.id) > 0) - (owned(a.id) > 0) || cmpId(a, b));
+    openOv(`<h2>เลือก Avatar <small class="db-muted">(เลือกได้เฉพาะที่คุณมี)</small></h2><div class="db-avg">${avs.map(d => `<button class="db-avc ${S.avatar === d.id ? 'on' : ''} ${owned(d.id) ? '' : 'lock'}" data-z="${esc(d.id)}" data-a="avpick" data-id="${esc(d.id)}">${pic(d)}<b>${esc(d.name)}</b><small>${d.els.map(e => ico(e, 13)).join('')} ${esc(d.id)} · ${owned(d.id) ? 'มี ' + owned(d.id) : '🔒 ยังไม่มี'}</small></button>`).join('') || '<span class="db-muted">ไม่พบ Avatar</span>'}</div>
       <div class="db-acts"><button class="chip" data-a="closeov">ปิด</button></div>`);
   }
 
@@ -249,9 +260,12 @@
     setMode('edit'); renderSide();
   }
   function newDeck() {
-    const f = Object.values(DEFS).filter(d => d.kind === 'Avatar').sort(cmpId)[0];
+    const f = Object.values(DEFS).filter(d => d.kind === 'Avatar' && owned(d.id) > 0).sort(cmpId)[0];
+    if (!f) { toast('ยังไม่มี Avatar — ซื้อ Starter Deck ที่ Shop ก่อน'); return goShop(); }
     setDeck({ id: null, name: DEFAULT_NAME, avatar: f && f.id, counts: {}, edeck: null, fresh: true });
   }
+  const goShop = () => { try { window.parent.postMessage({ afGo: 'shop' }, location.origin); } catch (e) { } };
+  const hasAny = () => Object.values(DEFS).some(d => d.kind === 'Avatar' && owned(d.id) > 0);
   function loadDeck(id) { const d = loadSaved().find(x => x.id === id); if (d) setDeck(d); }
   function setMode(m) { $('dlist').hidden = m !== 'list'; $('dedit').hidden = m !== 'edit'; S.mode = m; if (m === 'list') renderList(); }
   function backToList() {
@@ -267,11 +281,11 @@
       return `<div class="db-deck box"><div class="db-dart" ${av ? `data-z="${esc(av.id)}"` : ''}>${av ? pic(av) : '<div class="noimg">—</div>'}</div>
         <div class="db-dinfo"><h3>${esc(d.name)}</h3><div class="db-muted">Avatar: ${esc(av ? av.name : '—')} · ${sizeOf(d)}/60 ใบ</div><div class="db-muted">Element Deck: ${esc(edTxt)}</div>
         ${errs.length ? `<div class="bad db-ds">⚠ ${esc(errs[0])}${errs.length > 1 ? ` (และอีก ${errs.length - 1} ข้อ)` : ''}</div>` : '<div class="good db-ds">✓ เด็คถูกต้อง</div>'}
-        <div class="db-acts"><button class="chip pri" data-a="edit" data-id="${esc(d.id)}">แก้ไข</button><button class="chip" data-a="lshare" data-id="${esc(d.id)}">แชร์ / คัดลอกข้อความ</button><button class="chip" data-a="dup" data-id="${esc(d.id)}">ทำสำเนา</button>
+        <div class="db-acts">${errs.length ? '' : `<button class="chip pri" data-a="play" data-id="${esc(d.id)}">▶ เล่นด้วยเด็คนี้</button>`}<button class="chip ${errs.length ? 'pri' : ''}" data-a="edit" data-id="${esc(d.id)}">แก้ไข</button><button class="chip" data-a="lshare" data-id="${esc(d.id)}">แชร์ / คัดลอกข้อความ</button><button class="chip" data-a="dup" data-id="${esc(d.id)}">ทำสำเนา</button>
         <button class="chip ${sure ? 'danger' : ''}" data-a="del" data-id="${esc(d.id)}">${sure ? 'ยืนยันลบ' : 'ลบ'}</button></div></div></div>`;
     }).join('');
-    $('dlist').innerHTML = `<h1>Deckbuilder</h1><p class="db-sub">ที่นี่คือที่เดียวสำหรับสร้างและแก้ไขเด็คทั้งหมด (เก็บในเบราว์เซอร์นี้) เด็คที่บันทึกแล้วจะไปให้เลือกในแท็บ Playtest เอง ส่งให้เพื่อนด้วย <b>แชร์ / คัดลอกข้อความ</b>sim</p>
-      <div class="db-lgrid">${cards}<button class="db-deck db-add" data-a="create"><span>＋</span>สร้างเด็คใหม่</button></div>
+    $('dlist').innerHTML = `<h1>Deckbuilder</h1><p class="db-sub">จัดเด็คได้เฉพาะ<b>การ์ดที่คุณมี</b> (ซื้อเพิ่มที่ Shop) · เด็คที่บันทึกแล้วเก็บไว้กับบัญชีของคุณ และเลือกเล่นได้ที่ Play · ส่งให้เพื่อนด้วย <b>แชร์ / คัดลอกข้อความ</b></p>
+      <div class="db-lgrid">${cards}${hasAny() ? '<button class="db-deck db-add" data-a="create"><span>＋</span>สร้างเด็คใหม่</button>' : '<button class="db-deck db-add" data-a="toshop"><span>🛒</span>ยังไม่มีการ์ด — ไปซื้อ Starter Deck ที่ Shop</button>'}</div>
       <div class="db-acts"><button class="chip" data-a="import">📥 นำเข้าจากข้อความ / ลิงก์</button></div>`;
   }
   let confirmDel = null;
@@ -281,7 +295,7 @@
     const i = a.findIndex(x => x.id === id); if (i >= 0) a[i] = rec; else a.push(rec);
     S.id = id; S.name = rec.name; base = snap();
     const okSave = lsSet(LS_DECKS, a); if (okSave) notify();
-    toast(okSave ? 'บันทึกเด็คแล้ว ✓ ใช้เลือกเล่นในแท็บ Playtest ได้เลย' : 'บันทึกลงเครื่องไม่ได้');
+    toast(okSave ? 'บันทึกเด็คแล้ว ✓ ใช้เลือกเล่นที่แท็บ Play ได้เลย' : 'บันทึกลงเครื่องไม่ได้');
     renderSide();
   }
   function add(id, dlt) {
@@ -290,6 +304,7 @@
     if (dlt > 0) {
       const av = DEFS[S.avatar];
       if (av && !allowed(av, df)) return toast('ธาตุไม่ตรงกับ Avatar');
+      if (n > owned(id)) return toast(owned(id) ? 'คุณมี ' + df.name + ' แค่ ' + owned(id) + ' ใบ ใส่ครบแล้ว' : 'คุณยังไม่มีการ์ดใบนี้ — ไปซื้อที่ Shop');
       if ((nameCounts(S)[df.name] || 0) >= 4) return toast('ชื่อซ้ำได้ไม่เกิน 4 ใบ');
     }
     n = Math.max(0, Math.min(4, n)); if (n) S.counts[id] = n; else delete S.counts[id];
@@ -299,7 +314,7 @@
     let txt = ($('dimp') || {}).value || '';
     const m = txt.match(/#deck=([A-Za-z0-9_-]+)/);
     if (m) { try { txt = unb64(m[1]); } catch (e) { return importModal(txt, ['ลิงก์ไม่ถูกต้อง']); } }
-    const r = parseText(txt);
+    const r = fitOwned(parseText(txt));
     if (!Object.keys(r.counts).length && !r.avatar) return importModal(txt, ['ไม่พบการ์ดในข้อความ', ...r.warns]);
     setDeck({ id: null, name: r.name, avatar: r.avatar, counts: r.counts, edeck: r.edeck, fresh: true });
     if (r.warns.length) importModal(txt, ['นำเข้าแล้ว แต่มีบางบรรทัดถูกข้าม:', ...r.warns]); else { closeOv(); toast('นำเข้าเด็คแล้ว ✓'); }
@@ -324,6 +339,8 @@
       }
       case 'tab': S.tab = t.dataset.v; return renderSide();
       case 'create': return newDeck();
+      case 'toshop': return goShop();
+      case 'play': { try { window.parent.postMessage({ afLaunch: { deckId: id } }, location.origin); } catch (e) { } return; }
       case 'back': return backToList();
       case 'edit': return loadDeck(id);
       case 'lshare': { const d = loadSaved().find(x => x.id === id); if (d) shareModal(d); return; }
@@ -332,7 +349,7 @@
       case 'save': return saveDeck();
       case 'clear': if (Object.keys(S.counts).length && !confirm('ล้างการ์ดทั้งหมดในเด็คนี้?')) return; S.counts = {}; return renderSide();
       case 'avopen': return avatarModal();
-      case 'avpick': S.avatar = id; closeOv(); return renderSide();
+      case 'avpick': if (!owned(id)) return toast('คุณยังไม่มี Avatar ใบนี้ — ไปซื้อที่ Shop'); S.avatar = id; closeOv(); return renderSide();
       case 'edm': { const cur = Object.assign({}, edeckOf(S)); const v = Math.max(0, (cur[t.dataset.k] || 0) + +t.dataset.d); if (v) cur[t.dataset.k] = v; else delete cur[t.dataset.k]; S.edeck = cur; return renderSide(); }
       case 'edauto': S.edeck = null; return renderSide();
       case 'share': return shareModal(S);
@@ -439,7 +456,7 @@
   function fromHash() {
     const m = location.hash.match(/^#deck=([A-Za-z0-9_-]+)/);
     if (m) {
-      try { const r = parseText(unb64(m[1])); setDeck({ id: null, name: r.name, avatar: r.avatar, counts: r.counts, edeck: r.edeck, fresh: true }); showView('deck'); toast('โหลดเด็คจากลิงก์แล้ว'); return true; } catch (e) { }
+      try { const r = fitOwned(parseText(unb64(m[1]))); setDeck({ id: null, name: r.name, avatar: r.avatar, counts: r.counts, edeck: r.edeck, fresh: true }); showView('deck'); toast('โหลดเด็คจากลิงก์แล้ว'); return true; } catch (e) { }
     }
     if (location.hash === '#deckbuilder') { showView('deck'); return true; }
     return false;
@@ -450,10 +467,11 @@
     if (S.mode === 'edit' && dirty() && !confirm('มีการแก้ไขที่ยังไม่ได้บันทึก ทิ้งแล้วเปิดเด็คอื่น?')) return;
     showView('deck'); closeOv();
     if (p && p.id) { const d = loadSaved().find(x => x.id === p.id); if (d) return setDeck(d); toast('ไม่พบเด็คนี้ในที่เก็บ'); return setMode('list'); }
-    if (p && p.text) { const r = parseText(p.text); return setDeck({ id: null, name: p.name || r.name, avatar: r.avatar, counts: r.counts, edeck: r.edeck, fresh: true }); }
+    if (p && p.text) { const r = fitOwned(parseText(p.text)); return setDeck({ id: null, name: p.name || r.name, avatar: r.avatar, counts: r.counts, edeck: r.edeck, fresh: true }); }
   }
   window.DB = {
     show: showView, openDeck, ready: () => inited,
+    refreshOwned(map) { window.__AF = window.__AF || {}; window.__AF.owned = map || {}; if (!inited) return; renderFilters(); if (S.mode === 'edit') renderSide(); else renderList(); },
     init() {
       if (inited) return; inited = true;
       buildDefs(); injectZoomCss(); skeleton(); renderFilters(); initZoom();

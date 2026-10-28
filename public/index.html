@@ -115,8 +115,8 @@ table.ct{border-collapse:collapse;width:100%;min-width:640px}
 .db-add{flex-direction:column;align-items:center;justify-content:center;min-height:150px;font:inherit;font-weight:700;font-size:1.1rem;color:var(--ink);border-style:dashed;cursor:pointer;gap:4px}.db-add span{font-size:2.4rem;line-height:1}.db-add:hover{background:var(--gold);color:#111}
 .chip.danger{background:#c0121f;color:#fff;border-color:#c0121f}
 @media(max-width:900px){.db-wrap{grid-template-columns:1fr}.db-side{position:static;max-height:none}}
-.noimg{aspect-ratio:170/241;display:flex;align-items:center;justify-content:center;text-align:center;padding:8px;border:2px solid var(--ink);border-radius:10px;background:var(--pap)}.meta{margin-top:14px;padding-top:10px;border-top:1px dashed var(--mut);font-size:.85rem;color:var(--mut)}</style></head><body><main>
-<nav class="sitetabs" aria-label="เมนูเว็บ"><a class="on" href="/cards/" data-v="cards" aria-current="page">Card List</a><a href="#deckbuilder" data-v="deck">Deckbuilder</a><a href="/" target="_blank" rel="noopener">Playtest ↗</a></nav>
+.db-own{position:absolute;left:4px;bottom:4px;border:2px solid #111;border-radius:99px;background:var(--gold);color:#111;font-size:.7rem;font-weight:700;padding:0 8px}.db-own.none{background:#ddd;color:#555}.db-avc.lock img{filter:grayscale(1) brightness(.6)}.db-avc.lock{opacity:.8}.db-t.off .db-img img{filter:grayscale(.8)}.gh .bar{flex:1;max-width:220px;height:8px;border:2px solid var(--ink);border-radius:99px;margin:6px 10px 0}.gh .bar i{display:block;height:100%;background:var(--gold)}.noimg{aspect-ratio:170/241;display:flex;align-items:center;justify-content:center;text-align:center;padding:8px;border:2px solid var(--ink);border-radius:10px;background:var(--pap)}.meta{margin-top:14px;padding-top:10px;border-top:1px dashed var(--mut);font-size:.85rem;color:var(--mut)}</style></head><body><main>
+<nav class="sitetabs" aria-label="เมนูเว็บ"><a class="on" href="/cards/" data-v="cards" aria-current="page">Card List</a><a href="#deckbuilder" data-v="deck">Deckbuilder</a><a href="/#play" target="_blank" rel="noopener">Play ↗</a></nav>
 <div id="v-cards">
 <h1>การ์ดทั้งหมด</h1>
 <p style="margin:-4px 0 12px"><a href="/api/docs" target="_blank" rel="noopener" style="color:var(--ink)">📘 API สำหรับนักพัฒนา</a></p>
@@ -182,7 +182,7 @@ function render(){
  if(!list.length)g.innerHTML='<div class="empty">ไม่พบการ์ดที่ตรงกับเงื่อนไข</div>';
  else if(mode==="list")g.innerHTML=list.map((c,n)=>{const o=own(c);return `<button class="row-i${hasOwn&&!o?" miss":""}" data-n="${n}">${pic(c)}<span class="ri"><b>${c.name}</b> <span class="mt">${c.deck}-${c.no} · ${c.type}${c.el?" · ธาตุ"+c.el:""}${c.rar?" · "+c.rar:""}${c.type==="Unit"?` · Cost ${c.cost} / ATK ${c.atk} / DEF ${c.def??"-"}`:""}${hasOwn?` · มี ${o} ใบ`:""}</span><span class="ef">${ef(c)||"ไม่มีเอฟเฟกต์"}</span></span></button>`}).join("");
  else if(mode==="table")g.innerHTML=`<div class="tbl-w"><table class="ct"><thead><tr><th></th><th>รหัส</th><th>ชื่อ</th><th>ประเภท</th><th>ธาตุ</th><th>Rarity</th><th>Cost</th><th>CRI</th><th>ATK</th><th>DEF</th>${hasOwn?"<th>มี</th>":""}</tr></thead><tbody>${list.map((c,n)=>`<tr data-n="${n}"${hasOwn&&!own(c)?' class="miss"':""}><td>${c.img?`<img loading="lazy" src="${c.img}" alt="">`:""}</td><td>${c.deck}-${c.no}</td><td><b>${c.name}</b></td><td>${c.type}</td><td>${(c.els&&c.els.length?c.els:c.el?[c.el]:[]).join("/")}</td><td class="num">${c.rar||""}</td><td class="num">${c.cost??c.sc??""}</td><td class="num">${c.cri??""}</td><td class="num">${c.atk??""}</td><td class="num">${c.def??""}</td>${hasOwn?`<td class="num">${own(c)||""}</td>`:""}</tr>`).join("")}</tbody></table></div>`;
- else if(mode==="series"){let h="",last="";list.forEach((c,n)=>{if(c.deck!==last){last=c.deck;const d=DECKS[c.deck]||{},t=list.filter(x=>x.deck===c.deck),o=t.filter(x=>own(x)).length;h+=`<div class="gh"><span>${c.deck} ${d.name||""}</span><small>${t.length} ใบ${hasOwn?` · สะสมแล้ว ${o}`:""}</small></div>`}h+=tile(c,n)});g.innerHTML=h}
+ else if(mode==="series"){let h="",last="";list.forEach((c,n)=>{if(c.deck!==last){last=c.deck;const d=DECKS[c.deck]||{},t=list.filter(x=>x.deck===c.deck),o=t.filter(x=>own(x)).length;h+=`<div class="gh"><span>${c.deck} ${d.name||""}</span><span class="bar"><i style="width:${Math.round(o/t.length*100)}%"></i></span><small>${hasOwn?`สะสมแล้ว ${o}/${t.length}`:t.length+" ใบ"}</small></div>`}h+=tile(c,n)});g.innerHTML=h}
  else g.innerHTML=list.map(tile).join("");
 }
 function show(n){
@@ -210,6 +210,7 @@ addEventListener("DOMContentLoaded",boot);
 /* ฝังอยู่ในหน้าเกม: แถบเมนูบนสุดของหน้าหลักเป็นตัวสลับ Card List ↔ Deckbuilder */
 addEventListener("message",e=>{if(e.origin!==location.origin||!e.data)return;
  if(e.data.afView)window.DB&&DB.show&&DB.show(e.data.afView==="deck"?"deck":"cards");
+ if(e.data.afOwned){window.DB&&DB.refreshOwned&&DB.refreshOwned(e.data.afOwned);fetch("/api/me/collection",{credentials:"same-origin"}).then(r=>r.json()).then(o=>{OWN=o.owned||{};try{render()}catch(_){}}).catch(()=>{})}
  if(e.data.afDeck){if(window.DB&&DB.ready&&DB.ready())DB.openDeck(e.data.afDeck);else window.__afDeckQ=e.data.afDeck}});
 
 </script>
