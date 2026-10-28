@@ -2,19 +2,22 @@
 //   /                    เกมทดลองเล่น (web/)           + /api/feedback, /recommece, /api/room/*  (lib/playtest.js)
 //   /cards/              Card List + Deckbuilder (public/)  ·  /api/docs เอกสาร API
 //   /api/cards ...       card-api สาธารณะ (เกมเรียกจากเซิร์ฟเวอร์เดียวกันนี้)
-//   /admin               หลังบ้าน (ต้องตั้ง ADMIN_PASSWORD)
+//   /admin               หลังบ้าน (ล็อกอินด้วยบัญชี role=admin ของ Supabase)
+// ต้องล็อกอิน (Supabase Auth) ก่อนใช้งานทุกหน้า: ยังไม่ล็อกอิน → เห็นหน้า login (web/login.html) · /api/* ตอบ 401
 const path = require("path");
 const express = require("express");
-const cors = require("cors");
 const compression = require("compression");
 const rateLimit = require("express-rate-limit");
 
+const fs = require("fs");
 const store = require("./lib/store");
-store.init();
+const supa = require("./lib/supa");
+const auth = require("./lib/auth");
+const me = require("./lib/me");
 const updates = require("./lib/updates");
 updates.init();
 const playtest = require("./lib/playtest");
-const S = store.state; // ข้อมูลล่าสุดเสมอ (แก้ผ่าน /admin แล้วมีผลทันที)
+const S = store.state; // แคชของฐานข้อมูลการ์ด (แก้ผ่าน /admin แล้วมีผลทันที)
 
 const PORT = process.env.PORT || 3000;
 const costOf = (c) => c.cost ?? c.sc ?? 0;
@@ -22,10 +25,37 @@ const kwOf = (c) => (c.effects || []).map((e) => e.keyword.split(" ")[0]).filter
 
 const app = express();
 app.set("trust proxy", 1);
-// เส้นทางของเกม (feedback / ห้องออนไลน์ SSE) ต้องมาก่อน compression และ express.json
+// เส้นทางของเกม (feedback / ห้องออนไลน์ SSE) ต้องมาก่อน compression และ express.json — ต้องล็อกอินก่อนใช้ (ยกเว้นหน้าอ่านข้อเสนอแนะของแอดมินที่ใช้ ADMIN_KEY เดิม)
+app.use((req, res, next) => {
+  if (req.path === "/api/feedback" || req.path.startsWith("/api/room/")) return auth.requireAuth(req, res, next);
+  next();
+});
 app.use(playtest.middleware);
 app.use(compression());
-app.use(express.json({ limit: "20kb" }));
+app.use(express.json({ limit: "300kb" }));
+
+// ---------- หน้าเว็บ: ต้องล็อกอิน + ใส่ข้อมูลผู้ใช้/เด็คที่บันทึกไว้ลงหน้า (ไม่ต้องรอโหลดซ้ำ) ----------
+const readTxt = (f) => fs.readFileSync(path.join(__dirname, f), "utf8");
+const safeJson = (o) => JSON.stringify(o).replace(/</g, "\\u003c").replace(/\u2028|\u2029/g, "");
+// หน้า HTML จริงอ่านสดทุกครั้ง (ไฟล์เล็ก + แก้โค้ดแล้วเห็นผลทันที) ส่งแบบไม่แคชเพราะเป็นข้อมูลเฉพาะบุคคล
+function page(file, onGuest) {
+  return async (req, res, next) => {
+    try {
+      const sess = await auth.getSession(req, res);
+      res.set({ "Cache-Control": "no-store", "X-Robots-Tag": "noindex" });
+      if (!sess) return onGuest(req, res);
+      const decks = await me.decksOf(sess.user.id).catch(() => []);
+      const boot = `<script>window.__AF=${safeJson({ user: auth.publicUser(sess) })};try{localStorage.setItem("cl-decks",${safeJson(JSON.stringify(decks))})}catch(e){}</script><script src="/js/af-session.js"></script>`;
+      res.type("html").send(readTxt(file).replace(/<head[^>]*>/i, (m) => m + boot));
+    } catch (e) { next(e); }
+  };
+}
+const guestLogin = (_req, res) => res.type("html").send(readTxt("web/login.html"));
+const guestBounce = (_req, res) => res.redirect(302, "/");
+app.get(["/", "/index.html"], page("web/index.html", guestLogin));
+app.get(["/hub.html"], page("web/hub.html", guestBounce));
+app.get(["/packs.html"], page("web/packs.html", guestBounce));
+app.get(["/cards", "/cards/", "/cards/index.html"], page("public/index.html", guestBounce));
 
 // ---------- รูป + หน้าเว็บ ----------
 app.use("/images", express.static(store.imgDir, { maxAge: "1d", setHeaders: (r) => r.setHeader("Access-Control-Allow-Origin", "*") }));
@@ -37,14 +67,17 @@ app.use("/cards", express.static(path.join(__dirname, "public"), {
 
 // ---------- API ----------
 const api = express.Router();
-api.use(cors()); // เปิดให้เว็บอื่นเรียกได้ (Access-Control-Allow-Origin: *)
-api.use(rateLimit({ windowMs: 60_000, limit: 120, standardHeaders: true, legacyHeaders: false,
+api.use(rateLimit({ windowMs: 60_000, limit: 240, standardHeaders: true, legacyHeaders: false,
   message: { error: "too_many_requests" } }));
-api.use((req, res, next) => { res.set("Cache-Control", "public, max-age=60"); next(); });
+api.use((req, res, next) => { res.set("Cache-Control", /^\/(me|shop)/.test(req.path) ? "no-store" : "private, max-age=60"); next(); });
+api.get("/health", (_req, res) => res.json({ ok: true, cards: S.cards.length, supabase: supa.enabled }));
+api.get("/docs", (_req, res) => res.sendFile(path.join(__dirname, "public", "docs.html")));
+api.use(auth.requireAuth);                     // ตั้งแต่ตรงนี้ลงไปต้องล็อกอิน
+api.use(auth.sameOrigin);
+api.use(me.router);                            // /api/me · /api/me/daily · /api/me/decks · /api/me/collection · /api/shop
 
 const withImageUrl = (req) => (c) => (c.image ? { ...c, imageUrl: `${req.protocol}://${req.get("host")}${c.image}` } : c);
 
-api.get("/health", (_req, res) => res.json({ ok: true, cards: S.cards.length }));
 
 // GET /api/cards?deck=SD01&type=Unit&element=ทอง&rarity=C&rotation=A&keyword=AUTO
 //               &q=ธอร์&costMin=0&costMax=3&sort=cost&order=asc&page=1&limit=50
@@ -139,14 +172,18 @@ api.get("/filters", (_req, res) => {
 // Update Note ที่แอดมินเขียนใน /admin  (เกมดึงไปแสดงให้ผู้เล่นทุกคน ไม่แคชเพื่อให้เห็นของใหม่ทันที)
 api.get("/updates", (_req, res) => { res.set("Cache-Control", "no-cache"); res.json({ data: updates.list() }); });
 
-api.get("/docs", (_req, res) => res.sendFile(path.join(__dirname, "public", "docs.html")));
 api.use((_req, res) => res.status(404).json({ error: "not_found" }));
 
+app.use("/api/auth", auth.router);
 app.use("/api", api);
 app.use("/admin", require("./admin/router"));
 
 // ---------- เกมทดลองเล่น (หน้าแรก) ----------
-app.use(express.static(path.join(__dirname, "web"), { index: "index.html", maxAge: 0, etag: true }));
+app.use(express.static(path.join(__dirname, "web"), { index: false, maxAge: 0, etag: true }));
 app.use((_req, res) => res.status(404).type("text/plain; charset=utf-8").send("ไม่พบหน้านี้"));
 
-app.listen(PORT, () => console.log(`AvastFall TCG on http://localhost:${PORT}  (เกม /  ·  Card List /cards/  ·  API /api  ·  Admin /admin)  · feedback → ${playtest.FILE}${playtest.hasAdminKey ? "" : "  · (ยังไม่ได้ตั้ง ADMIN_KEY)"}`));
+(async () => {
+  await store.init();                                   // โหลดการ์ดจาก Supabase (ครั้งแรกจะ seed จาก data/*.json ให้)
+  if (supa.enabled) await me.ensureShopItems();         // สร้างสินค้าในร้านให้ชุดที่ยังไม่มี
+  app.listen(PORT, () => console.log(`AvastFall TCG on http://localhost:${PORT}  ·  Supabase: ${supa.enabled ? "เชื่อมแล้ว" : "ยังไม่ได้ตั้งค่า"}  ·  การ์ด ${S.cards.length} ใบ  ·  feedback → ${playtest.FILE}`));
+})().catch((e) => { console.error("เริ่มเซิร์ฟเวอร์ไม่สำเร็จ:", e.message); process.exit(1); });

@@ -4,22 +4,25 @@
 .site-brand{display:flex;align-items:center;gap:10px;font:700 20px/1.1 var(--f-disp);color:var(--ink);text-decoration:none;min-width:0;white-space:nowrap}
 .site-brand i{display:inline-grid;place-items:center;width:34px;height:34px;flex:none;border:3px solid var(--line);border-radius:10px;background:var(--gold);color:#111;font-style:normal;box-shadow:2px 2px 0 var(--line)}
 .site-brand em{font:700 10px/1 var(--f-body);font-style:normal;letter-spacing:.06em;border:2px solid var(--line);border-radius:6px;padding:3px 6px;background:var(--gold);color:#111}
-.site-sw{position:relative;display:grid;grid-template-columns:repeat(3,1fr);padding:0;border:3px solid var(--line);border-radius:14px;overflow:hidden;background:var(--panel);box-shadow:3px 3px 0 var(--line)}
-.site-sw .pill{position:absolute;top:0;bottom:0;left:0;width:33.3333%;border-radius:0;background:var(--ink);border:0;padding:0;transition:transform .38s cubic-bezier(.65,.05,.25,1),width .38s cubic-bezier(.65,.05,.25,1)}
-.site-sw[data-tab="cards"] .pill{transform:translateX(100%)}
-.site-sw[data-tab="deck"] .pill{transform:translateX(200%)}
-.site-sw button{position:relative;z-index:1;border:0;background:none;font:inherit;font-weight:700;padding:6px 20px;border-radius:0;color:var(--ink);cursor:pointer;transition:color .3s;white-space:nowrap}
+.site-sw{position:relative;display:grid;grid-template-columns:repeat(5,1fr);padding:0;border:3px solid var(--line);border-radius:14px;overflow:hidden;background:var(--panel);box-shadow:3px 3px 0 var(--line)}
+.site-sw .pill{position:absolute;top:0;bottom:0;left:0;width:20%;border-radius:0;background:var(--ink);border:0;padding:0;transition:transform .38s cubic-bezier(.65,.05,.25,1),width .38s cubic-bezier(.65,.05,.25,1)}
+.site-sw[data-tab="shop"] .pill{transform:translateX(100%)}
+.site-sw[data-tab="play"] .pill{transform:translateX(200%)}
+.site-sw[data-tab="cards"] .pill{transform:translateX(300%)}
+.site-sw[data-tab="deck"] .pill{transform:translateX(400%)}
+.site-sw button{position:relative;z-index:1;border:0;background:none;font:inherit;font-weight:700;padding:6px 16px;border-radius:0;color:var(--ink);cursor:pointer;transition:color .3s;white-space:nowrap}
 .site-sw button+button{border-left:3px solid var(--line)}
 .site-sw button[aria-selected="true"]{color:var(--paper)}
 .site-sw button:focus-visible{outline:3px solid var(--teal);outline-offset:-5px}
 .site-view{overflow-x:clip}
-.site-track{display:flex;width:200%;transition:transform .38s cubic-bezier(.65,.05,.25,1)}
+.site-track{display:flex;width:300%;transition:transform .38s cubic-bezier(.65,.05,.25,1)}
 /* ห้ามมี transform/will-change ค้างตอนอยู่แท็บ Playtest: ไม่งั้นหน้าต่างป๊อปอัป (position:fixed) จะอ้างอิงแทร็กกว้าง 200% แล้วเลื่อนหลุดไปทางขวา */
-.site-view[data-tab="play"] .site-track{transform:none}
-.site-view[data-tab="cards"] .site-track,.site-view[data-tab="deck"] .site-track{transform:translateX(-50%)}
-.site-pane{width:50%;flex:none;min-width:0}
+.site-view[data-pane="play"] .site-track{transform:none}
+.site-view[data-pane="cards"] .site-track{transform:translateX(-33.3333%)}
+.site-view[data-pane="hub"] .site-track{transform:translateX(-66.6667%)}
+.site-pane{width:33.3333%;flex:none;min-width:0}
 .site-pane.off{height:0;overflow:hidden;visibility:hidden}
-#cardsFrame{display:block;width:100%;height:calc(100vh - var(--bar-h,56px));height:calc(100dvh - var(--bar-h,56px));border:0;background:var(--paper)}
+#cardsFrame,#hubFrame{display:block;width:100%;height:calc(100vh - var(--bar-h,56px));height:calc(100dvh - var(--bar-h,56px));border:0;background:var(--paper)}
 /* ทางลัดบนแถบเมนู: วิธีเล่น · กระดิ่ง Update Note */
 .site-tools{display:flex;align-items:center;gap:8px;margin-left:auto}
 .site-tool{position:relative;display:inline-flex;align-items:center;gap:6px;border:2px solid var(--line);border-radius:99px;background:var(--panel);color:var(--ink);padding:4px 14px;font:700 14px/1.2 inherit;font-family:inherit;cursor:pointer;white-space:nowrap}
@@ -36,8 +39,8 @@
   .site-brand span,.site-brand em{display:none}
   .site-tools{order:1;flex:1;justify-content:flex-end}
   .site-tool{padding:3px 12px;font-size:13px}
-  .site-sw{order:2;flex:1 1 100%;grid-template-columns:repeat(3,1fr)}
-  .site-sw button{padding:6px 4px;font-size:13.5px}
+  .site-sw{order:2;flex:1 1 100%;grid-template-columns:repeat(5,1fr)}
+  .site-sw button{padding:6px 2px;font-size:12.5px}
 }
 @media (prefers-reduced-motion:reduce){.site-sw .pill,.site-track{transition:none}}
 
@@ -48,3 +51,14 @@
 .pk-ov-box iframe{display:block;width:100%;height:100%;border:0;background:var(--paper)}
 .pk-ov-x{position:absolute;top:10px;right:12px;z-index:2;width:34px;height:34px;border:2px solid var(--line);border-radius:50%;background:var(--panel);color:var(--ink);font:700 15px/1 inherit;font-family:inherit;cursor:pointer}
 .pk-ov-x:hover{background:var(--gold);color:#111}
+
+/* ผู้ใช้ที่ล็อกอิน: เหรียญ · ชื่อ · ออกจากระบบ */
+.site-user{display:flex;align-items:center;gap:8px;flex:none}
+.site-coin{display:inline-flex;align-items:center;gap:4px;border:3px solid var(--line);border-radius:99px;background:var(--gold);color:#111;padding:1px 12px;font:700 14px/1.4 inherit;font-family:inherit;cursor:pointer;box-shadow:2px 2px 0 var(--line);white-space:nowrap}
+.site-coin:hover{background:var(--ink);color:var(--paper)}
+.site-me{display:inline-flex;align-items:center;gap:6px;border:2px solid var(--line);border-radius:99px;background:var(--panel);color:var(--ink);padding:3px 12px;font:700 14px/1.2 inherit;font-family:inherit;cursor:pointer;max-width:150px}
+.site-me span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.site-me:hover{background:var(--gold);color:#111}
+.site-out{border:0;background:none;color:var(--ink2);font:600 13px/1 inherit;font-family:inherit;cursor:pointer;text-decoration:underline;padding:4px}
+.site-out:hover{color:var(--bad)}
+@media (max-width:560px){.site-user{order:1}.site-me span{max-width:64px}.site-tools{flex:none}}

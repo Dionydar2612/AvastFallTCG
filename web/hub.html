@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Home · AvastFall TCG</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mali:wght@400;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="/css/hub.css">
+</head>
+<body>
+<main class="hub" id="hub">
+  <nav class="hub-nav" id="hubNav" aria-label="เมนูหน้า Home">
+    <button type="button" data-v="home" class="on">🏠 Home</button>
+    <button type="button" data-v="shop">🛒 ร้านค้า</button>
+    <button type="button" data-v="collection">📚 คอลเลกชัน</button>
+    <span class="grow"></span>
+    <span class="coin" id="coinChip" title="เหรียญของคุณ">🪙 <b id="coinNum">–</b></span>
+  </nav>
+  <div id="view" aria-live="polite"><p class="mut center">กำลังโหลด…</p></div>
+</main>
+<div class="toast" id="toast" role="status"></div>
+<div class="ov" id="ov" hidden></div>
+<div class="ov" id="ov2" hidden style="z-index:60"></div>
+<script src="/js/hub.js"></script>
+</body>
+</html>

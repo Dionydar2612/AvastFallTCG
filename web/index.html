@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>AvastFall TCG · Open Test ทดลองเล่น</title>
-<meta name="description" content="เปิดให้ทดลองเล่น AvastFall TCG (Open Test) เล่นกับบอทหรือเล่นกับเพื่อนได้ทันที ไม่ต้องสมัคร">
+<title>Home · AvastFall TCG</title>
+<meta name="description" content="AvastFall TCG (Open Test) — ล็อกอินเพื่อเข้าร้านค้า จัดเด็ค ดูการ์ด และทดลองเล่นกับบอทหรือเพื่อน">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mali:wght@400;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap">
 <link rel="stylesheet" href="css/style.css">
-<link rel="stylesheet" href="css/site.css"><!-- แถบเมนูเดียว Playtest · Card List · Deckbuilder -->
+<link rel="stylesheet" href="css/site.css"><!-- แถบเมนูเดียว Home · Shop · Playtest · Card List · Deckbuilder -->
 <link rel="stylesheet" href="css/theme.css"><!-- ธีมรวมให้เหมือนหน้า Card List (ต้องโหลดหลังสุด) -->
 <style id="imgcss"></style><!-- CSS รูปการ์ด สร้างจาก URL ของ card-api (js/ui/data-sync.js) -->
 </head>
@@ -15,20 +15,28 @@
 <header class="site-bar" id="siteBar">
   <a class="site-brand" href="/" data-go="play" aria-label="AvastFall TCG"><i>A</i><span>AvastFall TCG</span><em>OPEN TEST</em></a>
   <div class="site-tools" id="siteTools" aria-label="ทางลัด">
-    <button type="button" class="site-tool" data-packs id="hdrPacks">เปิดซอง</button>
+    <button type="button" class="site-tool" data-packs id="hdrPacks" title="ลองเปิดซองฟรี (ไม่เก็บเข้าคอลเลกชัน)">ลองเปิดซอง</button>
     <button type="button" class="site-tool" data-hdr="guide" id="hdrGuide">วิธีเล่น</button>
     <button type="button" class="site-tool" data-hdr="notes" id="hdrNotes" aria-label="Update Note"><svg class="bell" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg><span>Update Note</span><i class="dot" id="hdrNotesDot" hidden></i></button>
   </div>
-  <div class="site-sw" id="siteSw" role="tablist" aria-label="เมนูเว็บ" data-tab="play">
+  <div class="site-user" id="siteUser" aria-label="บัญชีผู้ใช้">
+    <button type="button" class="site-coin" id="siteCoin" data-go="shop" title="เหรียญของคุณ — ไปร้านค้า">🪙 <b id="siteCoinNum">–</b></button>
+    <button type="button" class="site-me" id="siteMe" data-go="home" title="หน้า Home"><span id="siteName">ผู้เล่น</span></button>
+    <button type="button" class="site-out" id="siteOut">ออก</button>
+  </div>
+  <div class="site-sw" id="siteSw" role="tablist" aria-label="เมนูเว็บ" data-tab="home">
     <span class="pill" aria-hidden="true"></span>
-    <button role="tab" data-tab="play" aria-selected="true" aria-controls="panePlay" id="tabPlay">Playtest</button>
+    <button role="tab" data-tab="home" aria-selected="true" aria-controls="paneHub" id="tabHome">Home</button>
+    <button role="tab" data-tab="shop" aria-selected="false" aria-controls="paneHub" id="tabShop" tabindex="-1">Shop</button>
+    <button role="tab" data-tab="play" aria-selected="false" aria-controls="panePlay" id="tabPlay" tabindex="-1">Playtest</button>
     <button role="tab" data-tab="cards" aria-selected="false" aria-controls="paneCards" id="tabCards" tabindex="-1">Card List</button>
     <button role="tab" data-tab="deck" aria-selected="false" aria-controls="paneCards" id="tabDeck" tabindex="-1">Deckbuilder</button>
   </div>
 </header>
-<div class="site-view" id="siteView" data-tab="play"><div class="site-track">
-  <section class="site-pane" id="panePlay" role="tabpanel" aria-labelledby="tabPlay"><div class="wrap" id="app"></div></section>
+<div class="site-view" id="siteView" data-tab="home" data-pane="hub"><div class="site-track">
+  <section class="site-pane off" id="panePlay" role="tabpanel" aria-labelledby="tabPlay"><div class="wrap" id="app"></div></section>
   <section class="site-pane off" id="paneCards" role="tabpanel" aria-labelledby="tabCards"><iframe id="cardsFrame" title="Card List" data-src="/cards/?embed=1"></iframe></section>
+  <section class="site-pane" id="paneHub" role="tabpanel" aria-labelledby="tabHome"><iframe id="hubFrame" title="Home และร้านค้า" data-src="/hub.html"></iframe></section>
 </div></div>
 
 <!-- เปิดซอง BT01: หน้าต่างซ้อนโหลด /packs.html ตอนกดครั้งแรก (เกมที่ค้างอยู่ไม่หาย) -->
@@ -71,6 +79,6 @@
 <script src="js/ui/modals.js"></script>
 <script src="js/ui/events.js"></script>
 <script src="js/ui/main.js"></script>
-<script src="js/site.js?v=3"></script><!-- แท็บเลื่อน ต้องโหลดหลังสุด -->
+<script src="js/site.js?v=4"></script><!-- แท็บเลื่อน ต้องโหลดหลังสุด -->
 </body>
 </html>
