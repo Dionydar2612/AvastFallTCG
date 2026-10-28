@@ -101,7 +101,8 @@ input:focus-visible{outline:3px solid var(--gold);outline-offset:1px}
   submit($('fSign'), '/api/auth/signup', function () { return { username: $('sname').value.trim(), email: $('smail').value.trim(), password: $('spw').value }; });
 
   fetch('/api/auth/status').then(function (r) { return r.json(); }).then(function (j) {
-    if (!j.configured) say('⚠ เซิร์ฟเวอร์ยังไม่ได้ตั้งค่า Supabase (SUPABASE_URL / SUPABASE_ANON_KEY / SUPABASE_SERVICE_ROLE_KEY) จึงยังเข้าสู่ระบบไม่ได้', 'warn');
+    if (j.error) say('⚠ เซิร์ฟเวอร์เชื่อมฐานข้อมูลไม่สำเร็จ: ' + j.error + ' — ตรวจว่ารัน schema.sql แล้ว และคีย์ถูกต้อง', 'warn');
+    else if (!j.configured) say('⚠ เซิร์ฟเวอร์ยังไม่ได้ตั้งค่า Supabase (SUPABASE_URL / SUPABASE_ANON_KEY / SUPABASE_SERVICE_ROLE_KEY) จึงยังเข้าสู่ระบบไม่ได้', 'warn');
   }).catch(function () { });
   $('lid').focus();
 })();

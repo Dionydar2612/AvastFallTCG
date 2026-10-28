@@ -70,7 +70,7 @@ const api = express.Router();
 api.use(rateLimit({ windowMs: 60_000, limit: 240, standardHeaders: true, legacyHeaders: false,
   message: { error: "too_many_requests" } }));
 api.use((req, res, next) => { res.set("Cache-Control", /^\/(me|shop)/.test(req.path) ? "no-store" : "private, max-age=60"); next(); });
-api.get("/health", (_req, res) => res.json({ ok: true, cards: S.cards.length, supabase: supa.enabled }));
+api.get("/health", (_req, res) => res.status(supa.startupError ? 503 : 200).json({ ok: !supa.startupError, cards: S.cards.length, supabase: supa.enabled, error: supa.startupError || undefined }));
 api.get("/docs", (_req, res) => res.sendFile(path.join(__dirname, "public", "docs.html")));
 api.use(auth.requireAuth);                     // ตั้งแต่ตรงนี้ลงไปต้องล็อกอิน
 api.use(auth.sameOrigin);
@@ -183,7 +183,14 @@ app.use(express.static(path.join(__dirname, "web"), { index: false, maxAge: 0, e
 app.use((_req, res) => res.status(404).type("text/plain; charset=utf-8").send("ไม่พบหน้านี้"));
 
 (async () => {
-  await store.init();                                   // โหลดการ์ดจาก Supabase (ครั้งแรกจะ seed จาก data/*.json ให้)
-  if (supa.enabled) await me.ensureShopItems();         // สร้างสินค้าในร้านให้ชุดที่ยังไม่มี
-  app.listen(PORT, () => console.log(`AvastFall TCG on http://localhost:${PORT}  ·  Supabase: ${supa.enabled ? "เชื่อมแล้ว" : "ยังไม่ได้ตั้งค่า"}  ·  การ์ด ${S.cards.length} ใบ  ·  feedback → ${playtest.FILE}`));
-})().catch((e) => { console.error("เริ่มเซิร์ฟเวอร์ไม่สำเร็จ:", e.message); process.exit(1); });
+  // ถ้าเชื่อม/โหลดฐานข้อมูลไม่สำเร็จ ยังเปิดเซิร์ฟเวอร์ไว้ (ให้ Render ไม่ล่ม) แต่บอกสาเหตุที่ /api/health และหน้า login
+  try {
+    await store.init();                                   // โหลดการ์ดจาก Supabase (ครั้งแรกจะ seed จาก data/*.json ให้)
+    if (supa.enabled) await me.ensureShopItems();         // สร้างสินค้าในร้านให้ชุดที่ยังไม่มี
+  } catch (e) {
+    supa.startupError = e.message;
+    console.error("❌ เชื่อมต่อ/โหลด Supabase ไม่สำเร็จ:", e.message);
+    console.error("   เช็ก: (1) รัน supabase/schema.sql ใน SQL Editor แล้วหรือยัง (2) SUPABASE_URL / คีย์ถูกต้องไหม (3) ใช้ Node >= 22");
+  }
+  app.listen(PORT, () => console.log(`AvastFall TCG on http://localhost:${PORT}  ·  Supabase: ${supa.enabled ? (supa.startupError ? "เชื่อมไม่สำเร็จ" : "เชื่อมแล้ว") : "ยังไม่ได้ตั้งค่า"}  ·  การ์ด ${S.cards.length} ใบ`));
+})();
