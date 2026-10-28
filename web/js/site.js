@@ -18,15 +18,33 @@
   var reduce = matchMedia('(prefers-reduced-motion:reduce)').matches;
 
   var fit = function () { document.documentElement.style.setProperty('--bar-h', bar.offsetHeight + 'px'); };
-  fit(); addEventListener('resize', fit);
+  /* ป้ายสีหมึกเลื่อนไปอยู่ใต้แท็บที่เลือก (วัดจากขนาดจริง จึงพอดีทุกความกว้าง/ทุกภาษา) */
+  var movePill = function () {
+    var on = sw.querySelector('button[aria-selected="true"]'); if (!on) return;
+    sw.style.setProperty('--px', on.offsetLeft + 'px'); sw.style.setProperty('--pw', on.offsetWidth + 'px');
+  };
+  var layout = function () { movePill(); fit(); };
+  addEventListener('resize', layout);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(layout);
+  layout(); requestAnimationFrame(function () { layout(); sw.classList.add('ready'); });
 
-  /* ---------- ผู้ใช้ ---------- */
+  /* ---------- ผู้ใช้ + เมนูบัญชี (วิธีเล่น · Update Note · ออกจากระบบ) ---------- */
   var U = (window.__AF && window.__AF.user) || {};
-  var nameEl = document.getElementById('siteName'), coinEl = document.getElementById('siteCoinNum');
+  var nameEl = document.getElementById('siteName'), coinEl = document.getElementById('siteCoinNum'), avEl = document.getElementById('siteAv');
   if (nameEl) nameEl.textContent = U.username || 'ผู้เล่น';
+  if (avEl) avEl.textContent = String(U.username || '?').charAt(0).toUpperCase();
   var setCoin = function (n) { if (coinEl && n != null) coinEl.textContent = Number(n).toLocaleString('th-TH'); };
   setCoin(U.coins);
+  var me = document.getElementById('siteMe'), menu = document.getElementById('siteMenu');
+  var openMenu = function (o) { menu.hidden = !o; me.setAttribute('aria-expanded', String(o)); if (o) { var f = menu.querySelector('button'); if (f) f.focus(); } };
+  me.addEventListener('click', function (e) { e.stopPropagation(); openMenu(menu.hidden); });
+  menu.addEventListener('click', function () { openMenu(false); });
+  document.addEventListener('click', function (e) { if (!menu.hidden && !e.target.closest('#siteUser')) openMenu(false); });
+  addEventListener('keydown', function (e) { if (e.key === 'Escape' && !menu.hidden) { openMenu(false); me.focus(); } });
   document.getElementById('siteOut').addEventListener('click', function () { if (window.AF) window.AF.logout(); else location.href = '/'; });
+  /* จุดแดง Update Note ที่เกมคุมไว้ → แสดงซ้ำที่ปุ่มชื่อผู้ใช้ด้วย (เห็นได้โดยไม่ต้องเปิดเมนู) */
+  var nd = document.getElementById('hdrNotesDot'), md = document.getElementById('siteMeDot');
+  if (nd && md && window.MutationObserver) { var sync = function () { md.hidden = nd.hidden; }; new MutationObserver(sync).observe(nd, { attributes: true, attributeFilter: ['hidden'] }); sync(); }
 
   /* ---------- สื่อสารกับ iframe ---------- */
   var post = function (frame, msg) { try { frame.contentWindow.postMessage(msg, location.origin); } catch (e) { } };
@@ -72,6 +90,7 @@
     panes[to].classList.remove('off');                          // แสดงทั้งสองฝั่งระหว่างเลื่อน
     sw.dataset.tab = tab; view.dataset.tab = tab; view.dataset.pane = to;
     btns.forEach(function (b) { var on = b.dataset.tab === tab; b.setAttribute('aria-selected', on); b.tabIndex = on ? 0 : -1; });
+    movePill();
     clearTimeout(timer);
     var done = function () {
       if (from !== to) panes[from].classList.add('off');
@@ -110,17 +129,5 @@
   hubFrame.src = hubFrame.dataset.src + (location.hash === '#shop' ? '#shop' : '#home');
   if (/^#(home|shop|play|cards|deckbuilder|deck=)/.test(location.hash)) { cur = 'home'; fromHash(true); }
 
-  /* ลองเปิดซอง: หน้าต่างซ้อน (iframe /packs.html โหลดครั้งแรกที่กด) — โหมดทดลอง ไม่เก็บเข้าคอลเลกชันจริง */
-  var ov = document.getElementById('pkOv'), pf = document.getElementById('pkFrame');
-  var packs = function (open) {
-    ov.hidden = !open;
-    if (open && !pf.getAttribute('src')) pf.src = pf.dataset.src;
-    document.body.style.overflow = open ? 'hidden' : '';
-    if (open) document.getElementById('pkClose').focus();
-  };
-  document.addEventListener('click', function (e) { if (e.target.closest && e.target.closest('[data-packs]')) { e.preventDefault(); packs(true); } });
-  document.getElementById('pkClose').addEventListener('click', function () { packs(false); });
-  ov.addEventListener('click', function (e) { if (e.target === ov) packs(false); });
-  addEventListener('keydown', function (e) { if (e.key === 'Escape' && !ov.hidden) packs(false); });
   window.AFSite = { go: go, openDeck: openDeck, get tab() { return cur; } };
 })();

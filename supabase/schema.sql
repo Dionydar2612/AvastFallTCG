@@ -102,3 +102,12 @@ alter table public.user_decks   enable row level security;
 alter table public.user_cards   enable row level security;
 alter table public.shop_items   enable row level security;
 alter table public.purchases    enable row level security;
+
+-- ---------- สิทธิ์ให้เซิร์ฟเวอร์ (service_role) เข้าตารางผ่าน Data API ----------
+-- โปรเจกต์ Supabase ใหม่ ๆ บางตัวไม่ให้สิทธิ์ตารางใหม่อัตโนมัติ → ไม่ใส่ = "Could not find the table ... in the schema cache"
+grant usage on schema public to service_role;
+grant all on all tables in schema public to service_role;
+grant all on all sequences in schema public to service_role;
+alter default privileges in schema public grant all on tables to service_role;
+alter default privileges in schema public grant all on sequences to service_role;
+notify pgrst, 'reload schema';

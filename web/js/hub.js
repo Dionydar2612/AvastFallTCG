@@ -7,6 +7,7 @@
   var BACK = '/assets/card-back.jpg';
   var S = { view: 'home', cards: null, byId: null, owned: null, qty: {}, colSet: '', colOwn: 'all', colQ: '', me: null };
   var framed = window.parent !== window;
+  document.body.classList.toggle('framed', framed);   // ฝังในเว็บหลัก → แถบเมนูหลักทำหน้าที่แทนเมนูย่อยและป้ายเหรียญ
 
   /* ---------- พื้นฐาน ---------- */
   function toLogin() { try { window.top.location.href = '/'; } catch (e) { location.href = '/'; } }
@@ -79,24 +80,20 @@
     return Promise.all([api('GET', '/api/me'), api('GET', '/api/updates').catch(function () { return { data: [] }; }), loadCards(), api('GET', '/api/shop').catch(function () { return { data: [] }; })]).then(function (r) {
       var me = r[0], notes = (r[1].data || []).slice(0, 3), shop = (r[3].data || []).slice(0, 3); S.me = me; setCoins(me.user.coins);
       var st = me.stats, pct = st.totalCards ? Math.round(st.ownedUnique / st.totalCards * 100) : 0, decks = readDecks().sort(function (a, b) { return (b.updated || 0) - (a.updated || 0); });
-      var h = '<section class="box hero"><div><h1>สวัสดี, ' + esc(me.user.username) + '! 👋</h1><p>พร้อมลุยหรือยัง? จัดเด็ค ซื้อซองการ์ด หรือเข้าไปทดลองเล่นได้เลย</p>' +
-        '<div class="acts">' + (me.dailyReady ? '<button type="button" class="btn pri" data-act="daily">🎁 รับเหรียญประจำวัน +' + me.dailyAmount + '</button>' : '<span class="btn" style="cursor:default" title="พรุ่งนี้มารับใหม่ได้">✅ รับรางวัลวันนี้แล้ว</span>') +
-        '<button type="button" class="btn" data-go="play">⚔ ทดลองเล่น</button>' + (me.user.role === 'admin' ? '<a class="btn" href="/admin" target="_blank" rel="noopener">🔧 หลังบ้าน</a>' : '') +
-        '<button type="button" class="btn" data-act="logout">ออกจากระบบ</button></div></div><div class="big-a" aria-hidden="true">A</div></section>' +
+      var sub = st.ownedTotal ? 'พร้อมลุยหรือยัง? จัดเด็คแล้วไปทดลองเล่นได้เลย' : 'เริ่มต้นด้วยการซื้อซองการ์ดหรือ Starter Deck ที่ร้านค้า';
+      var h = '<section class="box hero"><div class="hero-top"><div><h1>สวัสดี, ' + esc(me.user.username) + '! 👋</h1><p>' + sub + '</p></div>' +
+        '<div class="acts">' + (me.dailyReady ? '<button type="button" class="btn pri" data-act="daily">🎁 รับเหรียญประจำวัน +' + me.dailyAmount + '</button>' : '<span class="done">✅ รับรางวัลวันนี้แล้ว</span>') + '</div></div>' +
         '<div class="stats">' +
-        '<div class="box stat"><b>' + st.ownedUnique + '<small class="mut"> / ' + st.totalCards + '</small></b><span>การ์ดที่สะสมได้</span><div class="bar"><i class="' + (pct >= 100 ? 'full' : '') + '" style="width:' + pct + '%"></i></div></div>' +
-        '<div class="box stat"><b>' + st.ownedTotal + '</b><span>การ์ดทั้งหมด (รวมใบซ้ำ)</span></div>' +
-        '<div class="box stat"><b>' + decks.length + '</b><span>เด็คของฉัน</span></div>' +
-        '<div class="box stat"><b>' + st.packsOpened + '</b><span>ซองที่เปิดแล้ว</span></div></div>' +
-        '<h2>เริ่มจากตรงไหนดี</h2><div class="quick">' +
-        qk('🛒', 'ร้านค้า', 'ซื้อซองการ์ดและ Starter Deck', 'view="shop"') + qk('🃏', 'จัดเด็ค', 'Deckbuilder สร้าง/แก้/แชร์เด็ค', 'go="deck"') +
-        qk('🖼', 'Card List', 'แกลเลอรี / รายการ / ตาราง', 'go="cards"') + qk('📚', 'คอลเลกชัน', 'ดูการ์ดที่มี และที่ยังขาด', 'view="collection"') + qk('⚔', 'ทดลองเล่น', 'เล่นกับบอทหรือเพื่อนออนไลน์', 'go="play"') + '</div>' +
+        '<button type="button" class="st" data-view="collection" title="ดูคอลเลกชัน"><b>' + st.ownedUnique + '<small> / ' + st.totalCards + '</small></b><span>การ์ดที่สะสมได้ ›</span><div class="bar"><i class="' + (pct >= 100 ? 'full' : '') + '" style="width:' + pct + '%"></i></div></button>' +
+        '<div class="st"><b>' + st.ownedTotal + '</b><span>การ์ดทั้งหมด (รวมใบซ้ำ)</span></div>' +
+        '<button type="button" class="st" data-go="deck" title="ไปจัดเด็ค"><b>' + decks.length + '</b><span>เด็คของฉัน ›</span></button>' +
+        '<div class="st"><b>' + st.packsOpened + '</b><span>ซองที่เปิดแล้ว</span></div></div></section>' +
         '<h2>เด็คของฉัน <small>' + (decks.length ? 'ล่าสุด ' + Math.min(decks.length, 6) + ' จาก ' + decks.length : '') + '</small><span class="grow"></span><button type="button" class="btn sm" data-go="deck">+ สร้างเด็คใหม่</button></h2>' +
         (decks.length ? '<div class="decks">' + decks.slice(0, 6).map(function (d) {
           var av = S.byId[String(d.avatar || '').toLowerCase()], n = deckSize(d), okk = n === 60;
           return '<div class="box dk">' + (av ? pic(av) : '<div class="noimg">–</div>') + '<div class="info"><b>' + esc(d.name || 'เด็คใหม่') + '</b><span class="' + (okk ? 'ok' : 'warn') + '">' + (okk ? '✓ ครบ 60 ใบ' : n + '/60 ใบ') + '</span>' +
-            '<div style="margin-top:4px;display:flex;gap:6px"><button type="button" class="btn sm" data-go="deck" data-deck="' + esc(d.id) + '">แก้ไข</button><button type="button" class="btn sm" data-go="play">เล่น</button></div></div></div>';
-        }).join('') + '</div>' : '<div class="box empty">ยังไม่มีเด็ค — กด “สร้างเด็คใหม่” หรือซื้อ Starter Deck ในร้านค้าแล้วเริ่มจัดเด็คได้เลย</div>') +
+            '<div style="margin-top:6px"><button type="button" class="btn sm" data-go="deck" data-deck="' + esc(d.id) + '">แก้ไขเด็ค</button></div></div></div>';
+        }).join('') + '</div>' : '<div class="box empty">ยังไม่มีเด็ค — ซื้อ Starter Deck ที่ร้านค้า แล้วกด “สร้างเด็คใหม่” เพื่อเริ่มจัดเด็ค</div>') +
         (shop.length ? '<h2>แนะนำในร้านค้า<span class="grow"></span><button type="button" class="btn sm" data-view="shop">ดูทั้งหมด ›</button></h2><div class="shop">' + shop.map(itemHtml).join('') + '</div>' : '') +
         (notes.length ? '<h2>ข่าวอัปเดตล่าสุด</h2><div class="notes">' + notes.map(function (n) {
           return '<div class="box note"><h3>' + esc(n.title) + '</h3><div class="d">' + esc(n.date || String(n.at || '').slice(0, 10)) + '</div><ul>' + (n.items || []).slice(0, 3).map(function (i) { return '<li>' + esc(i) + '</li>'; }).join('') + '</ul></div>';
@@ -104,7 +101,6 @@
       $('view').innerHTML = h;
     });
   }
-  function qk(ic, t, d, attr) { return '<button type="button" class="box qk" data-' + attr + '><span class="ic">' + ic + '</span><b>' + t + '</b><span>' + d + '</span></button>'; }
 
   /* ---------- ร้านค้า ---------- */
   function itemHtml(it) {
@@ -126,7 +122,7 @@
     return Promise.all([api('GET', '/api/shop'), loadCards()]).then(function (r) {
       var items = r[0].data; S.items = {}; items.forEach(function (i) { S.items[i.id] = i; }); setCoins(r[0].coins);
       var packs = items.filter(function (i) { return i.kind === 'pack'; }), starters = items.filter(function (i) { return i.kind === 'starter'; });
-      $('view').innerHTML = '<h2>🛒 ร้านค้า <small>ใช้เหรียญ 🪙 ซื้อซองการ์ดและ Starter Deck · รับเหรียญฟรีทุกวันที่หน้า Home</small></h2>' +
+      $('view').innerHTML = '<h2>🛒 ร้านค้า <small>ใช้เหรียญ 🪙 ซื้อซองการ์ดและ Starter Deck · รับเหรียญฟรีทุกวันที่หน้า Home</small><span class="grow"></span><button type="button" class="btn sm" data-view="collection">📚 คอลเลกชันของฉัน</button></h2>' +
         (packs.length ? '<h2>ซองการ์ด <small>สุ่มได้ใบหายากเพิ่ม</small></h2><div class="shop">' + packs.map(itemHtml).join('') + '</div>' : '') +
         (starters.length ? '<h2>Starter Deck <small>ได้การ์ดครบชุด พร้อมจัดเด็ค</small></h2><div class="shop">' + starters.map(itemHtml).join('') + '</div>' : '') +
         (!items.length ? '<div class="box empty">ยังไม่มีสินค้าวางขาย</div>' : '');
@@ -177,7 +173,7 @@
       S.owned = r[1].owned; var sets = {}; S.cards.forEach(function (c) { var d = (sets[c.deck] = sets[c.deck] || { id: c.deck, n: 0, own: 0 }); d.n++; if (S.owned[c.id]) d.own++; });
       var all = S.cards.length, have = S.cards.filter(function (c) { return S.owned[c.id]; }).length;
       var tile = function (id, label, own, n) { var p = n ? Math.round(own / n * 100) : 0; return '<button type="button" class="box set' + (S.colSet === id ? ' on' : '') + '" data-set="' + esc(id) + '"><b><span>' + esc(label) + '</span><small>' + own + '/' + n + '</small></b><div class="bar"><i class="' + (p >= 100 ? 'full' : '') + '" style="width:' + p + '%"></i></div></button>'; };
-      $('view').innerHTML = '<h2>📚 คอลเลกชันของฉัน <small>สะสมแล้ว ' + have + ' จาก ' + all + ' แบบ · รวม ' + r[1].total + ' ใบ</small></h2>' +
+      $('view').innerHTML = '<h2><button type="button" class="btn sm" data-view="home">← กลับ</button> 📚 คอลเลกชันของฉัน <small>สะสมแล้ว ' + have + ' จาก ' + all + ' แบบ · รวม ' + r[1].total + ' ใบ</small></h2>' +
         '<div class="sets">' + tile('', 'ทั้งหมด', have, all) + Object.keys(sets).sort().map(function (k) { return tile(k, k, sets[k].own, sets[k].n); }).join('') + '</div>' +
         '<div class="tools"><input id="colQ" type="search" placeholder="ค้นหาชื่อ / รหัสการ์ด" value="' + esc(S.colQ) + '"><select id="colOwn"><option value="all">ทั้งหมด</option><option value="own">เฉพาะที่มี</option><option value="miss">เฉพาะที่ยังไม่มี</option></select><button type="button" class="btn sm" data-go="cards">เปิด Card List ›</button></div>' +
         '<div class="cgrid" id="colGrid"></div>';

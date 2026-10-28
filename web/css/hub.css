@@ -29,27 +29,27 @@ button{font:inherit;color:var(--ink)}
 .coin.bump{animation:bump .5s}
 @keyframes bump{40%{transform:scale(1.25) rotate(-3deg)}}
 
-/* hero */
-.hero{display:grid;grid-template-columns:1fr auto;gap:16px;align-items:center;padding:20px 22px;background:var(--mat);position:relative;overflow:hidden}
-.hero h1{font-size:1.9rem;line-height:1.2}
+/* hero + สถิติ (ใบเดียว ไม่ซ้อนกล่อง) */
+.hero{padding:20px 22px 6px;background:var(--mat)}
+.hero-top{display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.hero h1{font-size:1.8rem;line-height:1.2}
 .hero p{margin:4px 0 0;color:var(--ink2)}
-.hero .acts{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
-.hero .big-a{display:grid;place-items:center;width:92px;height:92px;border:3px solid var(--line);border-radius:22px;background:var(--gold);color:#111;font:700 52px/1 var(--f);transform:rotate(5deg);box-shadow:4px 4px 0 var(--line)}
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-top:14px}
-.stat{padding:12px 14px;text-align:center}
-.stat b{display:block;font-size:1.7rem;line-height:1.2}
-.stat span{color:var(--ink2);font-size:.85rem}
+.hero .done{color:var(--good);font-weight:700}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));margin:16px -22px 0;border-top:3px solid var(--line);background:var(--panel)}
+.st{display:block;text-align:left;font:inherit;color:inherit;background:none;border:0;border-left:2px solid var(--soft);padding:12px 22px 14px;margin:0}
+.st:first-child{border-left:0}
+button.st{cursor:pointer;transition:background .12s}
+button.st:hover{background:var(--gold);color:#111}
+button.st:hover span{color:#333}
+.st b{display:block;font-size:1.6rem;line-height:1.2}
+.st b small{font-size:.9rem;font-weight:400;color:var(--ink2)}
+.st span{color:var(--ink2);font-size:.85rem}
 .bar{height:8px;border:2px solid var(--line);border-radius:99px;overflow:hidden;margin-top:6px;background:var(--paper)}
 .bar i{display:block;height:100%;background:var(--gold)}
 .bar i.full{background:var(--good)}
-
-/* ทางลัด */
-.quick{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
-.qk{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:14px 16px;text-align:left;cursor:pointer;transition:transform .12s,background .12s}
-.qk:hover{transform:translateY(-3px);background:var(--gold);color:#111}
-.qk .ic{font-size:2rem;line-height:1.1}
-.qk b{font-size:1.1rem}.qk span{font-size:.82rem;color:var(--ink2)}
-.qk:hover span{color:#333}
+.framed .hub-nav{display:none}
+.framed .hub{padding-top:6px}
+@media (max-width:560px){.stats{margin-inline:-22px;grid-template-columns:1fr 1fr}.st:nth-child(3){border-left:0}.st:nth-child(n+3){border-top:2px solid var(--soft)}}
 
 /* เด็คของฉัน */
 .decks{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px}
