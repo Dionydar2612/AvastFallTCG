@@ -185,7 +185,7 @@
           }).join('') + '</div>' : '') +
         '</div></div>';
       S.okDeckId = okDeck ? okDeck.id : null; S.inGame = inGame; S.hint = hint;
-      $('view').innerHTML = h;
+      $('view').innerHTML = h; startCycle();
     });
   }
 
@@ -288,7 +288,13 @@
     var art;
     if (it.kind === 'pack') {
       var a = cards[0], b = cards[Math.floor(cards.length / 2)], c = cards[cards.length - 1];
-      art = '<div class="art pack">' + (a ? pic(a) : '') + (c ? pic(c) : '') + (b ? pic(b) : '<img src="' + BACK + '" alt="">') + '</div>';
+      /* ภาพซอง: ใช้ Avatar ของชุดนี้ วนสลับไปเรื่อย ๆ (ใบหน้า + ใบหลังเอียง) · ถ้าชุดไม่มี Avatar ใช้การ์ด 3 ใบแบบเดิม */
+      var avs = cards.filter(function (c0) { return c0.type === 'Avatar' && /^[A-Za-z0-9]+-\d+$/.test(c0.id); });
+      if (!avs.length) avs = cards.filter(function (c0) { return c0.type === 'Avatar'; });
+      if (avs.length) {
+        var avImg = function (c0, cls) { return '<img class="' + cls + '" src="' + esc(imgOf(c0)) + '" alt="' + esc(c0.name) + '" onerror="this.onerror=null;this.src=\'' + BACK + '\'">'; };
+        art = '<div class="art pack av" data-i="0" data-av="' + esc(avs.map(function (c0) { return c0.id; }).join(',')) + '">' + avImg(avs[1 % avs.length], 'pb') + avImg(avs[0], 'pf') + '</div>';
+      } else art = '<div class="art pack">' + (a ? pic(a) : '') + (c ? pic(c) : '') + (b ? pic(b) : '<img src="' + BACK + '" alt="">') + '</div>';
     } else art = '<div class="art">' + (it.cover ? '<img src="' + esc(it.cover) + '" alt="' + esc(it.name) + '">' : '<img src="' + BACK + '" alt="">') + '</div>';
     var max = it.kind === 'pack' ? 10 : 3, q = Math.min(S.qty[it.id] || 1, max);
     var tag = '<span class="tag">' + (it.kind === 'pack' ? 'ซอง ' + (it.size || 8) + ' ใบ' : 'Starter · ' + it.cardCount + ' แบบ ×' + (it.copies || 3)) + '</span>';
@@ -298,6 +304,28 @@
       '<div class="body"><h3 class="lnk" data-info="1">' + esc(it.name) + '</h3><div class="desc">' + esc(it.description) + '</div><div class="mut own">สะสมจากชุดนี้แล้ว ' + have + ' / ' + (it.cardCount || 0) + ' แบบ</div><button type="button" class="btn sm info" data-info="1">🔍 ดูของในสินค้า</button><div class="buy"><span class="price"><i class="cn"></i> <span data-total>' + fmt(it.price * q) + '</span></span>' +
       '<span class="qty"><button type="button" data-act="dec" aria-label="ลด">−</button><span data-q>' + q + '</span><button type="button" data-act="inc" aria-label="เพิ่ม">+</button></span>' +
       '<button type="button" class="btn pri" data-act="buy">ซื้อ</button></div></div></article>';
+  }
+
+  /* วนสลับ Avatar บนภาพซอง (ทุก ~3 วินาที · ปิดเมื่อผู้ใช้ตั้งลดการเคลื่อนไหว) */
+  var cycTimer = 0;
+  function startCycle() {
+    clearInterval(cycTimer);
+    if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    cycTimer = setInterval(function () {
+      var els = document.querySelectorAll('.art.pack.av');
+      if (!els.length) { clearInterval(cycTimer); return; }
+      Array.prototype.forEach.call(els, function (el) {
+        var ids = (el.dataset.av || '').split(','); if (ids.length < 2) return;
+        var i = (+el.dataset.i + 1) % ids.length, get = function (k) { var c = S.byId && S.byId[ids[k % ids.length].toLowerCase()]; return c ? imgOf(c) : null; };
+        var nf = get(i), nb = get(i + 1); if (!nf || !nb) return;
+        var pre = new Image(); pre.src = nf; var pre2 = new Image(); pre2.src = nb;
+        el.classList.add('sw');
+        setTimeout(function () {
+          var f = el.querySelector('.pf'), b = el.querySelector('.pb'); if (!f || !b) return;
+          f.src = nf; b.src = nb; el.dataset.i = i; el.classList.remove('sw');
+        }, 320);
+      });
+    }, 3200);
   }
   /* ปุ่มซื้อ: เหรียญไม่พอ = กดไม่ได้ (ฝั่งเซิร์ฟเวอร์ตรวจซ้ำอีกชั้น) */
   function refreshBuyState() {
@@ -315,7 +343,7 @@
         (starters.length ? '<h2>Starter Deck <small>ได้การ์ดครบชุด ใบละ 3 ใบ พร้อมจัดเด็คได้ทันที — เหมาะสำหรับมือใหม่</small></h2><div class="shop">' + starters.map(itemHtml).join('') + '</div>' : '') +
         (packs.length ? '<h2>ซองการ์ด <small>สุ่มได้ใบหายากเพิ่ม</small></h2><div class="shop">' + packs.map(itemHtml).join('') + '</div>' : '') +
         (!items.length ? '<div class="box empty">ยังไม่มีสินค้าวางขาย</div>' : '') + '</div>';
-      refreshBuyState();
+      refreshBuyState(); startCycle();
     });
   }
   function buy(id, btn) {

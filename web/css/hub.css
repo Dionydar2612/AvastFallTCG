@@ -242,3 +242,10 @@ button{font:inherit;color:var(--ink)}
 .reveal.pv{grid-template-columns:repeat(auto-fill,minmax(104px,1fr))}
 .reveal.pv .rc.unowned>.f img{filter:grayscale(.55) brightness(.85)}
 .reveal.pv .rc .qq.own{background:#fff;font-size:.7rem;padding:0 6px}
+
+/* ภาพซองแบบวน Avatar */
+.item .art.pack.av img{transition:opacity .3s ease}
+.item .art.pack.av img.pb{transform:translateX(calc(-50% + 40px)) rotate(8deg);opacity:.92;filter:saturate(.85);z-index:0}
+.item .art.pack.av img.pf{transform:translateX(calc(-50% - 10px));opacity:1;filter:none;z-index:1}
+.item .art.pack.av.sw img{opacity:0}
+@media (prefers-reduced-motion:reduce){.item .art.pack.av img{transition:none}}
