@@ -128,9 +128,12 @@ button.rar{border-color:#1b4aa8;color:#1b4aa8}
     <h2>นำเข้าการ์ดจาก Excel / CSV</h2>
     <div class="row"><a href="/admin/api/template.xlsx"><button>⬇ ดาวน์โหลดไฟล์ต้นแบบ</button></a>
       <a href="/admin/api/export.xlsx"><button>⬇ ส่งออกการ์ดปัจจุบัน (.xlsx)</button></a>
-      <span class="mut">รองรับ .xlsx และ .csv (UTF-8)</span></div>
-    <h3>1) เลือกไฟล์</h3>
+      <span class="mut">รองรับ .xlsx, .csv (UTF-8) และวาง CSV/ข้อมูลจากชีทได้</span></div>
+    <h3>1) เลือกไฟล์ หรือวาง CSV</h3>
     <input type="file" id="file" accept=".xlsx,.csv">
+    <p class="mut" style="margin:10px 0 4px">หรือ <b>วางข้อมูล CSV</b> ตรงนี้ (แถวแรกเป็นหัวคอลัมน์ · คัดลอกจาก Excel/Google Sheets มาวางได้เลย)</p>
+    <textarea id="csvText" rows="7" spellcheck="false" placeholder="deck,no,variant,name,type,element,cost,atk,def,effect1_keyword,effect1_text&#10;SD01,001,,ตัวอย่างยูนิต,Unit,ไฟ,2,3,2,,เมื่อลงสนาม จั่วการ์ด 1 ใบ" style="width:100%;font-family:ui-monospace,Consolas,monospace;font-size:13px;white-space:pre"></textarea>
+    <div class="row"><button id="csvUse" class="pri">📋 ใช้ข้อมูลที่วาง</button><button id="csvSample" type="button">ใส่ตัวอย่าง</button><button id="csvClear" type="button">ล้าง</button><span id="csvInfo" class="mut"></span></div>
     <h3>1.1) เลือกรูปการ์ด (ไม่บังคับ)</h3>
     <p class="mut">เลือกหลายรูปพร้อมกันได้ ชื่อไฟล์ต้องตรงกับรหัสการ์ดที่ Excel สร้าง เช่น <code>SD01-001.jpg</code> หรือ <code>SD03-009SR.png</code> · รองรับ JPG/PNG/WEBP · ไม่เกิน 5MB ต่อรูป รูปและ Excel จะถูกตรวจสอบพร้อมกัน และจะบันทึกเมื่อกดยืนยันเท่านั้น</p>
     <input type="file" id="importImgs" multiple accept="image/jpeg,image/png,image/webp">
@@ -333,18 +336,51 @@ function saveMap(sh){
 const curMap=()=>Object.fromEntries([...$("map").querySelectorAll("select")].map(s=>[s.dataset.k,+s.value]));
 $("sheet").onchange=()=>{renderMap();$("commit").disabled=true};
 $("importImgs").onchange=()=>{const fs=[...$("importImgs").files];$("chosenImgs").innerHTML=fs.length?`<p>เลือกรูปแล้ว ${fs.length} ไฟล์ (ตัวอย่าง 12 ไฟล์แรก):</p><div class="row">${fs.slice(0,12).map(f=>`<div style="width:100px;text-align:center"><img class="thumb" style="width:72px;height:100px;object-fit:contain" src="${URL.createObjectURL(f)}" alt=""><div style="font-size:11px;overflow-wrap:anywhere">${esc(f.name)}</div></div>`).join("")}</div>`:"ยังไม่ได้เลือกรูป (สามารถนำเข้า Excel อย่างเดียวได้)";$("commit").disabled=true};
-$("file").onchange=async()=>{
-  show($("imp-err"),false);show($("imp-body"),false);$("imp-res").innerHTML="";$("commit").disabled=true;
-  const f=$("file").files[0];if(!f)return;
+let pasted=null;                                   // CSV ที่วางในช่อง → แปลงเป็นไฟล์ pasted.csv แล้วเข้าขั้นตอนเดียวกับการอัปโหลดไฟล์
+const curFile=()=>pasted||$("file").files[0]||null;
+function resetImp(){show($("imp-err"),false);show($("imp-body"),false);$("imp-res").innerHTML="";$("commit").disabled=true}
+async function inspectFile(f){
   const fd=new FormData();fd.append("file",f);
   try{
     info=await api("/import/inspect",{method:"POST",body:fd});
     $("sheet").innerHTML=info.sheets.map(s=>`<option>${esc(s.name)}</option>`).join("");
     $("sheet").value=info.defaultSheet;renderMap();show($("imp-body"));
   }catch(e){$("imp-err").textContent=e.message;show($("imp-err"))}
+}
+$("file").onchange=()=>{
+  pasted=null;$("csvText").value="";$("csvInfo").textContent="";resetImp();
+  const f=$("file").files[0];if(f)inspectFile(f);
+};
+// คัดลอกจาก Excel/Sheets จะได้ข้อความคั่นด้วย Tab → แปลงเป็น CSV (รองรับ " ครอบข้อความและขึ้นบรรทัดใหม่ในช่อง)
+function tsvToCsv(t){
+  const rows=[];let row=[],cur="",q=false;
+  for(let i=0;i<t.length;i++){const c=t[i];
+    if(q){if(c==='"'){if(t[i+1]==='"'){cur+='"';i++}else q=false}else cur+=c}
+    else if(c==='"'&&cur==="")q=true;
+    else if(c==="\t"){row.push(cur);cur=""}
+    else if(c==="\n"||c==="\r"){if(c==="\r"&&t[i+1]==="\n")i++;row.push(cur);cur="";rows.push(row);row=[]}
+    else cur+=c;
+  }
+  if(cur!==""||row.length){row.push(cur);rows.push(row)}
+  return rows.map(r=>r.map(v=>/[",\n\r]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v).join(",")).join("\n");
+}
+$("csvUse").onclick=()=>{
+  let t=$("csvText").value.replace(/^\uFEFF/,"");
+  if(!t.trim()){$("csvInfo").textContent="ยังไม่ได้วางข้อมูล";return}
+  if((t.split(/\r?\n/,1)[0]||"").includes("\t"))t=tsvToCsv(t);
+  pasted=new File([t],"pasted.csv",{type:"text/csv"});
+  $("file").value="";$("csvInfo").textContent="";resetImp();inspectFile(pasted);
+};
+$("csvText").oninput=()=>{if(pasted){pasted=null;resetImp()}};
+$("csvClear").onclick=()=>{pasted=null;$("csvText").value="";$("csvInfo").textContent="";resetImp()};
+$("csvSample").onclick=()=>{
+  $("csvText").value=["deck,no,variant,name,type,element,cost,atk,def,effect1_keyword,effect1_text",
+    "SD01,101,,ตัวอย่างยูนิต,Unit,ไฟ,2,3,2,,เมื่อลงสนาม จั่วการ์ด 1 ใบ",
+    'SD01,102,,ตัวอย่างสเปล,Spell,ไฟ,1,,,,"ทำดาเมจ 2 ให้ยูนิตศัตรู 1 ใบ, แล้วจั่ว 1 ใบ"'].join("\n");
+  $("csvInfo").textContent="แก้รหัสเด็ค/เลขการ์ดให้ตรงของจริง แล้วกด \"ใช้ข้อมูลที่วาง\"";
 };
 async function run(dry){
-  const f=$("file").files[0];if(!f)return;
+  const f=curFile();if(!f)return;
   const mode=document.querySelector("input[name=mode]:checked").value;
   if(!dry&&mode==="replace"&&!confirm("โหมดแทนที่ทั้งหมด: การ์ดที่ไม่อยู่ในไฟล์จะถูกลบ (มีสำรองให้กู้คืนได้) ต้องการดำเนินการต่อ?"))return;
   const fd=new FormData();fd.append("file",f);[...$("importImgs").files].forEach(img=>fd.append("images",img));fd.append("sheet",$("sheet").value);fd.append("mapping",JSON.stringify(curMap()));fd.append("mode",mode);fd.append("dry",dry?"1":"0");
@@ -365,7 +401,7 @@ function renderRes(r){
   }
   if(r.warns?.length)h+=`<div class="msg warn"><b>คำเตือน ${r.warns.length} รายการ (ไม่บล็อกการนำเข้า)</b><ul class="l">${r.warns.slice(0,60).map(w=>`<li>${esc(w)}</li>`).join("")}</ul></div>`;
   $("imp-res").innerHTML=h;
-  if(r.ok&&!r.dry){$("file").value="";$("importImgs").value="";$("chosenImgs").textContent="";show($("imp-body"),false);loadAll()}
+  if(r.ok&&!r.dry){$("file").value="";pasted=null;$("csvText").value="";$("importImgs").value="";$("chosenImgs").textContent="";show($("imp-body"),false);loadAll()}
 }
 $("preview").onclick=()=>run(true);$("commit").onclick=()=>run(false);
 
