@@ -189,8 +189,6 @@ button{font:inherit;color:var(--ink)}
 }
 @media (prefers-reduced-motion:reduce){.rc{transition:none}.rc.srare.flip>.f,.fc.f0,.daily.ready{animation:none}#view.in{animation:none}}
 
-.setbtn{display:inline-flex;align-items:center;gap:8px;border:2px solid #02060a;border-radius:99px;background:var(--panel);color:var(--ink);padding:5px 18px;font:700 14px/1.3 var(--f);cursor:pointer;box-shadow:3px 3px 0 #02060a}
-.setbtn:hover{background:var(--gold);color:#111}
 .resume{display:flex;align-items:center;gap:10px;justify-content:center;margin:0 0 4px;padding:6px 16px;border:3px solid #02060a;border-radius:12px;background:var(--gold);color:#111;font-weight:700;cursor:pointer;width:min(430px,86%)}
 
 /* ---------- ปุ่มเล่น / ห้องออนไลน์บน Home ---------- */
@@ -220,3 +218,14 @@ button{font:inherit;color:var(--ink)}
 .drow>span:last-child{flex:none;max-width:44%;font-size:.75rem;text-align:right;line-height:1.25}
 .srow2{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:14px}
 .acts3{display:flex;justify-content:flex-end;margin-top:14px}
+
+/* จุดแดงข่าวใหม่ที่ปุ่ม ข่าวอัปเดต · รายการชุดการ์ด (หน้าต่าง SETS) */
+.sublink .ndot{display:inline-block;width:9px;height:9px;margin-left:6px;border-radius:50%;background:var(--coral);vertical-align:2px;box-shadow:0 0 0 2px var(--sub)}
+.sublink .ndot[hidden]{display:none}
+.sets{display:grid;gap:8px;margin:6px 0 4px}
+.srow{display:grid;grid-template-columns:64px 1fr 70px 64px;align-items:center;gap:12px;padding:8px 12px;border:2px solid #02060a;border-radius:12px;background:var(--soft)}
+.srow b{font:800 18px/1 var(--f-lobby);font-style:italic;letter-spacing:.04em}
+.srow .bar{height:10px}
+.srow .sn{font-weight:700;text-align:right}
+.srow em{font-style:normal;font-size:.8rem;text-align:right}
+@media (max-width:560px){.srow{grid-template-columns:52px 1fr 56px;row-gap:2px}.srow em{display:none}}

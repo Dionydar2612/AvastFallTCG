@@ -195,7 +195,7 @@ function settingsHTML(){
     <div class="srow"><span>แอนิเมชัน</span><span class="sseg">${seg('motion','0',!prefs.motion,'ปกติ')}${seg('motion','1',prefs.motion,'ลดลง')}</span></div>
     <p class="muted">ค่าทั้งหมดถูกจำไว้ในเบราว์เซอร์นี้</p>
     <h3 class="sh">เมนูลัด</h3>
-    <div style="display:flex;gap:6px;flex-wrap:wrap"><button class="btn sm" data-act="help">กติกาโดยย่อ</button><button class="btn sm" data-act="feedback">ส่งข้อเสนอแนะ / แจ้งบั๊ก</button>${ui.G?`<button class="btn sm" data-act="dllog">⬇ บันทึกเกม (Battle Log)</button>`:''}</div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap"><button class="btn sm" data-act="help">กติกาโดยย่อ</button>${ui.G?`<button class="btn sm" data-act="dllog">⬇ บันทึกเกม (Battle Log)</button>`:''}</div>
     <div class="acts"><button class="btn" data-act="setscale" data-v="100">รีเซ็ตขนาด</button><button class="btn pri" data-act="closesettings">ปิด</button></div></div></div>`;
 }
 applyScale(loadScale(),false);

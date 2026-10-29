@@ -66,19 +66,6 @@ function modalHTML(){
   const G=ui.G;
   const close=`<div class="acts"><button class="btn" data-act="closemodal">ปิด</button></div>`;
   if(m.t==='help')return `<div class="ov"><div class="dlg">${`<h2>กติกาโดยย่อ</h2>`}${rulesHTML(false)}${close}</div></div>`;
-  if(m.t==='feedback'){
-    const f=ui.fb;
-    if(f.ok)return `<div class="ov"><div class="dlg narrow"><h2>ขอบคุณสำหรับข้อเสนอแนะ</h2><p>ส่งถึงผู้พัฒนาเรียบร้อยแล้ว</p><div class="acts"><button class="btn" data-act="fbagain">ส่งอีกข้อความ</button><button class="btn pri" data-act="closemodal">ปิด</button></div></div></div>`;
-    return `<div class="ov"><div class="dlg narrow"><h2>ข้อเสนอแนะ</h2><p class="muted">อยากให้ปรับหรือเพิ่มอะไร พบจุดผิดปกติ หรือการ์ดใบไหนทำงานไม่ตรงข้อความ บอกได้ที่นี่ ผู้พัฒนาจะอ่านทุกข้อความ</p>
-      <label class="fl">หัวข้อ<select data-fb="cat">${AF.feedback.CATEGORIES.map(([k,l])=>`<option value="${k}" ${f.cat===k?'selected':''}>${esc(l)}</option>`).join('')}</select></label>
-      <label class="fl">ข้อความ<textarea data-fb="text" class="ta" maxlength="1500" rows="6" placeholder="พิมพ์ข้อเสนอแนะของคุณ">${esc(f.text)}</textarea></label>
-      <label class="fl">ชื่อ (ไม่ใส่ก็ได้)<input data-fb="name" type="text" maxlength="60" value="${esc(f.name)}"></label>
-      <label class="fl">ช่องทางติดต่อกลับ (ไม่ใส่ก็ได้)<input data-fb="contact" type="text" maxlength="100" value="${esc(f.contact)}" placeholder="อีเมล / ไอดีโซเชียล"></label>
-      <input data-fb="website" type="text" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;opacity:0;height:0">
-      ${f.msg?`<div class="warnbox">${esc(f.msg)}</div>`:''}
-      <div class="acts"><button class="btn" data-act="closemodal">ยกเลิก</button><button class="btn pri" data-act="fbsend" ${f.busy?'disabled':''}>${f.busy?'กำลังส่ง…':'ส่งข้อเสนอแนะ'}</button></div></div></div>`;
-  }
-  if(m.t==='notes')return `<div class="ov"><div class="dlg"><h2>Update Note</h2><div class="list">${UPDATE_NOTES.length?'':'<div class="note">ยังไม่มีประกาศอัปเดต</div>'}${UPDATE_NOTES.map(u=>`<div class="note"><b>${esc(u.date)} · ${esc(u.title)}</b><ul style="margin:4px 0 0;padding-left:20px">${u.items.map(i=>`<li>${esc(i)}</li>`).join('')}</ul></div>`).join('')}</div>${close}</div></div>`;
   if(m.t==='discard'){
     const P=G.players[m.p];const pd=pdOf();
     const acts=pd&&pd.kind==='act'&&pd.p===m.p?pd.spec.actions.filter(a=>a.zone==='discard'):[];

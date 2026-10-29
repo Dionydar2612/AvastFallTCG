@@ -60,7 +60,6 @@ function setInspect(c){
 const canHover=matchMedia('(hover:hover)').matches;
 root.addEventListener('mouseover',e=>{if(prefs.hover===false)return;if(!ui.G||ui.screen!=='game'){const pd0=e.target.closest('[data-pdef]');if(pd0&&canHover)showPop(pdefCard(pd0.dataset.pdef),pd0,false,true);return}const pd0=e.target.closest('[data-pdef]');if(pd0){if(canHover)showPop(pdefCard(pd0.dataset.pdef),pd0,false,true);return}const pp=e.target.closest('[data-pop]');if(pp){const c=cardMap()[+pp.dataset.pop];if(c&&canHover)showPop(c,pp,false);return}const el=e.target.closest('[data-uid]');if(el){const c=cardMap()[+el.dataset.uid];if(c){setInspect(c);if(canHover)showPop(c,el,false)}}});
 root.addEventListener('mouseout',e=>{if(popPin)return;const el=e.target.closest('[data-uid],[data-pop],[data-pdef]');if(el&&!(e.relatedTarget&&el.contains(e.relatedTarget)))hidePop()});
-root.addEventListener('input',e=>{if(e.target.dataset&&e.target.dataset.fb){ui.fb[e.target.dataset.fb]=e.target.value;return}});
 root.addEventListener('click',e=>{
   hidePop();
   const a=e.target.closest('[data-act]');
@@ -99,10 +98,6 @@ function handle(act,d,el,e){
     case 'start':return startGame();
     case 'quickplay':return AFApp.launch({mode:'bot'});
     case 'help':ui.settings=false;ui.modal={t:'help'};return render();
-    case 'notes':ui.modal={t:'notes'};return render();
-    case 'feedback':ui.settings=false;ui.fb.msg='';ui.fb.ok=false;ui.modal={t:'feedback'};return render();
-    case 'fbagain':ui.fb=Object.assign(ui.fb,{text:'',msg:'',ok:false});return render();
-    case 'fbsend':return sendFeedback();
     case 'closemodal':ui.modal=null;return render();
     case 'closemenu':ui.menu=null;return render();
     case 'closeover':ui.over=ui.over;ui.hideOver=true;ui.overShown=false;ui.over=null;return render();
@@ -157,16 +152,3 @@ window.addEventListener('keydown',e=>{if(e.key==='Escape'){if(ui.settings){ui.se
 // สไลเดอร์ขนาดหน้าจอ: ปรับสดโดยไม่ render ใหม่ (กันสไลเดอร์สะดุดขณะลาก)
 root.addEventListener('input',e=>{if(e.target.id!=='scalerange')return;applyScale(+e.target.value);const l=document.getElementById('scaleval');if(l)l.textContent=ui.scale+'%'});
 
-/* ส่งข้อเสนอแนะ (ตัวส่งจริงอยู่ที่ js/data/feedback-api.js) */
-async function sendFeedback(){
-  const f=ui.fb;if(f.busy)return;
-  if(f.text.trim().length<3){f.msg='กรุณาพิมพ์ข้อความอย่างน้อย 3 ตัวอักษร';return render()}
-  f.busy=true;f.msg='';render();
-  const website=(document.querySelector('[data-fb=website]')||{}).value||'';
-  try{
-    await AF.feedback.send({category:f.cat,text:f.text,name:f.name,contact:f.contact,website,
-      context:{หน้า:ui.screen==='game'?'ในเกม':ui.page==='guide'?'วิธีเล่น':'ตั้งค่า',จอ:innerWidth+'x'+innerHeight,ภาษา:navigator.language||''}});
-    f.ok=true;f.text='';
-  }catch(e){f.msg=e.message}
-  f.busy=false;render();
-}

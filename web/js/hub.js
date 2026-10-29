@@ -1,5 +1,5 @@
 /* Home (ล็อบบี้) · ร้านค้า  (web/hub.html — ฝังเป็น iframe ในเว็บหลัก แท็บ Home/Shop อยู่ที่แถบเมนูหลัก)
-   - Home จัดวางแบบล็อบบี้เกม: ซ้ายภาพเด่น · กลางเหรียญตราเด็ค + ปุ่ม PLAY · ขวาแถบรางวัลรายวัน · ล่างซ้ายโปรไฟล์ · ล่างขวาเด็ค
+   - Home จัดวางแบบล็อบบี้เกม: ซ้ายภาพเด่น · กลางเหรียญตราเด็ค + ปุ่ม PLAY · ขวาแถบรางวัลรายวัน · ล่างซ้ายความคืบหน้าชุดการ์ด · ล่างขวาเด็ค
    - ข้อมูลทั้งหมดมาจาก API ที่ต้องล็อกอิน (Supabase): /api/me · /api/me/daily · /api/me/collection · /api/shop · /api/shop/buy · /api/cards
    - คุยกับเว็บหลักผ่าน postMessage: afGo (สลับแท็บ) · afLaunch (ไปหน้า Play พร้อมโหมด/เด็ค) · afCoins · afOwned · afHubView · afHdr */
 (function () {
@@ -105,6 +105,29 @@
     return out;
   }
 
+  /* ความคืบหน้าแต่ละชุดการ์ด (SD01…BT01): นับเฉพาะ "แบบ" การ์ดหลัก (ไม่รวมภาพ alt) · next = ชุดที่ใกล้ครบที่สุดแต่ยังไม่ครบ */
+  function setProgress() {
+    var m = {}, order = [];
+    (S.cards || []).forEach(function (c) {
+      if (!/^[A-Za-z0-9]+-\d+$/.test(c.id)) return;
+      var k = c.deck || String(c.id).split('-')[0];
+      if (!m[k]) { m[k] = { code: k, have: 0, total: 0 }; order.push(k); }
+      m[k].total++; if (S.own[c.id] > 0) m[k].have++;
+    });
+    var list = order.sort().map(function (k) { return m[k]; }), part = list.filter(function (x) { return x.have < x.total; });
+    part.sort(function (a, b) { return (b.have / b.total) - (a.have / a.total); });
+    return { list: list, done: list.length - part.length, next: part[0] || null };
+  }
+  function openSets() {
+    var sp = setProgress(), st = S.me && S.me.stats;
+    var dlg = openDlg('');
+    dlg.innerHTML = '<button type="button" class="x" aria-label="ปิด">✕</button><h2>ความคืบหน้าชุดการ์ด</h2><p class="mut" style="margin:0 40px 10px 0">' + (st ? 'สะสมแล้ว <b>' + st.ownedUnique + ' / ' + st.totalCards + '</b> แบบ · ' : '') + 'ครบแล้ว ' + sp.done + ' จาก ' + sp.list.length + ' ชุด</p>' +
+      '<div class="sets">' + sp.list.map(function (x) {
+        var pct = x.total ? Math.round(x.have / x.total * 100) : 0, full = x.have >= x.total;
+        return '<div class="srow"><b>' + esc(x.code) + '</b><span class="bar"><i class="' + (full ? 'full' : '') + '" style="width:' + pct + '%"></i></span><span class="sn">' + x.have + ' / ' + x.total + '</span><em class="' + (full ? 'ok' : 'mut') + '">' + (full ? '✓ ครบ' : 'ขาด ' + (x.total - x.have)) + '</em></div>';
+      }).join('') + '</div><div class="acts3"><button type="button" class="btn" data-go="cards">🃏 ดูการ์ดของฉัน</button><button type="button" class="btn pri" data-go="shop">ไปร้านค้า</button></div>';
+  }
+
   function renderHome() {
     try { var m0 = localStorage.getItem('af-lobby-mode'); if (MODES.some(function (m) { return m[0] === m0; })) S.mode = m0; } catch (e) { }
     return Promise.all([api('GET', '/api/me'), api('GET', '/api/updates').catch(function () { return { data: [] }; }), loadCards(), api('GET', '/api/shop').catch(function () { return { data: [] }; }), loadOwned().catch(function () { })]).then(function (r) {
@@ -118,16 +141,19 @@
       var main = decks[0] || null, mainInfo = main ? infos[0] : null;
       var fan = pickAvatars(decks), emblem = fan[0] || null;
       var haveDecks = decks.length > 0;
+      var sets = setProgress();
+      var seen = ''; try { seen = localStorage.getItem('af-notes-seen') || ''; } catch (e) { }
+      var n0 = (r[1].data || [])[0], newNote = !!(n0 && n0.title && ((n0.id || n0.date) + '|' + n0.title) !== seen);
 
       var fanHtml = fan.map(function (c, i) { return '<div class="fc f' + i + '">' + pic(c) + '</div>'; }).join('');
-      var deckLine = cur ? '<button type="button" class="dpill" data-act="setup" title="เปลี่ยนเด็ค / ตั้งค่าแมตช์"><b>' + esc(cur.name || 'เด็ค') + '</b><span class="' + (cur.ok ? 'ok' : 'warn') + '">' + (cur.ok ? (cur.preset ? '✓ เด็คตัวอย่าง' : '✓ พร้อมเล่น') : '⚠ ใช้เล่นไม่ได้') + '</span></button>' : main ? '<button type="button" class="dpill" data-go="decks" title="ไปจัดเด็ค"><b>' + esc(main.name || 'เด็คใหม่') + '</b><span class="' + (mainInfo.ok ? 'ok' : 'warn') + '">' + (mainInfo.ok ? '✓ พร้อมเล่น' : mainInfo.miss ? '⚠ การ์ดไม่พอ' : mainInfo.n + '/60 ใบ') + '</span></button>'
+      var deckLine = cur ? '<button type="button" class="dpill" data-act="setup" title="เปลี่ยนเด็ค"><b>' + esc(cur.name || 'เด็ค') + '</b><span class="' + (cur.ok ? 'ok' : 'warn') + '">' + (cur.ok ? (cur.preset ? '✓ เด็คตัวอย่าง' : '✓ พร้อมเล่น') : '⚠ ใช้เล่นไม่ได้') + '</span></button>' : main ? '<button type="button" class="dpill" data-go="decks" title="ไปจัดเด็ค"><b>' + esc(main.name || 'เด็คใหม่') + '</b><span class="' + (mainInfo.ok ? 'ok' : 'warn') + '">' + (mainInfo.ok ? '✓ พร้อมเล่น' : mainInfo.miss ? '⚠ การ์ดไม่พอ' : mainInfo.n + '/60 ใบ') + '</span></button>'
         : '<button type="button" class="dpill" data-go="shop"><b>ยังไม่มีเด็คของคุณ</b><span class="warn">เริ่มที่ Shop ›</span></button>';
       var modeName = (MODES.filter(function (m) { return m[0] === S.mode; })[0] || MODES[0])[1];
       var hint = (S.mode === 'online' ? 'โหมดออนไลน์: กด PLAY เพื่อสร้างหรือเข้าห้องกับเพื่อน' : 'กด PLAY เพื่อเริ่ม ' + modeName + ' ทันที') + (cur && cur.preset && !st.ownedTotal ? ' · ใช้เด็คตัวอย่างฟรี หรือซื้อ Starter Deck ที่ Shop' : '');
 
       var h = '<div class="lobby">' +
         '<div class="subbar" role="tablist" aria-label="โหมดการเล่น">' + MODES.map(function (m) { return '<button type="button" role="tab" class="mode' + (S.mode === m[0] ? ' on' : '') + '" aria-selected="' + (S.mode === m[0]) + '" data-mode="' + m[0] + '">' + m[1] + '</button>'; }).join('') +
-        '<span class="grow"></span><button type="button" class="sublink" data-hdr="guide">📖 วิธีเล่น</button><button type="button" class="sublink" data-hdr="notes">🔔 ข่าวอัปเดต</button></div>' +
+        '<span class="grow"></span><button type="button" class="sublink" data-hdr="guide">📖 วิธีเล่น</button><button type="button" class="sublink" data-hdr="notes">🔔 ข่าวอัปเดต<i class="ndot" id="ndot"' + (newNote ? '' : ' hidden') + '></i></button><button type="button" class="sublink" data-hdr="feedback">💬 ข้อเสนอแนะ</button></div>' +
         '<section class="stage">' +
           '<div class="art"><div class="artcut"><div class="artin"><div class="glow"></div><div class="fan n' + fan.length + '">' + fanHtml + '</div><div class="logo">AVASTFALL<small>TRADING CARD GAME</small></div></div></div></div>' +
           '<div class="side">' +
@@ -137,7 +163,7 @@
             '</div>' +
             '<button type="button" class="daily' + (me.dailyReady ? ' ready' : ' done') + '" data-act="daily"' + (me.dailyReady ? '' : ' disabled') + '><span class="dc"></span><span class="dt"><small>รางวัลรายวัน</small><b>' + (me.dailyReady ? '+' + me.dailyAmount + ' เหรียญ' : 'รับแล้ว ✓') + '</b></span></button>' +
             '<div class="bottom">' +
-              '<button type="button" class="profile" data-go="cards" title="ดูการ์ดของฉัน"><span class="hexb"><b>' + st.ownedUnique + '</b></span><span class="pinfo"><small>PROFILE</small><b>' + esc(me.user.username) + '</b><span class="bar"><i class="' + (pct >= 100 ? 'full' : '') + '" style="width:' + pct + '%"></i></span><em>สะสมแล้ว ' + st.ownedUnique + ' / ' + st.totalCards + ' แบบ</em></span></button>' +
+              '<button type="button" class="profile" data-act="sets" title="ดูความคืบหน้าแต่ละชุดการ์ด"><span class="hexb"><b>' + sets.done + '</b></span><span class="pinfo"><small>SETS</small><b>' + (sets.next ? esc(sets.next.code) + ' · ขาดอีก ' + (sets.next.total - sets.next.have) + ' ใบ' : sets.list.length ? 'ครบทุกชุดแล้ว 🎉' : 'ยังไม่มีข้อมูลชุด') + '</b><span class="bar"><i class="' + (sets.next ? '' : 'full') + '" style="width:' + (sets.next ? Math.round(sets.next.have / sets.next.total * 100) : 100) + '%"></i></span><em>ชุดที่สะสมครบ ' + sets.done + ' / ' + sets.list.length + ' ชุด</em></span></button>' +
               '<button type="button" class="decksbox" data-go="decks" title="ไปจัดเด็ค"><span class="dinfo"><small>DECKS</small><b>' + (main ? esc(main.name || 'เด็คใหม่') : 'ยังไม่มีเด็ค') + '</b><em>' + decks.length + ' เด็ค</em></span><span class="dbox"><i></i></span></button>' +
             '</div>' +
           '</div>' +
@@ -167,7 +193,7 @@
   function ctlHtml(inGame, hint) {
     var resume = inGame ? '<button type="button" class="resume" data-act="resume">▶ มีเกมที่กำลังเล่นอยู่ — กลับเข้าเกม</button>' : '';
     if (S.mode === 'online') return resume + onlineHtml();
-    return resume + '<button type="button" class="play" data-act="play"><span>PLAY</span></button><button type="button" class="setbtn" data-act="setup">⚙ ตั้งค่าแมตช์ · เด็ค · คู่ต่อสู้</button><p class="hint">' + (hint || '') + '</p>';
+    return resume + '<button type="button" class="play" data-act="play"><span>PLAY</span></button><p class="hint">' + (hint || '') + '</p>';
   }
   function olStatus(o) {
     if (o.pid === 0 && !o.hadPeer) return 'รอเพื่อนเข้าห้อง… ส่งรหัสหรือลิงก์ให้เพื่อน';
@@ -239,7 +265,7 @@
       var mine = all.filter(function (d) { return !d.preset; }), pre = all.filter(function (d) { return d.preset; });
       var list = function (p) { return (mine.length ? '<div class="dgrp">เด็คของฉัน</div>' + mine.map(function (d) { return row(d, p); }).join('') : '') + '<div class="dgrp">เด็คตัวอย่าง (ใช้ฟรี)</div>' + pre.map(function (d) { return row(d, p); }).join(''); };
       var two = S.mode !== 'online';
-      dlg.innerHTML = '<button type="button" class="x" aria-label="ปิด">✕</button><h2>ตั้งค่าแมตช์</h2><p class="mut" style="margin:0 40px 6px 0">' + (S.mode === 'online' ? 'เลือกเด็คของคุณสำหรับห้องออนไลน์' : 'เลือกเด็คของทั้งสองฝั่งและใครเล่นก่อน · กด PLAY ที่ Home เพื่อเริ่มได้ทันที') + '</p>' +
+      dlg.innerHTML = '<button type="button" class="x" aria-label="ปิด">✕</button><h2>เลือกเด็ค</h2><p class="mut" style="margin:0 40px 6px 0">' + (S.mode === 'online' ? 'เลือกเด็คของคุณสำหรับห้องออนไลน์' : 'เลือกเด็คของทั้งสองฝั่งและใครเล่นก่อน · กด PLAY ที่ Home เพื่อเริ่มได้ทันที') + '</p>' +
         '<div class="mgrid"><section><h3>' + (S.mode === 'bot' ? 'เด็คของคุณ' : S.mode === 'hot' ? 'เด็คผู้เล่น 1' : 'เด็คของคุณ') + '</h3><div class="dlist">' + list(0) + '</div></section>' +
         (two ? '<section><h3>' + (S.mode === 'bot' ? 'เด็คบอท' : 'เด็คผู้เล่น 2') + '</h3><button type="button" class="btn sm' + (c.picked1 ? '' : ' pri') + '" data-rand="1">🎲 สุ่มเด็คตัวอย่างทุกครั้ง</button><div class="dlist">' + list(1) + '</div></section>' : '') + '</div>' +
         (two ? '<div class="srow2"><b>ใครเล่นก่อน</b>' + [['random', 'สุ่ม'], ['0', 'ผู้เล่น 1'], ['1', 'ผู้เล่น 2']].map(function (f) { return '<button type="button" class="btn sm' + (String(c.first) === f[0] ? ' pri' : '') + '" data-first="' + f[0] + '">' + f[1] + '</button>'; }).join('') + '</div>' : '') +
@@ -359,8 +385,13 @@
       Array.prototype.forEach.call(document.querySelectorAll('.mode'), function (b) { var on = b === md; b.classList.toggle('on', on); b.setAttribute('aria-selected', on); });
       return;
     }
-    var hd = t.closest('[data-hdr]'); if (hd) { tell({ afHdr: hd.dataset.hdr }); return; }
-    var g = t.closest('[data-go]'); if (g) { go(g.dataset.go, g.dataset.deck ? { deckId: g.dataset.deck } : null); return; }
+    var hd = t.closest('[data-hdr]'); if (hd) {
+      var k = hd.dataset.hdr;
+      if (k === 'notes') { var nd = $('ndot'); if (nd) nd.hidden = true; }
+      try { if (k !== 'guide' && window.parent.AFSite && window.parent.AFSite.panel) { window.parent.AFSite.panel(k); return; } } catch (er) { }
+      tell({ afHdr: k }); return;
+    }
+    var g = t.closest('[data-go]'); if (g) { if (g.closest('.ov')) closeDlg(); go(g.dataset.go, g.dataset.deck ? { deckId: g.dataset.deck } : null); return; }
     var cc = t.closest('[data-card]'); if (cc && S.byId) { cardDetail(S.byId[cc.dataset.card.toLowerCase()]); return; }
     var a = t.closest('[data-act]'); if (!a) return;
     var item = a.closest('.item'), id = item && item.dataset.id;
@@ -370,13 +401,18 @@
     } else if (a.dataset.act === 'buy') buy(id, a);
     else if (a.dataset.act === 'play') launch(null);
     else if (a.dataset.act === 'setup') openMatch();
+    else if (a.dataset.act === 'sets') openSets();
     else if (/^ol/.test(a.dataset.act)) olAct(a.dataset.act);
     else if (a.dataset.act === 'resume') go('play');
     else if (a.dataset.act === 'playdeck') launch(a.dataset.deck);
     else if (a.dataset.act === 'daily') { a.disabled = true; api('POST', '/api/me/daily').then(function (r) { setCoins(r.coins); toast('🎁 ได้รับ ' + r.amount + ' เหรียญ!'); show('home'); }).catch(function (er) { toast(er.message, true); a.disabled = false; }); }
   });
   /* เว็บหลักสั่งสลับหน้า (แท็บ Home / Shop บนแถบเมนู) */
-  addEventListener('message', function (e) { if (e.origin === location.origin && e.data && e.data.afView && RENDER[e.data.afView]) show(e.data.afView); });
+  addEventListener('message', function (e) {
+    if (e.origin !== location.origin || !e.data) return;
+    if (e.data.afNotesSeen) { var nd = $('ndot'); if (nd) nd.hidden = true; }
+    if (e.data.afView && RENDER[e.data.afView]) show(e.data.afView);
+  });
 
   var h = location.hash.replace('#', '');
   show(RENDER[h] ? h : 'home');

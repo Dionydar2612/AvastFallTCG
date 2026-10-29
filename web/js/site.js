@@ -7,7 +7,8 @@
    - iframe คุยกับหน้านี้ผ่าน postMessage:
        afGo {afGo:'shop', deckId?}   ขอสลับแท็บ        afLaunch {mode, deckId?}   ไปหน้า Play พร้อมตั้งโหมด/เด็ค
        afCoins n                      เหรียญเปลี่ยน       afOwned 1                 ซื้อ/ได้การ์ดใหม่ → โหลดข้อมูลการ์ดที่มีใหม่ทุกหน้า
-       afHubView 'home'|'shop'        สลับภายใน hub     afDecksChanged 1          Deckbuilder บันทึก/ลบเด็ค */
+       afHubView 'home'|'shop'        สลับภายใน hub     afDecksChanged 1          Deckbuilder บันทึก/ลบเด็ค
+       afHdr 'guide'|'notes'|'feedback'  วิธีเล่น (ไปหน้าเกม) · แจ้งเตือน/ข้อเสนอแนะ (หน้าต่างซ้อนบนหน้าเดิม ไม่ย้ายหน้า) */
 (function () {
   'use strict';
   var view = document.getElementById('siteView'), sw = document.getElementById('siteSw'), bar = document.getElementById('siteBar');
@@ -98,7 +99,7 @@
     if (d.afHubView && PANE[d.afHubView] === 'hub' && cur !== d.afHubView && PANE[cur] === 'hub') go(d.afHubView, { fromHub: true });
     if (d.afLaunch) launch(d.afLaunch);
     if (d.afSetup) { go('play'); if (window.AFApp && AFApp.setup) AFApp.setup(d.afSetup); }
-    if (d.afHdr && window.AFApp && AFApp[d.afHdr]) { go('play'); AFApp[d.afHdr](); }          // วิธีเล่น / Update Note จากปุ่มใน iframe
+    if (d.afHdr) hdr(d.afHdr);                                                                // วิธีเล่น (ไปหน้าเกม) · แจ้งเตือน/ข้อเสนอแนะ (เปิดหน้าต่างทับหน้าเดิม)
     if (d.afGo) { var t = ALIAS[d.afGo] || d.afGo; if (TITLE[t]) { if (t === 'decks' && d.deckId) openDeck({ id: d.deckId }); else go(t); } }
   });
 
@@ -119,12 +120,75 @@
   setInterval(syncGame, 700);
   if (gameBtn) gameBtn.addEventListener('click', function () { go('play'); });
 
-  /* ปุ่มบนเมนูบัญชี: วิธีเล่น · Update Note */
+  /* ปุ่มบนเมนูบัญชี / แถบ Home: วิธีเล่น = ไปหน้าวิธีเล่น · แจ้งเตือน/ข้อเสนอแนะ = เปิดหน้าต่างซ้อนตรงจุดที่กด ไม่ย้ายหน้า */
+  function hdr(k) {
+    if (k === 'notes' || k === 'feedback') { panel(k); return; }
+    go('play'); if (window.AFApp && AFApp[k]) AFApp[k]();
+  }
   document.addEventListener('click', function (e) {
     var b = e.target.closest && e.target.closest('[data-hdr]'); if (!b) return;
-    e.preventDefault(); go('play');
-    if (window.AFApp && AFApp[b.dataset.hdr]) AFApp[b.dataset.hdr]();
+    e.preventDefault(); hdr(b.dataset.hdr);
   });
+
+  /* ---------- หน้าต่างแจ้งเตือน (Update Note) · ข้อเสนอแนะ ---------- */
+  var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (m) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]; }); };
+  var pEl = null;
+  function closePanel() { if (!pEl) return; pEl.remove(); pEl = null; document.body.style.overflow = ''; }
+  function shell(title, html) {
+    closePanel();
+    var ov = document.createElement('div'); ov.className = 'af-ov';
+    ov.innerHTML = '<div class="af-dlg" role="dialog" aria-modal="true" aria-label="' + esc(title) + '"><button type="button" class="af-x" aria-label="ปิด">✕</button><h2>' + esc(title) + '</h2><div class="af-body">' + html + '</div></div>';
+    ov.addEventListener('click', function (e) { if (e.target === ov || e.target.closest('.af-x') || e.target.closest('[data-pclose]')) closePanel(); });
+    document.body.appendChild(ov); pEl = ov; document.body.style.overflow = 'hidden';
+    ov.querySelector('.af-x').focus();
+    return ov.querySelector('.af-body');
+  }
+  addEventListener('keydown', function (e) { if (e.key === 'Escape' && pEl) closePanel(); });
+  function panel(kind) { if (kind === 'feedback') openFeedback(); else openNotes(); }
+
+  var noteKey = function (n) { return n ? (n.id || n.date) + '|' + n.title : ''; };
+  function openNotes() {
+    var body = shell('🔔 แจ้งเตือน · ข่าวอัปเดต', '<p class="af-mut">กำลังโหลด…</p>');
+    fetch('/api/updates', { cache: 'no-store', credentials: 'same-origin' }).then(function (r) { return r.ok ? r.json() : Promise.reject(); }).then(function (j) {
+      var list = (j.data || []).filter(function (n) { return n && n.title && Array.isArray(n.items); });
+      if (!pEl || !body.isConnected) return;
+      body.innerHTML = list.length ? list.map(function (n) {
+        return '<div class="af-note"><b>' + esc(n.date || String(n.at || '').slice(0, 10)) + ' · ' + esc(n.title) + '</b><ul>' + n.items.map(function (i) { return '<li>' + esc(i) + '</li>'; }).join('') + '</ul></div>';
+      }).join('') : '<p class="af-mut">ยังไม่มีประกาศอัปเดต</p>';
+      try { if (list[0]) localStorage.setItem('af-notes-seen', noteKey(list[0])); } catch (e) { }
+      if (window.AFApp && AFApp.syncBell) AFApp.syncBell();
+      post(hubFrame, { afNotesSeen: 1 });
+    }).catch(function () { if (pEl && body.isConnected) body.innerHTML = '<p class="af-err">โหลดข่าวอัปเดตไม่สำเร็จ ลองใหม่อีกครั้ง</p>'; });
+  }
+
+  var PAGE = { home: 'Home', play: 'เกม', decks: 'Decks', cards: 'Cards', shop: 'Shop' };
+  function openFeedback() {
+    var cats = (window.AF && AF.feedback && AF.feedback.CATEGORIES) || [['suggest', 'ข้อเสนอแนะ']];
+    var body = shell('💬 ข้อเสนอแนะ', '<p class="af-mut">อยากให้ปรับหรือเพิ่มอะไร พบจุดผิดปกติ หรือการ์ดใบไหนทำงานไม่ตรงข้อความ บอกได้ที่นี่ ผู้พัฒนาจะอ่านทุกข้อความ</p>' +
+      '<label class="af-fl">หัวข้อ<select data-f="cat">' + cats.map(function (c) { return '<option value="' + esc(c[0]) + '">' + esc(c[1]) + '</option>'; }).join('') + '</select></label>' +
+      '<label class="af-fl">ข้อความ<textarea data-f="text" maxlength="1500" rows="6" placeholder="พิมพ์ข้อเสนอแนะของคุณ"></textarea></label>' +
+      '<label class="af-fl">ชื่อ (ไม่ใส่ก็ได้)<input data-f="name" type="text" maxlength="60"></label>' +
+      '<label class="af-fl">ช่องทางติดต่อกลับ (ไม่ใส่ก็ได้)<input data-f="contact" type="text" maxlength="100" placeholder="อีเมล / ไอดีโซเชียล"></label>' +
+      '<input data-f="website" type="text" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;opacity:0;height:0">' +
+      '<div class="af-err" data-f-msg hidden></div>' +
+      '<div class="af-acts"><button type="button" class="af-btn" data-pclose>ยกเลิก</button><button type="button" class="af-btn pri" data-f-send>ส่งข้อเสนอแนะ</button></div>');
+    var q = function (k) { return body.querySelector('[data-f="' + k + '"]'); }, msg = body.querySelector('[data-f-msg]'), send = body.querySelector('[data-f-send]');
+    q('text').focus();
+    send.addEventListener('click', function () {
+      var text = q('text').value;
+      if (text.trim().length < 3) { msg.textContent = 'กรุณาพิมพ์ข้อความอย่างน้อย 3 ตัวอักษร'; msg.hidden = false; return; }
+      msg.hidden = true; send.disabled = true; send.textContent = 'กำลังส่ง…';
+      AF.feedback.send({ category: q('cat').value, text: text, name: q('name').value, contact: q('contact').value, website: q('website').value,
+        context: { 'หน้า': PAGE[cur] || cur, 'จอ': innerWidth + 'x' + innerHeight, 'ภาษา': navigator.language || '' } })
+        .then(function () {
+          if (!pEl || !body.isConnected) return;
+          body.innerHTML = '<p>ส่งถึงผู้พัฒนาเรียบร้อยแล้ว ขอบคุณที่ช่วยกันปรับปรุงเกม</p><div class="af-acts"><button type="button" class="af-btn" data-f-again>ส่งอีกข้อความ</button><button type="button" class="af-btn pri" data-pclose>ปิด</button></div>';
+          body.querySelector('[data-f-again]').addEventListener('click', openFeedback);
+          body.parentNode.querySelector('h2').textContent = 'ขอบคุณสำหรับข้อเสนอแนะ';
+        })
+        .catch(function (er) { if (!pEl || !body.isConnected) return; msg.textContent = er.message; msg.hidden = false; send.disabled = false; send.textContent = 'ส่งข้อเสนอแนะ'; });
+    });
+  }
 
   function go(tab, opts) {
     tab = ALIAS[tab] || tab;
@@ -181,5 +245,5 @@
   hubFrame.src = hubFrame.dataset.src + (h0 === 'shop' ? '#shop' : '#home');
   if (/^#(deck=|home|shop|play|cards|decks|deckbuilder)/.test(location.hash)) { cur = h0 === 'shop' ? 'shop' : 'home'; fromHash(true); }
 
-  window.AFSite = { go: go, openDeck: openDeck, launch: launch, get tab() { return cur; } };
+  window.AFSite = { go: go, openDeck: openDeck, launch: launch, panel: panel, get tab() { return cur; } };
 })();

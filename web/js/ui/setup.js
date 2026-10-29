@@ -4,7 +4,7 @@
 /* หัวหน้าเกม: เมนูหลักย้ายไปอยู่แถบบนสุดของเว็บแล้ว (วิธีเล่น · Update Note ใน index.html/site.js)
    ที่นี่เหลือแค่ปุ่มกลับเมื่ออยู่หน้า "วิธีเล่น" */
 function navHTML(){
-  return `<div class="top"><button class="btn sm" data-act="page" data-v="home">← กลับ Home</button><span class="spacer"></span><button class="btn sm" data-act="feedback">ข้อเสนอแนะ</button></div>`;
+  return `<div class="top"><button class="btn sm" data-act="page" data-v="home">← กลับ Home</button></div>`;
 }
 function deckTile(d,i,on,cur){
   const bad=deckErrors(d.key).length;

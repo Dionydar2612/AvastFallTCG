@@ -81,3 +81,23 @@ body.shell{padding:0}
 @keyframes gamePulse{50%{box-shadow:0 0 0 3px #02060a,0 0 16px 4px rgba(255,194,14,.7)}}
 @media (max-width:760px){.site-game{padding:4px 10px;font-size:13px}}
 @media (prefers-reduced-motion:reduce){.site-game{animation:none}}
+
+/* หน้าต่างแจ้งเตือน (Update Note) · ข้อเสนอแนะ — ซ้อนทับหน้าที่เปิดอยู่ ไม่ย้ายแท็บ (js/site.js) */
+.af-ov{position:fixed;inset:0;z-index:80;display:grid;place-items:center;padding:max(12px,env(safe-area-inset-top)) 12px max(12px,env(safe-area-inset-bottom));background:rgba(0,0,0,.78);overflow:auto}
+.af-dlg{position:relative;width:min(560px,100%);max-height:100%;overflow:auto;padding:20px;border:3px solid var(--line);border-radius:18px;background:var(--panel);color:var(--ink);box-shadow:var(--sh)}
+.af-dlg h2{margin:0 40px 10px 0;font-size:1.25rem}
+.af-x{position:absolute;top:10px;right:12px;width:34px;height:34px;border:2px solid var(--line);border-radius:50%;background:var(--panel);color:var(--ink);cursor:pointer;font-weight:700}
+.af-x:hover{background:var(--gold);color:#111}
+.af-mut{color:var(--ink2);margin:0 0 10px}
+.af-err{margin:8px 0;padding:8px 12px;border:2px solid var(--bad);border-radius:10px;color:var(--bad);font-weight:700}
+.af-note{margin:0 0 10px;padding:10px 14px;border:2px solid var(--line);border-radius:12px;background:var(--soft)}
+.af-note ul{margin:6px 0 0;padding-left:20px}
+.af-fl{display:block;margin:0 0 10px;font-weight:700;font-size:.9rem}
+.af-fl select,.af-fl textarea,.af-fl input{display:block;width:100%;margin-top:4px;padding:8px 10px;border:2px solid var(--line);border-radius:10px;background:var(--paper);color:var(--ink);font:inherit;font-weight:400}
+.af-fl textarea{resize:vertical;min-height:110px}
+.af-fl select:focus,.af-fl textarea:focus,.af-fl input:focus{outline:3px solid var(--gold);outline-offset:1px}
+.af-acts{display:flex;justify-content:flex-end;gap:8px;margin-top:12px}
+.af-btn{padding:6px 18px;border:2px solid var(--line);border-radius:99px;background:var(--panel);color:var(--ink);font:700 .95rem/1.3 inherit;cursor:pointer}
+.af-btn:hover{background:var(--gold);color:#111}
+.af-btn.pri{background:var(--gold);color:#111;box-shadow:3px 3px 0 var(--line)}
+.af-btn[disabled]{opacity:.55;cursor:not-allowed}

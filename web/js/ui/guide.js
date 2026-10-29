@@ -359,7 +359,7 @@ function guideHTML(){
     'ใน Main Phase คลิก Unit ที่ Cost ต่ำบนมือ (ใบที่เรืองแสงคือเล่นได้) แล้วเลือก “อัญเชิญ …” โดยใช้ Element ธาตุตรงกับ Unit',
     'กดปุ่ม "ไป Attack Phase" ถ้าไม่มี Unit ที่โจมตีได้ เกมจะผ่านเฟสให้ รอบอทเล่น แล้วเทิร์นถัดไป Unit ที่ลงไว้จะโจมตีได้',
     'เลือก Unit ที่ตั้งอยู่ แล้วคลิกเป้าหมายสีแดง ถ้าฝั่งตรงข้ามไม่มี Unit ตั้งอยู่ ตีเข้า Avatar ได้เลย',
-    'ลองเล่นจนจบเกม ถ้าสงสัยจุดไหน กดปุ่ม "กติกา" บนหน้าเกม ชี้การ์ดเพื่ออ่านข้อความเต็ม หรือ "ส่งข้อเสนอแนะ" บอกเราได้'
+    'ลองเล่นจนจบเกม ถ้าสงสัยจุดไหน กดปุ่ม "กติกา" บนหน้าเกม ชี้การ์ดเพื่ออ่านข้อความเต็ม หรือกด "ข้อเสนอแนะ" ที่หน้า Home / เมนูบัญชีมุมขวาบน บอกเราได้'
   ];
   const elIcons=Object.keys(ELEMENTS).map(n=>`<span class="chip">${elIcon(n,16)} ${n}</span>`).join('');
   return `${navHTML()}
@@ -484,5 +484,5 @@ function guideHTML(){
     </ol>
   </section>
 
-  <section class="gd" id="gd-first"><h2>13. ลองเล่นรอบแรก</h2><ol class="gd-first">${first.map(t=>`<li>${t}</li>`).join('')}</ol><div class="ot-cta"><button class="btn pri" data-act="quickplay">เริ่มเล่นกับบอท</button> <button class="btn" data-act="feedback">ส่งข้อเสนอแนะ / แจ้งบั๊ก</button></div></section>`;
+  <section class="gd" id="gd-first"><h2>13. ลองเล่นรอบแรก</h2><ol class="gd-first">${first.map(t=>`<li>${t}</li>`).join('')}</ol><div class="ot-cta"><button class="btn pri" data-act="quickplay">เริ่มเล่นกับบอท</button></div></section>`;
 }
