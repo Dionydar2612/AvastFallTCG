@@ -229,3 +229,16 @@ button{font:inherit;color:var(--ink)}
 .srow .sn{font-weight:700;text-align:right}
 .srow em{font-style:normal;font-size:.8rem;text-align:right}
 @media (max-width:560px){.srow{grid-template-columns:52px 1fr 56px;row-gap:2px}.srow em{display:none}}
+
+/* ดูของในสินค้า (ซอง / Starter Deck) */
+.item .art[data-info],.item h3.lnk{cursor:pointer}
+.item h3.lnk:hover{text-decoration:underline}
+.item .btn.info{align-self:flex-start}
+.odds{margin:12px 0 4px;padding:10px 14px;border:2px solid var(--line);border-radius:12px;background:var(--soft)}
+.odds .orow{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 4px}
+.chip{border:2px solid var(--line);border-radius:99px;padding:0 10px;font-weight:700;font-size:.85rem;background:var(--panel)}
+.chip.r-R{background:var(--gold);color:#111}.chip.r-SR,.chip.r-SSR,.chip.r-UR{background:#ff4fd8;color:#111}
+.gh{margin:16px 0 8px;font-size:1.05rem}.gh small{font-weight:400;color:var(--ink2);font-size:.8rem}
+.reveal.pv{grid-template-columns:repeat(auto-fill,minmax(104px,1fr))}
+.reveal.pv .rc.unowned>.f img{filter:grayscale(.55) brightness(.85)}
+.reveal.pv .rc .qq.own{background:#fff;font-size:.7rem;padding:0 6px}
