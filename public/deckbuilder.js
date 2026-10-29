@@ -38,7 +38,15 @@
     ELS = Object.keys(window.ELEMENTS || {});
   }
   const cmpId = (a, b) => a.deck.localeCompare(b.deck) || a.no.localeCompare(b.no);
-  const allowed = (av, card) => !card.els.length || card.els.every(e => ((av && av.els) || []).includes(e));
+  /* ข้อยกเว้นบน Avatar (ตรงกับ AF.allowedInDeck ใน web/js/engine/engine.js): Avatar บางใบใส่การ์ดนอกธาตุได้
+     BT01-003 เซนโง มุรามาสะ — ใส่การ์ดที่มีคำว่า "ดาบ" ในชื่อได้ทุกธาตุ (จ่าย Cost ด้วยธาตุใดก็ได้เป็นกฎตอนเล่น เอนจินจัดการอยู่แล้ว) */
+  const AV_ALLOW = { 'BT01-003': c => String(c.name || '').includes('ดาบ') };
+  const allowed = (av, card) => {
+    if (!card.els.length) return true;
+    const ex = av && AV_ALLOW[av.id];
+    if (ex && ex(card)) return true;
+    return card.els.every(e => ((av && av.els) || []).includes(e));
+  };
   const defaultEdeck = av => {
     const els = av && av.els && av.els.length ? av.els : [];
     const o = {}; els.forEach((e, i) => { o[e] = Math.floor(8 / els.length) + (i < 8 % els.length ? 1 : 0); }); return o;
