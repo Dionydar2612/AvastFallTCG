@@ -199,7 +199,7 @@
     if (tab === cur && !opts.force) return;
     var prev = cur, from = PANE[prev], to = PANE[tab];
     if (to === 'cards') {
-      if (!cardsFrame.getAttribute('src')) cardsFrame.src = cardsFrame.dataset.src + (opts.hash || (tab === 'decks' ? '#deckbuilder' : ''));
+      if (!cardsFrame.getAttribute('src')) cardsFrame.src = cardsFrame.dataset.src + '&v=' + Date.now() + (opts.hash || (tab === 'decks' ? '#deckbuilder' : ''));   // &v= กันเบราว์เซอร์ใช้หน้า /cards/ เก่าจากแคช (เคยทำให้ iframe ไม่มี __AF จึงไม่เห็นการ์ด)
       else if (ready.cards) tellCards(tab === 'decks' ? 'deck' : 'cards');
     } else if (to === 'hub') {
       if (!hubFrame.getAttribute('src')) hubFrame.src = hubFrame.dataset.src + '#' + tab;
