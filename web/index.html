@@ -7,8 +7,9 @@
 <meta name="description" content="AvastFall TCG (Open Test) — ล็อกอินเพื่อเข้าร้านค้า จัดเด็ค ดูการ์ด และทดลองเล่นกับบอทหรือเพื่อน">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@1,700;1,800&family=Mali:wght@400;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap">
 <link rel="stylesheet" href="css/style.css">
-<link rel="stylesheet" href="css/site.css?v=6"><!-- แถบเมนูเดียว Home · Play · Decks · Cards · Shop -->
-<link rel="stylesheet" href="css/theme.css"><!-- ธีมรวมให้เหมือนหน้า Card List (ต้องโหลดหลังสุด) -->
+<link rel="stylesheet" href="css/site.css?v=7"><!-- แถบเมนูเดียว Home · Decks · Cards · Shop -->
+<link rel="stylesheet" href="css/theme.css">
+<link rel="stylesheet" href="css/lobby.css?v=1"><!-- ธีมรวมให้เหมือนหน้า Card List (ต้องโหลดหลังสุด) -->
 <style id="imgcss"></style><!-- CSS รูปการ์ด สร้างจาก URL ของ card-api (js/ui/data-sync.js) -->
 </head>
 <body class="shell">
@@ -16,13 +17,13 @@
   <a class="site-brand" href="/" data-go="home" aria-label="AvastFall TCG — Home"><i>A</i><span>AvastFall TCG</span><em>OPEN TEST</em></a>
   <nav class="site-sw" id="siteSw" role="tablist" aria-label="เมนูหลัก" data-tab="home">
     <button role="tab" data-tab="home" aria-selected="true" id="tabHome">Home</button>
-    <button role="tab" data-tab="play" aria-selected="false" id="tabPlay" tabindex="-1">Play</button>
     <button role="tab" data-tab="decks" aria-selected="false" id="tabDecks" tabindex="-1">Decks</button>
     <button role="tab" data-tab="cards" aria-selected="false" id="tabCards" tabindex="-1">Cards</button>
     <button role="tab" data-tab="shop" aria-selected="false" id="tabShop" tabindex="-1">Shop</button>
     <span class="ind" aria-hidden="true"></span>
   </nav>
   <div class="site-user" id="siteUser">
+    <button type="button" class="site-game" id="siteGame" hidden>▶ กลับเข้าเกม</button>
     <button type="button" class="site-chip coin" id="siteCoin" data-go="shop" title="เหรียญของคุณ — ไปร้านค้า"><i class="ic" aria-hidden="true"></i><b id="siteCoinNum">–</b></button>
     <button type="button" class="site-chip cards" id="siteCards" data-go="cards" title="การ์ดที่สะสมได้ — ไปดูการ์ด"><i class="ic" aria-hidden="true"></i><b id="siteCardsNum">–</b></button>
     <button type="button" class="site-me" id="siteMe" aria-haspopup="menu" aria-expanded="false" aria-controls="siteMenu"><span class="av" aria-hidden="true" id="siteAv">?</span><span class="nm" id="siteName">ผู้เล่น</span><svg class="chev" width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M1 3l4 4 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><i class="dot" id="siteMeDot" hidden></i></button>
@@ -77,6 +78,6 @@
 <script src="js/ui/modals.js"></script>
 <script src="js/ui/events.js"></script>
 <script src="js/ui/main.js"></script>
-<script src="js/site.js?v=6"></script><!-- แท็บเลื่อน ต้องโหลดหลังสุด -->
+<script src="js/site.js?v=7"></script><!-- แท็บเลื่อน ต้องโหลดหลังสุด -->
 </body>
 </html>

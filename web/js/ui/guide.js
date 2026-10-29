@@ -365,7 +365,7 @@ function guideHTML(){
   return `${navHTML()}
   <div class="hero"><span class="ot-badge"><i></i>วิธีเล่น · สอนเล่นตั้งแต่ต้น</span><h1>เริ่มเล่น AvastFall TCG</h1><p class="muted">อ่านจบแล้วลองเล่นกับบอทได้ทันที หน้านี้อธิบายตั้งแต่ว่าการ์ดแต่ละใบมีอะไร สนามมีอะไร เล่นการ์ดยังไง ไปจนถึง Keyword ทุกตัว ถ้าติดตรงไหนระหว่างเล่น กดปุ่ม "กติกา" บนหน้าเกมเปิดดูย่อ ๆ ได้ตลอด</p>
   <nav class="gd-toc" aria-label="สารบัญ">${toc.map(([id,t],i)=>`<a href="#${id}">${i+1}. ${t}</a>`).join('')}</nav>
-  <div class="ot-cta"><button class="btn pri" data-act="page" data-v="play">ไปลองเล่นเลย</button></div></div>
+  <div class="ot-cta"><button class="btn pri" data-act="quickplay">ไปลองเล่นเลย</button></div></div>
   ${videoHTML()}
 
   <section class="gd" id="gd-goal"><h2>1. เป้าหมายของเกม</h2>
@@ -484,5 +484,5 @@ function guideHTML(){
     </ol>
   </section>
 
-  <section class="gd" id="gd-first"><h2>13. ลองเล่นรอบแรก</h2><ol class="gd-first">${first.map(t=>`<li>${t}</li>`).join('')}</ol><div class="ot-cta"><button class="btn pri" data-act="page" data-v="play">เริ่มเล่นกับบอท</button> <button class="btn" data-act="feedback">ส่งข้อเสนอแนะ / แจ้งบั๊ก</button></div></section>`;
+  <section class="gd" id="gd-first"><h2>13. ลองเล่นรอบแรก</h2><ol class="gd-first">${first.map(t=>`<li>${t}</li>`).join('')}</ol><div class="ot-cta"><button class="btn pri" data-act="quickplay">เริ่มเล่นกับบอท</button> <button class="btn" data-act="feedback">ส่งข้อเสนอแนะ / แจ้งบั๊ก</button></div></section>`;
 }

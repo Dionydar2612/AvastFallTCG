@@ -14,9 +14,11 @@
   var cardsFrame = document.getElementById('cardsFrame'), hubFrame = document.getElementById('hubFrame');
   var panes = { play: document.getElementById('panePlay'), cards: document.getElementById('paneCards'), hub: document.getElementById('paneHub') };
   var btns = [].slice.call(sw.querySelectorAll('button[data-tab]'));
-  var ORDER = ['home', 'play', 'decks', 'cards', 'shop'];
+  var ORDER = ['home', 'decks', 'cards', 'shop'];                    // แท็บบนแถบเมนู
+  var FLOW = ['home', 'play', 'decks', 'cards', 'shop'];            // ลำดับสำหรับทิศทางเอฟเฟกต์ (play = หน้าเกม/ตั้งค่าแมตช์ ซ้อนอยู่ใต้ Home ไม่มีแท็บของตัวเอง)
+  var navOf = function (t) { return t === 'play' ? 'home' : t; };
   var PANE = { home: 'hub', shop: 'hub', play: 'play', cards: 'cards', decks: 'cards' };
-  var TITLE = { home: 'Home · AvastFall TCG', play: 'Play · AvastFall TCG Open Test', decks: 'Decks · AvastFall TCG', cards: 'Cards · AvastFall TCG', shop: 'Shop · AvastFall TCG' };
+  var TITLE = { home: 'Home · AvastFall TCG', play: 'เกม · AvastFall TCG', decks: 'Decks · AvastFall TCG', cards: 'Cards · AvastFall TCG', shop: 'Shop · AvastFall TCG' };
   var HASH = { home: '', play: '#play', decks: '#decks', cards: '#cards', shop: '#shop' };
   var ALIAS = { deck: 'decks', deckbuilder: 'decks', hub: 'home' };
   var scrollAt = { play: 0 };
@@ -96,6 +98,7 @@
     if (d.afOwned) { refreshOwned(); refreshMe(); }
     if (d.afHubView && PANE[d.afHubView] === 'hub' && cur !== d.afHubView && PANE[cur] === 'hub') go(d.afHubView, { fromHub: true });
     if (d.afLaunch) launch(d.afLaunch);
+    if (d.afSetup) { go('play'); if (window.AFApp && AFApp.setup) AFApp.setup(d.afSetup); }
     if (d.afHdr && window.AFApp && AFApp[d.afHdr]) { go('play'); AFApp[d.afHdr](); }          // วิธีเล่น / Update Note จากปุ่มใน iframe
     if (d.afGo) { var t = ALIAS[d.afGo] || d.afGo; if (TITLE[t]) { if (t === 'decks' && d.deckId) openDeck({ id: d.deckId }); else go(t); } }
   });
@@ -103,7 +106,17 @@
   /* เปิด Deckbuilder พร้อมเด็คที่ระบุ: { id } = แก้เด็คที่บันทึกไว้ · { text, name } = ใส่เด็คเป็นเด็คใหม่ */
   function openDeck(p) { pendingDeck = p; go('decks', { force: true }); sendDeck(); }
   /* ไปหน้า Play พร้อมตั้งโหมด (bot/hot/online) และเด็คของผู้เล่น 1 */
-  function launch(o) { go('play'); if (window.AFApp && AFApp.launch) AFApp.launch(o || {}); }
+  function launch(o) {
+    o = o || {};
+    if (!o.mode) { try { o.mode = localStorage.getItem('af-lobby-mode') || 'bot'; } catch (e) { o.mode = 'bot'; } }   // โหมดที่เลือกไว้ที่ Home
+    go('play');
+    if (window.AFApp && AFApp.launch) AFApp.launch(o);
+  }
+  /* มีเกมค้างอยู่ → แสดงปุ่ม "กลับเข้าเกม" เมื่อผู้เล่นออกไปดูหน้าอื่น */
+  var gameBtn = $('siteGame');
+  function syncGame() { var g = window.__af && __af.ui && __af.ui.screen === 'game'; if (gameBtn) gameBtn.hidden = !(g && cur !== 'play'); }
+  setInterval(syncGame, 700);
+  if (gameBtn) gameBtn.addEventListener('click', function () { go('play'); });
 
   /* ปุ่มบนเมนูบัญชี: วิธีเล่น · Update Note */
   document.addEventListener('click', function (e) {
@@ -126,7 +139,7 @@
       else if (ready.hub && !opts.fromHub) post(hubFrame, { afView: tab });
     }
     if (from === 'play') scrollAt.play = window.scrollY;
-    var dir = reduce || opts.instant ? 0 : Math.sign(ORDER.indexOf(tab) - ORDER.indexOf(prev));
+    var dir = reduce || opts.instant ? 0 : Math.sign(FLOW.indexOf(tab) - FLOW.indexOf(prev));
     cur = tab;
     view.dataset.tab = tab; sw.dataset.tab = tab;
     if (from !== to || opts.force) {                              // สลับคนละช่อง: ซ่อนของเก่า แสดงของใหม่พร้อมเอฟเฟกต์เข้า
@@ -134,7 +147,8 @@
       Object.keys(panes).forEach(function (k) { panes[k].classList.toggle('on', k === to); });
       window.scrollTo(0, to === 'play' ? scrollAt.play : 0);
     }
-    btns.forEach(function (b) { var on = b.dataset.tab === tab; b.setAttribute('aria-selected', on); b.tabIndex = on ? 0 : -1; });
+    btns.forEach(function (b) { var on = b.dataset.tab === navOf(tab); b.setAttribute('aria-selected', on); b.tabIndex = on ? 0 : -1; });
+    syncGame();
     moveInd();
     try { history.replaceState(null, '', HASH[tab] ? HASH[tab] : location.pathname + location.search); } catch (e) { }
     document.title = TITLE[tab];
@@ -144,7 +158,7 @@
   btns.forEach(function (b) { b.addEventListener('click', function () { go(b.dataset.tab); }); });
   sw.addEventListener('keydown', function (e) {
     if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
-    var i = ORDER.indexOf(cur);
+    var i = ORDER.indexOf(navOf(cur));
     var t = ORDER[Math.min(ORDER.length - 1, Math.max(0, i + (e.key === 'ArrowRight' ? 1 : -1)))];
     go(t); btns.filter(function (b) { return b.dataset.tab === t; })[0].focus(); e.preventDefault();
   });

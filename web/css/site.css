@@ -73,3 +73,11 @@ body.shell{padding:0}
   .site-sw button{flex:1 0 auto;padding:0 10px;font-size:17px}
   .site-menu{right:0}
 }
+
+/* ปุ่มกลับเข้าเกมที่ค้างอยู่ (แสดงเมื่อมีเกมกำลังเล่นแต่ผู้เล่นออกมาดูหน้าอื่น) */
+.site-game{border:0;border-radius:99px;background:var(--gold);color:#111;padding:5px 16px;font:800 15px/1.2 var(--f-lobby);font-style:italic;letter-spacing:.03em;cursor:pointer;box-shadow:0 0 0 3px #02060a;animation:gamePulse 1.8s ease-in-out infinite}
+.site-game:hover{background:#fff}
+.site-game[hidden]{display:none}
+@keyframes gamePulse{50%{box-shadow:0 0 0 3px #02060a,0 0 16px 4px rgba(255,194,14,.7)}}
+@media (max-width:760px){.site-game{padding:4px 10px;font-size:13px}}
+@media (prefers-reduced-motion:reduce){.site-game{animation:none}}

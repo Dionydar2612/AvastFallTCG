@@ -138,7 +138,7 @@
     <div id="dlist"></div>
     <div id="dedit" hidden>
     <div class="db-topbar"><button class="chip" data-a="back">← กลับไปรายการเด็ค</button><h1>Deckbuilder</h1></div>
-    <p class="db-sub">จัดเด็ค 60 ใบ (Avatar 1 + Main Deck 59) ชื่อซ้ำได้ไม่เกิน 4 ใบ และ Element Deck 8 ใบ — เสร็จแล้วกด <b>บันทึกเด็ค</b> เด็คจะไปอยู่ในหน้าเลือกเด็คของแท็บ Play ทันที (ส่งให้เพื่อนใช้ <b>แชร์ / คัดลอกข้อความ</b>)</p>
+    <p class="db-sub">จัดเด็ค 60 ใบ (Avatar 1 + Main Deck 59) ชื่อซ้ำได้ไม่เกิน 4 ใบ และ Element Deck 8 ใบ — เสร็จแล้วกด <b>บันทึกเด็ค</b> เด็คจะไปอยู่ในตัวเลือกเด็คของ Home ทันที (ส่งให้เพื่อนใช้ <b>แชร์ / คัดลอกข้อความ</b>)</p>
     <div class="db-wrap">
       <section class="db-pool">
         <input id="dq" class="search" type="search" placeholder="ค้นหาชื่อ / รหัส / เผ่า">
@@ -214,7 +214,7 @@
     $('dmini').innerHTML = mine.map(d => `<div class="db-m" data-z="${esc(d.id)}"><div class="db-img" data-a="zoomt" data-id="${esc(d.id)}">${pic(d)}<span class="db-pill">${S.counts[d.id]}</span></div>
       <div class="db-step"><button data-a="sub" data-id="${esc(d.id)}" aria-label="ลด">−</button><button data-a="add" data-id="${esc(d.id)}" ${(nc[d.name] || 0) >= 4 || S.counts[d.id] >= owned(d.id) ? 'disabled' : ''} aria-label="เพิ่ม">+</button></div></div>`).join('')
       || '<span class="db-muted">ยังไม่มีการ์ดในเด็ค คลิกการ์ดทางซ้ายเพื่อใส่ลงเด็ค (ใส่ได้เท่าที่คุณมี)</span>';
-    $('dbot').innerHTML = (errs.length ? `<div class="db-warn">${errs.map(esc).join('<br>')}</div>` : '<div class="good">✓ เด็คถูกต้อง พร้อมใช้เล่น กดบันทึกแล้วเลือกเล่นที่แท็บ Play</div>') +
+    $('dbot').innerHTML = (errs.length ? `<div class="db-warn">${errs.map(esc).join('<br>')}</div>` : '<div class="good">✓ เด็คถูกต้อง พร้อมใช้เล่น กดบันทึกแล้วกด PLAY ที่ Home</div>') +
       `<div class="db-acts"><button class="chip pri" data-a="share">📤 แชร์ / คัดลอกข้อความ</button><button class="chip" data-a="save">💾 บันทึกเด็ค</button><button class="chip" data-a="import">📥 นำเข้าจากข้อความ</button><button class="chip" data-a="clear">ล้างเด็ค</button></div>`;
     $('dbar').innerHTML = `<button class="db-bav" data-a="avopen" aria-label="เปลี่ยน Avatar">${av ? pic(av) : '<span>Avatar</span>'}</button>
       <div class="db-bin"><b>${av ? esc(av.name) : 'ยังไม่ได้เลือก Avatar'}</b><span><b>${tot}</b>/60 ${tot === 60 ? '<span class="good">ครบ</span>' : `<span class="bad">${tot < 60 ? 'ขาด ' + (60 - tot) : 'เกิน ' + (tot - 60)}</span>`}</span></div>
@@ -232,7 +232,7 @@
     d = shareD = d || S; const text = toText(d), errs = validate(d);
     openOv(`<h2>แชร์เด็ค: ${esc(d.name)}</h2>
       ${errs.length ? `<div class="db-warn">เด็คนี้ยังไม่ถูกต้องตามกติกา (นำเข้าได้ แต่ต้องแก้ก่อนเล่น):<br>${errs.map(esc).join('<br>')}</div>` : ''}
-      <p class="db-muted">คัดลอกข้อความนี้ส่งให้เพื่อน แล้วให้เพื่อนกด <b>นำเข้าจากข้อความ</b> ที่แท็บ Deckbuilder ของเขาแล้ววาง (เด็คที่บันทึกของคุณเองเล่นได้ที่แท็บ Play เลย ไม่ต้องคัดลอก · เพื่อนต้องมีการ์ดครบตามเด็คจึงจะใช้ได้)</p>
+      <p class="db-muted">คัดลอกข้อความนี้ส่งให้เพื่อน แล้วให้เพื่อนกด <b>นำเข้าจากข้อความ</b> ที่แท็บ Deckbuilder ของเขาแล้ววาง (เด็คที่บันทึกของคุณเองเล่นได้จากปุ่ม PLAY ที่ Home เลย ไม่ต้องคัดลอก · เพื่อนต้องมีการ์ดครบตามเด็คจึงจะใช้ได้)</p>
       <textarea id="dtxt" class="db-ta" readonly>${esc(text)}</textarea>
       <div class="db-acts"><button class="chip pri" data-a="copytxt">คัดลอกข้อความ</button><button class="chip" data-a="copylink">คัดลอกลิงก์แชร์</button><button class="chip" data-a="dl">ดาวน์โหลด .txt</button>
       <button class="chip" data-a="closeov">ปิด</button></div>
@@ -284,7 +284,7 @@
         <div class="db-acts">${errs.length ? '' : `<button class="chip pri" data-a="play" data-id="${esc(d.id)}">▶ เล่นด้วยเด็คนี้</button>`}<button class="chip ${errs.length ? 'pri' : ''}" data-a="edit" data-id="${esc(d.id)}">แก้ไข</button><button class="chip" data-a="lshare" data-id="${esc(d.id)}">แชร์ / คัดลอกข้อความ</button><button class="chip" data-a="dup" data-id="${esc(d.id)}">ทำสำเนา</button>
         <button class="chip ${sure ? 'danger' : ''}" data-a="del" data-id="${esc(d.id)}">${sure ? 'ยืนยันลบ' : 'ลบ'}</button></div></div></div>`;
     }).join('');
-    $('dlist').innerHTML = `<h1>Deckbuilder</h1><p class="db-sub">จัดเด็คได้เฉพาะ<b>การ์ดที่คุณมี</b> (ซื้อเพิ่มที่ Shop) · เด็คที่บันทึกแล้วเก็บไว้กับบัญชีของคุณ และเลือกเล่นได้ที่ Play · ส่งให้เพื่อนด้วย <b>แชร์ / คัดลอกข้อความ</b></p>
+    $('dlist').innerHTML = `<h1>Deckbuilder</h1><p class="db-sub">จัดเด็คได้เฉพาะ<b>การ์ดที่คุณมี</b> (ซื้อเพิ่มที่ Shop) · เด็คที่บันทึกแล้วเก็บไว้กับบัญชีของคุณ และเล่นได้จากปุ่ม PLAY ที่ Home · ส่งให้เพื่อนด้วย <b>แชร์ / คัดลอกข้อความ</b></p>
       <div class="db-lgrid">${cards}${hasAny() ? '<button class="db-deck db-add" data-a="create"><span>＋</span>สร้างเด็คใหม่</button>' : '<button class="db-deck db-add" data-a="toshop"><span>🛒</span>ยังไม่มีการ์ด — ไปซื้อ Starter Deck ที่ Shop</button>'}</div>
       <div class="db-acts"><button class="chip" data-a="import">📥 นำเข้าจากข้อความ / ลิงก์</button></div>`;
   }
@@ -295,7 +295,7 @@
     const i = a.findIndex(x => x.id === id); if (i >= 0) a[i] = rec; else a.push(rec);
     S.id = id; S.name = rec.name; base = snap();
     const okSave = lsSet(LS_DECKS, a); if (okSave) notify();
-    toast(okSave ? 'บันทึกเด็คแล้ว ✓ ใช้เลือกเล่นที่แท็บ Play ได้เลย' : 'บันทึกลงเครื่องไม่ได้');
+    toast(okSave ? 'บันทึกเด็คแล้ว ✓ ใช้กด PLAY ที่ Home ได้เลย' : 'บันทึกลงเครื่องไม่ได้');
     renderSide();
   }
   function add(id, dlt) {

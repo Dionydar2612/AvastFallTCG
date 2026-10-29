@@ -4,8 +4,7 @@
 /* หัวหน้าเกม: เมนูหลักย้ายไปอยู่แถบบนสุดของเว็บแล้ว (วิธีเล่น · Update Note ใน index.html/site.js)
    ที่นี่เหลือแค่ปุ่มกลับเมื่ออยู่หน้า "วิธีเล่น" */
 function navHTML(){
-  return ui.page==='guide'?`<div class="top"><button class="btn sm" data-act="page" data-v="play">← กลับหน้าเล่น</button><span class="spacer"></span><button class="btn sm" data-act="feedback">ข้อเสนอแนะ</button></div>`
-    :`<div class="top"><span class="spacer"></span><button class="btn sm" data-act="feedback">ข้อเสนอแนะ</button></div>`;
+  return `<div class="top"><button class="btn sm" data-act="page" data-v="home">← กลับ Home</button><span class="spacer"></span><button class="btn sm" data-act="feedback">ข้อเสนอแนะ</button></div>`;
 }
 function deckTile(d,i,on,cur){
   const bad=deckErrors(d.key).length;
@@ -23,7 +22,7 @@ function setupHTML(){
     ${w?`<div class="note"><b>⚠ ${w} ใบในเด็คนี้</b> ยังไม่มีสคริปต์เอฟเฟกต์ หรือข้อความต่างจากที่สคริปต์เขียนไว้ ผลอาจไม่ครบ ดูรายละเอียดที่ชิป "ข้อมูลการ์ด" ด้านบน</div>`:''}</section>`};
   const bad=[0,1].some(i=>deckErrors(c.sel[i]).length);
   return `${navHTML()}
-  <div class="hero"><span class="ot-badge"><i></i>OPEN TEST · เปิดให้ทดลองเล่น</span><h1>ร่วมทดลองเล่น AvastFall TCG <span class="ot-rev">กติกา Revised</span></h1><p class="muted">เล่นกับบอท ชวนเพื่อนเล่นสองคนในเครื่องเดียว หรือเล่นออนไลน์กับเพื่อน · <b>เด็คตัวอย่าง</b>ใช้ทดลองได้ฟรี ส่วน<b>เด็คของฉัน</b>ต้องจัดจากการ์ดที่คุณมี (ซื้อที่ Shop แล้วจัดที่ Decks)<br>เวอร์ชันนี้ยังอยู่ในช่วงทดสอบ การ์ดและกติกาอาจมีการปรับเปลี่ยน เจอบั๊กหรืออยากแนะนำอะไร บอกเราได้เลย</p><div class="ot-cta"><button class="btn pri" data-act="feedback">ส่งข้อเสนอแนะ / แจ้งบั๊ก</button></div></div>
+  <div class="hero"><h1>ตั้งค่าแมตช์ <span class="ot-rev">กติกา Revised</span></h1><p class="muted">กด <b>PLAY ที่ Home</b> เพื่อเริ่มเล่นทันที · หน้านี้ไว้เลือกเด็คของทั้งสองฝั่ง ใครเล่นก่อน และห้องออนไลน์ · <b>เด็คตัวอย่าง</b>ใช้ทดลองได้ฟรี ส่วน<b>เด็คของฉัน</b>ต้องจัดจากการ์ดที่คุณมี (ซื้อที่ Shop แล้วจัดที่ Decks)</p></div>
   <div class="opts"><div class="opt"><label>โหมด</label><div class="seg">${[['bot','เล่นกับบอท'],['hot','สองคนในเครื่องเดียว'],['spec','ดูบอทเล่นกันเอง'],['online','เล่นออนไลน์กับเพื่อน']].map(([k,l])=>`<button class="${c.mode===k?'on':''}" data-act="mode" data-v="${k}">${l}</button>`).join('')}</div></div></div>
   ${c.mode==='online'?onlineHTML(pb):`<div class="setup" style="margin-top:16px">${pb(0)}${pb(1)}</div>
   <div class="opts"><div class="opt"><label>ใครเล่นก่อน</label><div class="seg">${[['random','สุ่ม'],['0','ผู้เล่น 1'],['1','ผู้เล่น 2']].map(([k,l])=>`<button class="${String(c.first)===k?'on':''}" data-act="first" data-v="${k}">${l}</button>`).join('')}</div></div></div>

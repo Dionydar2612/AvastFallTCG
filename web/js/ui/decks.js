@@ -2,7 +2,7 @@
 'use strict';
 /* ------------------------------------------------------------------ decks (presets + my decks) */
 function defaultCfg(){return {mode:'bot',sel:[null,null],first:'random',speed:550,api:DATA.DEFAULT_API}}
-function loadCfg(){let c=defaultCfg();try{const s=JSON.parse(localStorage.getItem('af-playtest')||'null');if(s){if(Array.isArray(s.sel))c.sel=s.sel;for(const k of ['mode','first','speed','api'])if(s[k]!==undefined)c[k]=s[k];if(String(c.api).replace(/\/+$/,'')===DATA.LEGACY_API)c.api=DATA.DEFAULT_API}}catch(e){}
+function loadCfg(){let c=defaultCfg();try{const s=JSON.parse(localStorage.getItem('af-playtest')||'null');if(s){if(Array.isArray(s.sel))c.sel=s.sel;for(const k of ['mode','first','speed','api','picked0','picked1'])if(s[k]!==undefined)c[k]=s[k];if(String(c.api).replace(/\/+$/,'')===DATA.LEGACY_API)c.api=DATA.DEFAULT_API}}catch(e){}
   try{const q=new URLSearchParams(location.search).get('api');if(q&&/^https?:\/\//.test(q))c.api=q}catch(e){}
   return c}
 function saveCfg(){try{localStorage.setItem('af-playtest',JSON.stringify(ui.cfg))}catch(e){}}

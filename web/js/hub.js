@@ -32,7 +32,9 @@
     refreshBuyState();
   }
   function go(target, extra) { tell(Object.assign({ afGo: target }, extra || {})); }
-  function launch(deckId) { tell({ afLaunch: { mode: S.mode, deckId: deckId || null } }); }
+  function launch(deckId) { tell({ afLaunch: { mode: S.mode, deckId: deckId || null } }); }          // เริ่มเกมทันทีตามโหมดที่เลือก
+  function openSetup() { tell({ afSetup: { mode: S.mode } }); }                                       // หน้าตั้งค่าแมตช์ (เด็ค/คู่ต่อสู้/ห้องออนไลน์)
+  var game = function () { try { return window.parent.__af || null; } catch (e) { return null; } };
   var imgOf = function (c) { return c.image || ('/images/' + c.id + '.jpg'); };
   var pic = function (c) { return c ? '<img loading="lazy" src="' + esc(imgOf(c)) + '" alt="' + esc(c.name) + '" onerror="this.onerror=null;this.src=\'' + BACK + '\'">' : '<div class="noimg">?</div>'; };
 
@@ -101,19 +103,24 @@
   }
 
   function renderHome() {
+    try { var m0 = localStorage.getItem('af-lobby-mode'); if (MODES.some(function (m) { return m[0] === m0; })) S.mode = m0; } catch (e) { }
     return Promise.all([api('GET', '/api/me'), api('GET', '/api/updates').catch(function () { return { data: [] }; }), loadCards(), api('GET', '/api/shop').catch(function () { return { data: [] }; }), loadOwned().catch(function () { })]).then(function (r) {
       var me = r[0], notes = (r[1].data || []).slice(0, 3), shop = (r[3].data || []).slice(0, 3); S.me = me; setCoins(me.user.coins); S.items = {}; shop.forEach(function (i) { S.items[i.id] = i; });
       var st = me.stats, pct = st.totalCards ? Math.round(st.ownedUnique / st.totalCards * 100) : 0;
       var decks = readDecks().sort(function (a, b) { return (b.updated || 0) - (a.updated || 0); });
       var infos = decks.map(deckInfo), okDeck = decks.filter(function (d, i) { return infos[i].ok; })[0] || null;
+      var G = game(), cur = null, curInfo = null;                                                   // เด็คที่จะใช้เล่นจริง (ตามที่เลือกไว้ในเกม)
+      try { if (G && G.ui && G.ui.cfg) { var d0 = G.deckByKey(G.ui.cfg.sel[0]); if (d0) { cur = { name: d0.name, preset: !!d0.preset, ok: !G.deckErrors(d0.key).length }; } } } catch (e) { }
+      var inGame = !!(G && G.ui && G.ui.screen === 'game');
       var main = decks[0] || null, mainInfo = main ? infos[0] : null;
       var fan = pickAvatars(decks), emblem = fan[0] || null;
       var haveDecks = decks.length > 0;
 
       var fanHtml = fan.map(function (c, i) { return '<div class="fc f' + i + '">' + pic(c) + '</div>'; }).join('');
-      var deckLine = main ? '<button type="button" class="dpill" data-go="decks" title="ไปจัดเด็ค"><b>' + esc(main.name || 'เด็คใหม่') + '</b><span class="' + (mainInfo.ok ? 'ok' : 'warn') + '">' + (mainInfo.ok ? '✓ พร้อมเล่น' : mainInfo.miss ? '⚠ การ์ดไม่พอ' : mainInfo.n + '/60 ใบ') + '</span></button>'
+      var deckLine = cur ? '<button type="button" class="dpill" data-act="setup" title="เปลี่ยนเด็ค / ตั้งค่าแมตช์"><b>' + esc(cur.name || 'เด็ค') + '</b><span class="' + (cur.ok ? 'ok' : 'warn') + '">' + (cur.ok ? (cur.preset ? '✓ เด็คตัวอย่าง' : '✓ พร้อมเล่น') : '⚠ ใช้เล่นไม่ได้') + '</span></button>' : main ? '<button type="button" class="dpill" data-go="decks" title="ไปจัดเด็ค"><b>' + esc(main.name || 'เด็คใหม่') + '</b><span class="' + (mainInfo.ok ? 'ok' : 'warn') + '">' + (mainInfo.ok ? '✓ พร้อมเล่น' : mainInfo.miss ? '⚠ การ์ดไม่พอ' : mainInfo.n + '/60 ใบ') + '</span></button>'
         : '<button type="button" class="dpill" data-go="shop"><b>ยังไม่มีเด็คของคุณ</b><span class="warn">เริ่มที่ Shop ›</span></button>';
-      var hint = okDeck ? 'เล่นด้วยเด็ค “' + esc(okDeck.name || 'เด็คใหม่') + '”' : (st.ownedTotal ? 'จัดเด็คให้ครบ 60 ใบที่ Decks · ตอนนี้ลองเล่นด้วยเด็คตัวอย่างได้เลย' : 'ยังไม่มีการ์ด — ลองเล่นด้วยเด็คตัวอย่างฟรี หรือไปซื้อ Starter Deck ที่ Shop');
+      var modeName = (MODES.filter(function (m) { return m[0] === S.mode; })[0] || MODES[0])[1];
+      var hint = (S.mode === 'online' ? 'โหมดออนไลน์: กด PLAY เพื่อสร้างหรือเข้าห้องกับเพื่อน' : 'กด PLAY เพื่อเริ่ม ' + modeName + ' ทันที') + (cur && cur.preset && !st.ownedTotal ? ' · ใช้เด็คตัวอย่างฟรี หรือซื้อ Starter Deck ที่ Shop' : '');
 
       var h = '<div class="lobby">' +
         '<div class="subbar" role="tablist" aria-label="โหมดการเล่น">' + MODES.map(function (m) { return '<button type="button" role="tab" class="mode' + (S.mode === m[0] ? ' on' : '') + '" aria-selected="' + (S.mode === m[0]) + '" data-mode="' + m[0] + '">' + m[1] + '</button>'; }).join('') +
@@ -123,7 +130,7 @@
           '<div class="side">' +
             '<div class="center">' +
               '<div class="hexo"><div class="hexi">' + (emblem ? pic(emblem) : '<img src="' + BACK + '" alt="">') + '</div></div>' + deckLine +
-              '<button type="button" class="play" data-act="play"><span>PLAY</span></button>' +
+              (inGame ? '<button type="button" class="resume" data-act="resume">▶ มีเกมที่กำลังเล่นอยู่ — กลับเข้าเกม</button>' : '') + '<button type="button" class="play" data-act="play"><span>PLAY</span></button><button type="button" class="setbtn" data-act="setup">⚙ ตั้งค่าแมตช์ · เด็ค · คู่ต่อสู้</button>' +
               '<p class="hint">' + hint + '</p>' +
             '</div>' +
             '<button type="button" class="daily' + (me.dailyReady ? ' ready' : ' done') + '" data-act="daily"' + (me.dailyReady ? '' : ' disabled') + '><span class="dc"></span><span class="dt"><small>รางวัลรายวัน</small><b>' + (me.dailyReady ? '+' + me.dailyAmount + ' เหรียญ' : 'รับแล้ว ✓') + '</b></span></button>' +
@@ -137,8 +144,8 @@
           '<h2>เริ่มต้นใน 3 ขั้นตอน</h2><div class="steps">' + [
             [st.ownedTotal > 0, '1', 'ซื้อการ์ด', 'เปิดซองหรือซื้อ Starter Deck ที่ Shop — มีเหรียญเริ่มต้นให้แล้ว', 'shop', 'ไปร้านค้า'],
             [decks.some(function (d, i) { return infos[i].ok; }), '2', 'จัดเด็ค 60 ใบ', 'ใช้เฉพาะการ์ดที่คุณมี · Avatar 1 ใบ + Main Deck 59 ใบ', 'decks', haveDecks ? 'ไปที่ Decks' : 'สร้างเด็ค'],
-            [false, '3', 'ลงสนาม', 'เลือกโหมดด้านบนแล้วกด PLAY — เด็คตัวอย่างใช้ทดลองได้ฟรี', 'play', 'เล่นเลย']
-          ].map(function (s) { return '<div class="box step' + (s[0] ? ' done' : '') + '"><span class="n">' + (s[0] ? '✓' : s[1]) + '</span><div><b>' + s[2] + '</b><p>' + s[3] + '</p></div><button type="button" class="btn sm' + (s[0] ? '' : ' pri') + '" data-go="' + s[4] + '">' + s[5] + '</button></div>'; }).join('') + '</div>' +
+            [false, '3', 'ลงสนาม', 'เลือกโหมดด้านบนแล้วกด PLAY เริ่มเล่นได้ทันที — เด็คตัวอย่างใช้ทดลองได้ฟรี', 'play!', 'PLAY']
+          ].map(function (s) { return '<div class="box step' + (s[0] ? ' done' : '') + '"><span class="n">' + (s[0] ? '✓' : s[1]) + '</span><div><b>' + s[2] + '</b><p>' + s[3] + '</p></div><button type="button" class="btn sm' + (s[0] ? '' : ' pri') + '" ' + (s[4] === 'play!' ? 'data-act="play"' : 'data-go="' + s[4] + '"') + '>' + s[5] + '</button></div>'; }).join('') + '</div>' +
           (haveDecks ? '<h2>เด็คของฉัน <small>ล่าสุด ' + Math.min(decks.length, 6) + ' จาก ' + decks.length + '</small><span class="grow"></span><button type="button" class="btn sm" data-go="decks">จัดการเด็ค ›</button></h2><div class="decks">' + decks.slice(0, 6).map(function (d, i) {
             var av = S.byId[String(d.avatar || '').toLowerCase()], inf = infos[i];
             return '<div class="box dk">' + (av ? pic(av) : '<div class="noimg">–</div>') + '<div class="info"><b>' + esc(d.name || 'เด็คใหม่') + '</b><span class="' + (inf.ok ? 'ok' : 'warn') + '">' + (inf.ok ? '✓ พร้อมเล่น' : inf.miss ? '⚠ การ์ดที่มีไม่พอ' : inf.n + '/60 ใบ') + '</span>' +
@@ -263,7 +270,9 @@
       var it = S.items && S.items[id] || { price: 0, kind: 'pack' }, max = it.kind === 'pack' ? 10 : 3, q = Math.max(1, Math.min(max, (S.qty[id] || 1) + (a.dataset.act === 'inc' ? 1 : -1)));
       S.qty[id] = q; item.querySelector('[data-q]').textContent = q; item.querySelector('[data-total]').textContent = fmt(it.price * q); refreshBuyState();
     } else if (a.dataset.act === 'buy') buy(id, a);
-    else if (a.dataset.act === 'play') launch(S.okDeckId);
+    else if (a.dataset.act === 'play') launch(null);
+    else if (a.dataset.act === 'setup') openSetup();
+    else if (a.dataset.act === 'resume') go('play');
     else if (a.dataset.act === 'playdeck') launch(a.dataset.deck);
     else if (a.dataset.act === 'daily') { a.disabled = true; api('POST', '/api/me/daily').then(function (r) { setCoins(r.coins); toast('🎁 ได้รับ ' + r.amount + ' เหรียญ!'); show('home'); }).catch(function (er) { toast(er.message, true); a.disabled = false; }); }
   });

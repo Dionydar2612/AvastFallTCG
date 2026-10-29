@@ -81,15 +81,15 @@ root.addEventListener('click',e=>{
 function handle(act,d,el,e){
   const G=ui.G;const pd=pdOf();
   switch(act){
-    case 'sel':ui.cfg.sel[+d.p]=d.k;ui.modal=null;saveCfg();return render();
+    case 'sel':ui.cfg.sel[+d.p]=d.k;ui.cfg['picked'+(+d.p)]=true;ui.modal=null;saveCfg();return render();   // picked = ผู้เล่นเลือกเองแล้ว (PLAY ที่ Home จะไม่เปลี่ยนเด็คให้)
     case 'chgdeck':ui.modal={t:'pickdeck',p:+d.p,title:ui.cfg.mode==='online'?'':(ui.cfg.mode==='bot'?['คุณ (ผู้เล่น 1)','บอท (ผู้เล่น 2)']:ui.cfg.mode==='hot'?['ผู้เล่น 1','ผู้เล่น 2']:['บอท A','บอท B'])[+d.p]};return render();
     case 'editdb':{const b=deckByKey(ui.cfg.sel[+d.p]);if(!b)return;
       if(b.preset)AFSite.openDeck({text:deckToText({name:'เด็คของฉัน – '+b.name,avatar:b.avatar,counts:b.counts,edeck:null}),name:'เด็คของฉัน – '+b.name});
       else AFSite.openDeck({id:b.id});return}
-    case 'page':ui.page=d.v;ui.modal=null;return render();
+    case 'page':ui.page=d.v;ui.modal=null;render();return d.v==='home'?AFSite.go('home'):undefined;
     case 'data':ui.modal={t:'data'};return render();
     case 'apiapply':{const v=(document.getElementById('apiurl')||{}).value||'';if(/^https?:\/\//.test(v.trim()))ui.cfg.api=v.trim();DATA.setApi(ui.cfg.api);saveCfg();ui.modal=null;DATA.load();return render()}
-    case 'mode':if(d.v!=='online')olLeave(true);ui.err='';ui.cfg.mode=d.v;return render();
+    case 'mode':if(d.v!=='online')olLeave(true);ui.err='';ui.cfg.mode=d.v;try{if(['bot','hot','online'].includes(d.v))localStorage.setItem('af-lobby-mode',d.v)}catch(e){}return render();
     case 'olcreate':return olCreate();
     case 'oljoin':return olJoin();
     case 'olready':return olReady();
@@ -97,6 +97,7 @@ function handle(act,d,el,e){
     case 'olcopy':return olCopy(el);
     case 'first':ui.cfg.first=d.v;return render();
     case 'start':return startGame();
+    case 'quickplay':return AFApp.launch({mode:'bot'});
     case 'help':ui.modal={t:'help'};return render();
     case 'notes':ui.modal={t:'notes'};return render();
     case 'feedback':ui.fb.msg='';ui.fb.ok=false;ui.modal={t:'feedback'};return render();
@@ -106,15 +107,15 @@ function handle(act,d,el,e){
     case 'closemenu':ui.menu=null;return render();
     case 'closeover':ui.over=ui.over;ui.hideOver=true;ui.overShown=false;ui.over=null;return render();
     case 'restart':return startGame();
-    case 'tosetup':olLeave(true);ui.token++;ui.screen='setup';ui.page='play';DATA.applyPending();fixSelections();ui.pending=null;ui.over=null;ui.modal=null;return render();
+    case 'tosetup':olLeave(true);ui.token++;ui.screen='setup';ui.page='play';DATA.applyPending();fixSelections();ui.pending=null;ui.over=null;ui.modal=null;render();return AFSite.go('home');   // จบเกม → กลับ Home
     case 'tab':ui.tab=d.v;return render();
     case 'settings':ui.settings=true;return render();
     case 'closesettings':ui.settings=false;return render();
     case 'setscale':applyScale(+d.v);return render();
     case 'surrender':{
-      if(!confirm('ยอมแพ้และกลับไปหน้าแรก?'))return;
+      if(!confirm('ยอมแพ้และกลับไปหน้า Home?'))return;
       olLeave(true);ui.token++;ui.screen='setup';ui.page='play';DATA.applyPending();fixSelections();ui.pending=null;ui.over=null;ui.modal=null;ui.menu=null;ui.settings=false;
-      return render();
+      render();return AFSite.go('home');
     }
     case 'dllog':{
       const G=ui.G;
