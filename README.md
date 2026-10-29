@@ -1,137 +1,275 @@
 # AvastFall TCG
 
-## 🆕 รอบปรับปรุง UI / ตรรกะให้สอดคล้องกัน
+> **A browser-based trading card game platform for deck building, card collection, and playtesting.**
 
-- **เมนูเดียว 5 แท็บ:** Home · Play · Decks · Cards · Shop (แถบบนสีเข้ม + ชิปเหรียญ/การ์ด) — ทุกแท็บสลับด้วยเอฟเฟกต์เดียวกัน ตามลำดับแท็บ · ลิงก์ตรง `#play #decks #cards #shop`
-- **Home แบบล็อบบี้:** เลือกโหมด (VS บอท / 2 คน / ออนไลน์) → กด PLAY ไปหน้า Play พร้อมโหมดและเด็คที่พร้อมเล่น · รางวัลรายวัน · โปรไฟล์ · เด็คของฉัน · ขั้นตอนมือใหม่ 3 ข้อ
-- **จัดเด็คได้เฉพาะการ์ดที่มี:** Deckbuilder ใส่การ์ดได้ไม่เกินจำนวนที่ผู้เล่นมี · เลือก Avatar ได้เฉพาะที่มี · เด็คที่นำเข้า/แชร์จะตัดใบที่ไม่มีออกพร้อมแจ้งเตือน · เซิร์ฟเวอร์ตรวจซ้ำตอนบันทึก (`PUT /api/me/decks`) · Play ตรวจเด็คของฉันด้วย (เด็คตัวอย่างยังเล่นฟรี)
-- **ผู้สมัครใหม่เป็น user เสมอ:** ได้เหรียญเริ่มต้น ไม่มีการ์ด · แอดมินตั้งที่ ADMIN_EMAILS หรือแท็บผู้ใช้ · เมนูบัญชีแสดงบทบาท และมีลิงก์แผงแอดมินเฉพาะแอดมิน
-- **Admin ใหม่:** เมนูซ้ายจัดกลุ่ม + แดชบอร์ด (`GET /admin/api/stats`) + ค้นหาผู้ใช้
-- **ลบ `/packs.html` เดิม** (เปิดซองฟรีไม่หักเหรียญ ทำให้ข้ามระบบร้านค้าได้)
+AvastFall TCG is a web application that brings the game simulator, card catalogue, deck builder, player collection, in-game shop, and administration tools into one project. Card and account data are managed through Supabase, while card artwork is served from the project’s image assets.
+
+> **Project status:** This repository contains an actively developed playtest platform. Features and game rules may change. Online play is intended for testing and is not currently designed as a cheat-resistant competitive environment.
+
+## Contents
+
+- [Features](#features)
+- [Application routes](#application-routes)
+- [Technology stack](#technology-stack)
+- [Requirements](#requirements)
+- [Local development](#local-development)
+- [Supabase setup](#supabase-setup)
+- [Environment variables](#environment-variables)
+- [Project structure](#project-structure)
+- [Managing cards](#managing-cards)
+- [Update Notes and player feedback](#update-notes-and-player-feedback)
+- [Deployment](#deployment)
+- [Security and data persistence](#security-and-data-persistence)
+- [Documentation](#documentation)
+
+## Features
+
+### Player experience
+
+- **Account access:** sign up and sign in through Supabase Auth.
+- **Home lobby:** access game modes, profile information, daily rewards, decks, and announcements.
+- **Playtest simulator:** test decks against a bot and use the available multiplayer room flow.
+- **Card catalogue:** browse cards using gallery, list, table, and set-oriented views; filter by ownership and set.
+- **Deck builder:** create and manage decks, with ownership and deck validation enforced by the application.
+- **Collection:** review owned and unowned cards by series.
+- **Shop:** purchase available booster packs and Starter Deck products with in-game coins.
+- **Update Notes:** read announcements posted by administrators.
+- **Feedback:** send suggestions, report issues, and share ideas for improving the game.
+
+### Administration
+
+The `/admin` area provides tools for authorized administrators to manage card metadata and game content, import card data from Excel or CSV, manage users and coins, configure shop products, review backups, and publish Update Notes. Access is based on the user’s administrator role.
+
+### Card content
+
+Card metadata—including names, types, elements, stats, and effects—is stored in Supabase. Card artwork is served from `public/images/` and is not stored in the card metadata tables.
+
+## Application routes
+
+| Route | Description | Access |
+| --- | --- | --- |
+| `/` | Main lobby and playtest simulator | Sign-in required |
+| `/cards/` | Card catalogue and deck builder | Sign-in required |
+| `/admin` | Administration dashboard | Administrator account required |
+| `/api/docs` | API documentation | Depends on server configuration |
+| `/api/health` | Health-check endpoint for deployment monitoring | Health check |
+| `/api/updates` | Update Note API | Application authentication rules apply |
+
+The application is served by a single Node.js/Express server. The game, catalogue, deck builder, and API use the same deployment and card data source.
+
+## Technology stack
+
+- **Runtime:** Node.js 22 or later
+- **Server:** Express
+- **Authentication and database:** Supabase Auth, Supabase Postgres, and Row Level Security (RLS)
+- **Frontend:** HTML, CSS, and JavaScript
+- **Card data:** JSON seed data and Supabase metadata
+- **Import support:** Excel and CSV
+- **Deployment options:** Node.js hosting, Docker, and the included Render/Fly configuration files
+
+## Requirements
+
+- Node.js **22+** and npm
+- A Supabase project for persistent accounts and game data
+- Git (recommended)
+
+## Local development
+
+1. Clone or download this repository.
+2. Open a terminal in the project root—the directory containing `package.json`.
+3. Install dependencies:
+
+   ```bash
+   npm install
+   ```
+
+4. Configure the environment variables described below.
+5. Set up Supabase by following [Supabase setup](#supabase-setup).
+6. Start the server:
+
+   ```bash
+   npm start
+   ```
+
+7. Open [http://localhost:3000](http://localhost:3000).
+
+For development with automatic Node.js restart:
+
+```bash
+npm run dev
+```
+
+A fake in-memory Supabase-compatible test mode is also provided:
+
+```bash
+npm run dev:fake
+```
+
+This mode is for local UI and flow testing only. Its data is temporary and disappears when the process stops; it is not a substitute for testing against a real Supabase project.
+
+## Supabase setup
+
+### 1. Create a project
+
+Create a project in the [Supabase Dashboard](https://supabase.com/dashboard). Make sure you select the project intended for this deployment.
+
+### 2. Create the database schema
+
+1. Open **SQL Editor** in the Supabase Dashboard.
+2. Create a new query.
+3. Open `supabase/schema.sql` from this repository.
+4. Copy the entire file into the SQL Editor.
+5. Click **Run** and review the result for errors.
+6. Open **Table Editor** and confirm that the expected tables, including `public.update_notes`, exist.
+
+The schema uses `CREATE TABLE IF NOT EXISTS` for its table definitions and is intended to be safe to run again for creating missing tables. Review any SQL errors rather than repeatedly executing a failed query.
+
+### 3. Configure authentication
+
+In Supabase, review **Authentication → Providers → Email** and choose the email-confirmation behavior appropriate for your project. If confirmation is enabled, new users may need to verify their email before signing in.
+
+### 4. Set server credentials
+
+In the Supabase project settings, find the Project URL and API keys. Add the required values to your local environment or hosting provider’s secret/environment-variable settings. Never commit private keys to Git.
+
+### 5. Grant administrator access
+
+Set `ADMIN_EMAILS` to a comma-separated list of email addresses that should receive administrator access, then register/sign in with an eligible account. Confirm access through `/admin`. Treat administrator access as privileged and grant it only to trusted accounts.
+
+On first startup, the application imports its bundled card/set/element data from `data/*.json` into Supabase when required by the application’s initialization logic.
+
+## Environment variables
+
+Set these in your shell or deployment provider. Do not place real secrets in source control.
+
+| Variable | Purpose |
+| --- | --- |
+| `PORT` | HTTP port. Defaults to `3000` when not supplied by the host. |
+| `SUPABASE_URL` | Supabase project URL. |
+| `SUPABASE_ANON_KEY` | Supabase public/anonymous key used by the server’s authentication integration. |
+| `SUPABASE_SERVICE_ROLE_KEY` | Private server-side key for privileged database operations. **Never expose this in browser code or commit it.** |
+| `ADMIN_EMAILS` | Comma-separated email addresses eligible for administrator access. |
+| `DATA_DIR` | Optional persistent directory for application-managed data/assets where supported by the storage implementation. |
+| `IMG_DIR` | Optional image directory override where supported by the storage implementation. |
+| `ADMIN_KEY` | Optional key for the protected feedback-review route described in the legacy/manual documentation. Keep private. |
+| `ADMIN_SECRET` | Optional session-signing secret for legacy/admin functionality where applicable. Keep private. |
+| `RESEND_API_KEY` | Optional Resend API key for email notifications. If omitted, email notifications are not sent. |
+| `NOTIFY_EMAIL` | Optional recipient for feedback notification emails. |
+| `MAIL_FROM` | Optional sender address for feedback notification emails. |
+
+**Important:** `SUPABASE_SERVICE_ROLE_KEY` bypasses RLS. It must be configured only as a server-side secret. Never use it in frontend JavaScript, public HTML, or a `VITE_*`/other client-exposed variable.
+
+## Project structure
+
+```text
+.
+├── admin/                  # Admin interface and routing
+├── data/                   # Bundled seed data: cards, decks, elements, updates
+├── lib/                    # Authentication, Supabase, store, imports, shop and APIs
+├── public/                 # Card catalogue, deck builder, docs and card images
+│   └── images/             # Card artwork served by the application
+├── supabase/
+│   └── schema.sql          # Database schema and security setup
+├── web/                    # Game lobby, simulator, UI, bot and card effects
+│   └── js/
+│       ├── engine/         # Game engine logic
+│       ├── effects/        # Card effect scripts grouped by set
+│       ├── data/           # Card API and snapshot data
+│       └── ui/             # Game interface modules
+├── Dockerfile              # Docker build configuration
+├── MANUAL.md               # Extended project and operations manual
+├── package.json            # Dependencies and npm scripts
+├── render.yaml             # Render deployment configuration
+├── server.js               # Express application entry point
+└── fly.toml                # Fly.io configuration
+```
+
+## Managing cards
+
+Administrators can manage card metadata from `/admin`.
+
+1. Open the card-management or import section.
+2. Download the available spreadsheet template when importing a batch.
+3. Prepare one card per row and include the required fields indicated by the template.
+4. Select the `.xlsx` or `.csv` file and add artwork files named to match their card IDs when needed (for example, `SD01-001.jpg`).
+5. Run validation and review any reported issues before saving.
+6. Confirm that the cards and images display correctly in the catalogue and simulator.
+
+The exact fields accepted by the importer are defined by the current application and template. Use the exported data/template as the source of truth rather than assuming that every optional field is supported.
+
+### Card effects
+
+The simulator’s game engine is located in `web/js/engine/`. Card-specific effect scripts are grouped in `web/js/effects/`, while card data and snapshot support are in `web/js/data/`. When card text changes, verify whether the actual in-game behavior must also change. Update the relevant effect script when behavior changes, and keep snapshot/card metadata synchronized with the intended card text.
+
+## Update Notes and player feedback
+
+Administrators can publish announcements from the Update Note area in `/admin`.
+
+- **Title:** a short, descriptive announcement headline.
+- **Date:** the publication date.
+- **Details:** enter one announcement item per line.
+
+Suggested topics include new card sets, balance changes, new features, bug fixes, known issues, maintenance, and invitations for players to submit feedback. Keep announcements factual and clearly distinguish completed work from features that are still being tested.
+
+Update Notes are stored in the Supabase `public.update_notes` table. If the admin page reports that the table is missing, run the complete `supabase/schema.sql` file in the correct Supabase project’s SQL Editor and verify the table in Table Editor.
+
+## Deployment
+
+### General deployment
+
+Deploy the project as a Node.js service using:
+
+- **Build/install command:** `npm install`
+- **Start command:** `npm start`
+- **Health check:** `/api/health` (where supported by the hosting provider)
+
+Configure the Supabase credentials and other environment variables in the hosting provider’s dashboard. Do not store production secrets in the repository.
+
+### Docker
+
+A `Dockerfile` is included. Build and run it from the project root after configuring the required environment variables and persistent storage appropriate to your deployment:
+
+```bash
+docker build -t avastfall-tcg .
+docker run --name avastfall-tcg --env-file .env -p 3000:3000 avastfall-tcg
+```
+
+Create `.env` locally and keep it out of version control. For production, use your platform’s secret management rather than embedding credentials in the image. Configure persistent storage for any files that must survive container replacement.
+
+### Render
+
+The repository includes `render.yaml` as a deployment starting point. Review its service plan, disk settings, and environment-variable configuration before deploying. Persistent disk availability and pricing depend on the selected Render plan; do not assume a free service provides durable local storage.
+
+### Fly.io
+
+The repository includes `fly.toml` as a configuration starting point. Review the app name, region, secrets, volumes, and resource sizing before deployment. Configure secrets with the platform’s secret mechanism and verify persistence for uploaded artwork or other local files.
+
+## Security and data persistence
+
+- All privileged database access must remain on the server.
+- Keep Supabase service-role keys, session secrets, and feedback-access keys private.
+- Review RLS and server-side authorization before changing database policies or API routes.
+- Use strong authentication and grant administrator roles sparingly.
+- Back up important data before schema changes, bulk imports, or production updates.
+- Supabase stores account and game metadata; artwork is served from the project’s image directory unless configured otherwise.
+- Local files written inside an ephemeral hosting filesystem may be lost after redeployment, restart, or instance replacement. Use a persistent volume or commit static artwork to the repository as appropriate.
+- Multiplayer rooms are currently memory-based and may be cleared on restart. The current playtest implementation is not intended to provide competitive anti-cheat guarantees.
+- The fake development mode is temporary and must not be used as a production data store.
+
+## Documentation
+
+- [`MANUAL.md`](MANUAL.md) — extended instructions and operational notes
+- [`supabase/schema.sql`](supabase/schema.sql) — Supabase database schema
+- [`/api/docs`](http://localhost:3000/api/docs) — API documentation when running locally
+
+## Contributing and feedback
+
+Bug reports, balance observations, usability suggestions, and ideas for new cards or sets are welcome. When reporting an issue, include the steps to reproduce it, expected behavior, actual behavior, and relevant browser/server error messages. Do not include passwords, API keys, or other secrets in reports.
+
+## License
+
+No license is specified in this repository at this time. Unless a license is added, do not assume that the code, card designs, illustrations, or other project assets are available for reuse or redistribution.
 
 ---
 
-## ✨ เวอร์ชันนี้: ต้องล็อกอิน + ฐานข้อมูล Supabase
-
-- **ต้องล็อกอินก่อนเข้าใช้ทุกหน้า** (สมัคร/ล็อกอินด้วยอีเมลหรือชื่อผู้ใช้ — ระบบผู้ใช้คือ Supabase Auth)
-- หลังล็อกอินเข้า **หน้า Home**: ทักทาย เหรียญ รางวัลรายวัน สถิติ ทางลัด เด็คของฉัน ข่าวอัปเดต
-- **Shop** ซื้อซองการ์ด (BT*) และ Starter Deck (SD*) ด้วยเหรียญ · สุ่ม/หักเหรียญ/ให้การ์ดที่เซิร์ฟเวอร์ (โกงจากเบราว์เซอร์ไม่ได้) · มีแอนิเมชันเปิดซอง
-- **คอลเลกชัน** การ์ดที่มี/ยังไม่มี แยกตามซีรีส์
-- **Deckbuilder** เด็คที่จัดไว้ถูกบันทึกลง Supabase ตามบัญชี (ล็อกอินเครื่องไหนก็เห็นเด็คเดิม)
-- **Card List** มี 4 มุมมอง: แกลเลอรี (ปรับขนาดได้) · รายการ · ตาราง · แยกตามซีรีส์ + กรอง “ที่ฉันมี/ยังไม่มี” + ป้ายจำนวนที่มี
-- **Admin (/admin)** ล็อกอินด้วยบัญชี role=admin · เพิ่ม/แก้/ลบการ์ด, นำเข้า Excel, เด็ค → **บันทึกลง Supabase ทันที** · มีแท็บ “ผู้ใช้” (ตั้งแอดมิน/แก้เหรียญ) และ “ร้านค้า” (ราคา/ปิดขาย) · สำรองก่อนแก้ทุกครั้ง (กู้คืนได้)
-- **ข้อมูลการ์ด (metadata) + ผู้ใช้ อยู่ใน Supabase · ภาพการ์ดฝังในโค้ด** (`public/images/<รหัสการ์ด>.jpg`)
-
-### ตั้งค่า Supabase (ทำครั้งเดียว)
-1. สร้างโปรเจกต์ที่ supabase.com
-2. **SQL Editor** → วางเนื้อหา `supabase/schema.sql` ทั้งไฟล์ → Run
-3. **Project Settings → API** คัดลอก `Project URL`, `anon` key, `service_role` key
-4. (แนะนำตอนทดสอบ) **Authentication → Providers → Email** ปิด “Confirm email” เพื่อให้สมัครแล้วเข้าได้ทันที (ถ้าเปิดไว้ ผู้ใช้ต้องกดลิงก์ยืนยันในอีเมลก่อน)
-5. ตั้งตัวแปรตาม `.env.example` (`SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `ADMIN_EMAILS`) แล้ว `npm install && npm start`
-6. เริ่มเซิร์ฟเวอร์ครั้งแรก ระบบจะ **นำการ์ดจาก `data/*.json` เข้า Supabase ให้อัตโนมัติ** และสร้างสินค้าในร้านให้ทุกชุด
-7. สมัครด้วยอีเมลที่ใส่ใน `ADMIN_EMAILS` → เข้า `/admin` ได้เลย
-
-> `service_role` key ข้ามกฎความปลอดภัยทุกอย่าง — ใช้บนเซิร์ฟเวอร์เท่านั้น (ทุกตารางเปิด RLS และไม่มี policy ให้เบราว์เซอร์เข้าตรง ๆ)
-
-### เรื่องรูปการ์ด
-รูปอยู่ที่ `public/images/` ในโค้ด (ไม่ได้อยู่ใน Supabase) · เพิ่มการ์ดใน /admin พร้อมรูปได้ รูปจะถูกเขียนลงโฟลเดอร์นั้นบนเซิร์ฟเวอร์ — **โฮสต์ที่ดิสก์ไม่ถาวร (Fly/Docker/Render ฟรี) รูปที่อัปโหลดจะหายตอน deploy ใหม่** ให้นำไฟล์รูปเข้า repo (commit ลง `public/images/`) หรือเมานต์ดิสก์ถาวรแล้วตั้ง `IMG_DIR`/`DATA_DIR`
-
-### ทดสอบในเครื่องโดยไม่ต้องมี Supabase
-`npm run dev:fake` (ใช้ฐานข้อมูลจำลองในหน่วยความจำ — ข้อมูลหายเมื่อปิดเซิร์ฟเวอร์) · ตั้ง `ADMIN_EMAILS` เพื่อทดสอบหลังบ้าน
-
-> หมายเหตุ API: ตอนนี้ `/api/*` ต้องล็อกอิน (ไม่เปิดสาธารณะ/CORS แล้ว) · ส่วนคู่มือด้านล่างเป็นของเดิม บางส่วนที่พูดถึง `ADMIN_PASSWORD` ให้ใช้ระบบแอดมินข้างบนแทน
-
----
-
-# AvastFall TCG (เว็บรวม)
-
-เซิร์ฟเวอร์ตัวเดียวที่รวม 2 โปรเจกต์เดิม: **AvastFallTCGsim** (เกมทดลองเล่น) + **CARDLIST** (Card List / Deckbuilder / card-api / หลังบ้าน)
-
-| ที่อยู่ | คืออะไร | โค้ดอยู่ที่ |
-|---|---|---|
-| `/` | เกมทดลองเล่น (เล่นกับบอท / ออนไลน์กับเพื่อน) | `web/` |
-| `/cards/` | Card List + Deckbuilder | `public/` |
-| `/api/...` | card-api สาธารณะ (`/api/docs` = เอกสาร) | `server.js`, `lib/` |
-| `/admin` | หลังบ้าน นำเข้า Excel / รูป / สำรอง-กู้คืน | `admin/` |
-| `/recommece?key=...` | อ่านข้อเสนอแนะจากผู้เล่น (`/recommend` ใช้ได้เหมือนกัน) | `lib/playtest.js` |
-| `/api/feedback`, `/api/room/*` | รับข้อเสนอแนะ / ห้องออนไลน์ (SSE) | `lib/playtest.js` |
-| `/api/updates` | Update Note ที่แอดมินเขียนใน `/admin` (แท็บ 📣 Update Note) เกมดึงไปแสดงให้ผู้เล่นทุกคน เก็บใน Supabase ตาราง `update_notes` (ลบแล้วไม่กลับมาตอน deploy/รีสตาร์ต) | `lib/updates.js` |
-
-**แถบเมนูเดียว:** หน้าแรกมีแถบบนสุดเดียว Playtest / Card List / Deckbuilder (`web/js/site.js`, `web/css/site.css`) Card List กับ Deckbuilder โหลดใน iframe `/cards/?embed=1` ตอนกดครั้งแรก (ตัดเมนูของตัวเองทิ้งเมื่อฝังอยู่) สลับแล้วเกมที่ค้างอยู่ไม่หาย · เปิดตรงด้วย `/#cards`, `/#deckbuilder` · `/cards/` ยังเปิดแบบหน้าเดี่ยวได้ · ธีมของเกมให้ตรงกับ Card List อยู่ที่ตัวแปรสีใน `web/css/style.css` (`:root`) และ `web/css/theme.css`
-
-เกมดึงการ์ดและรูปจาก `/api` บนเซิร์ฟเวอร์เดียวกันโดยอัตโนมัติ (ไม่ต้องตั้งที่อยู่ card-api อีก) แก้การ์ดผ่าน `/admin` แล้วเกมเห็นทันทีที่โหลดหน้าใหม่
-
-## รันในเครื่อง
-```
-npm install
-ADMIN_PASSWORD=รหัสผ่านหลังบ้าน ADMIN_KEY=รหัสอ่านข้อเสนอแนะ npm start
-```
-เปิด http://localhost:3000/ (เกม) · http://localhost:3000/cards/ (Card List) · http://localhost:3000/admin
-
-## ตัวแปรสภาพแวดล้อม
-| ชื่อ | คำอธิบาย |
-|---|---|
-| `ADMIN_PASSWORD` | รหัสเข้า `/admin` (ไม่ตั้ง = หลังบ้านปิด) แนะนำยาว 12 ตัวขึ้นไป |
-| `ADMIN_SECRET` | คีย์เซ็น session ของ `/admin` (ไม่จำเป็น) |
-| `ADMIN_KEY` | รหัสเปิด `/recommece?key=...` (ไม่ตั้ง = ใครรู้ลิงก์ก็อ่านได้ แต่ลบไม่ได้) แยกจาก `ADMIN_PASSWORD` เพราะ key นี้อยู่ใน URL |
-| `DATA_DIR` | โฟลเดอร์ดิสก์ถาวร เก็บ `data/` (การ์ด เด็ค ธาตุ) `images/` `backups/` และ `feedback.json` |
-| `RESEND_API_KEY`, `NOTIFY_EMAIL`, `MAIL_FROM` | อีเมลสำเนาข้อเสนอแนะ (ไม่ตั้ง RESEND_API_KEY = ไม่ส่งอีเมล) |
-| `PORT` | โฮสต์ส่วนใหญ่ตั้งให้เอง |
-
-> ⚠ ถ้าไม่ตั้ง `DATA_DIR` ข้อมูลที่แก้ผ่าน /admin และข้อเสนอแนะจะเขียนลงโฟลเดอร์โค้ด ซึ่งบนโฮสต์ที่ดิสก์ชั่วคราว (Render ฟรี ฯลฯ) **จะหายเมื่อ deploy ใหม่/รีสตาร์ต** ต้องผูก Persistent Disk แล้วชี้ `DATA_DIR` ไปที่ดิสก์นั้น ครั้งแรกระบบคัดลอกข้อมูลเริ่มต้นไปไว้ที่ `DATA_DIR` ให้เอง
-
-## Deploy บน Render
-ใช้ `render.yaml` (Blueprint) เป็น Web Service ตัวเดียว: `npm install` / `npm start`, health check `/api/health`, ผูกดิสก์ 1GB ที่ `/var/data` (`DATA_DIR`) ใช้แพ็กเกจ `starter` ขึ้นไป (ดิสก์ถาวรใช้ไม่ได้กับ Free)
-1. push ขึ้น GitHub → Render: New → Blueprint
-2. ตั้ง `ADMIN_PASSWORD` (และ `RESEND_API_KEY` ถ้าต้องการอีเมล) · `ADMIN_KEY`/`ADMIN_SECRET` ระบบสุ่มให้
-3. ถ้าเคยมี 2 service เดิม (`avastfalltcgsim`, `avastfalltcglist`) ให้ย้ายข้อมูลการ์ดที่แก้ผ่าน /admin มาก่อน (ส่งออกการ์ดจากแท็บนำเข้า Excel ของ service เดิม แล้วนำเข้าใน service ใหม่ พร้อมรูป) จากนั้นค่อยปิด service เดิม
-
-## โครงสร้าง
-```
-server.js              เซิร์ฟเวอร์รวม (Express) + card-api สาธารณะ
-lib/playtest.js        ส่วนของเกม: ข้อเสนอแนะ, /recommece, ห้องออนไลน์ (SSE) — วางก่อน compression/json ใน server.js
-lib/store.js ...       โหลด/บันทึกการ์ด รูป ข้อมูลสำรอง · importer/xlsx/csv
-admin/                 หลังบ้าน /admin
-data/*.json            ข้อมูลการ์ดเริ่มต้น (cards, decks, elements)
-public/                Card List + Deckbuilder + docs (เสิร์ฟที่ /cards/) + images/ รูปเริ่มต้น
-web/                   เกมทดลองเล่น (เสิร์ฟที่ /)  — index.html, css/, js/, assets/
-```
-
-## เกมทดลองเล่น (web/)
-```
-web/js/engine/engine.js        กติกาเกม (ไม่แตะ DOM)
-web/js/effects/_kit.js         ตัวช่วยร่วมของสคริปต์การ์ด
-web/js/effects/sd01..06, bt01  เอฟเฟกต์การ์ดแยกตามชุด  FX['SD04-012'] = {...} + NOTES['SD04-012'] = '...'
-web/js/bot.js                  บอท
-web/js/data/cards-api.js       ชั้นดึงข้อมูล: card-api, สำเนาในเบราว์เซอร์, URL รูป, ตรวจการ์ดใหม่/ข้อความเปลี่ยน
-web/js/data/snapshot.js        ชุดการ์ดสำรอง และเป็น "ข้อความที่สคริปต์เขียนไว้ตามนั้น"
-web/js/ui/*.js                 หน้าจอ
-```
-
-### แก้/เพิ่มเอฟเฟกต์การ์ด
-1. เปิดเกม → ชิป "ข้อมูลการ์ด" ด้านบน แสดง "ยังไม่มีสคริปต์" และ "ข้อความต่างจากที่สคริปต์เขียนไว้" (กด "ดูส่วนที่ต่าง" เทียบข้อความเดิมกับข้อความใน card-api)
-2. แก้ `FX[รหัสการ์ด]` ในไฟล์ชุดนั้นใน `web/js/effects/` และถ้าตีความไม่ตรงตัวให้เขียน `NOTES[รหัสการ์ด]` ไว้ข้างกัน
-3. ถ้าข้อความการ์ดเปลี่ยนแต่ **พฤติกรรมในเกมไม่เปลี่ยน** (แค่เขียนให้ชัดเจนขึ้น) ไม่ต้องแก้ `FX` แก้รายการการ์ดนั้นใน `web/js/data/snapshot.js` ให้เหมือนข้อความล่าสุดใน card-api (ใช้ข้อความจาก `data/cards.json` หรือ `/api/cards/<รหัส>`) ป้าย "ข้อความเปลี่ยน" จะหาย แล้วเพิ่มบรรทัดใน Update Note (`web/js/ui/notes.js`)
-
-### เชื่อมกับ card-api
-- ค่าเริ่มต้น = เซิร์ฟเวอร์เดียวกับหน้าเว็บ (`location.origin`) เปลี่ยนได้ที่ชิป "ข้อมูลการ์ด" หรือ `?api=https://...` ถ้าเบราว์เซอร์เคยจำที่อยู่เดิม (`avastfalltcglist.onrender.com`) ระบบย้ายมาใช้เซิร์ฟเวอร์นี้ให้เอง
-- ดึง `/api/cards` `/api/decks` `/api/elements` ทุกครั้งที่เปิดหน้า และเมื่อกลับมาที่แท็บหลังผ่านไปเกิน 90 วินาที เก็บสำเนาในเบราว์เซอร์ ถ้าต่อไม่ได้ใช้สำเนา หรือ `snapshot.js`
-- รูปการ์ดดึงจาก API (`/images/<รหัส>.jpg?v=...`) ถ้าโหลดไม่ได้จะเห็นลายหลังการ์ดแทน
-
-### ออนไลน์กับเพื่อน
-สร้างห้อง → ส่งรหัส 5 ตัวหรือลิงก์ `?room=รหัส` → ทั้งคู่เลือกเด็คแล้วกด "พร้อม" · แบบ lockstep: ทั้งสองเบราว์เซอร์รัน engine เดียวกันด้วย seed เดียวกัน เซิร์ฟเวอร์ส่งต่อแค่ตัวเลือกที่กด · ห้องเก็บในหน่วยความจำ (รีสตาร์ตแล้วหาย) · ยังไม่กันโกง (เหมาะกับ Open Test)
-
-### เปิดซอง (BT01)
-ปุ่ม "เปิดซอง" บนแถบเมนู → หน้าต่างซ้อนโหลด `web/packs.html` (`web/js/packs.js`, `web/css/packs.css`) · ดึงการ์ดชุด BT01 จาก `/api/cards?deck=BT01` (เพิ่มการ์ดผ่าน /admin แล้วเข้าซองเอง) · ปรับกติกาที่ค่าคงที่ `PACK` ต้นไฟล์ `packs.js` (ขนาดซอง, ช่อง Common, น้ำหนัก R/SR) · คอลเลกชันเก็บใน localStorage `af-collection-v1`
-
-### กฎการจัดเด็คตามธาตุ Avatar
-- Avatar กำหนดธาตุของเด็ค ใส่ได้เฉพาะการ์ดธาตุนั้น (Avatar 2 สีใส่ได้ทั้งสองธาตุ) การ์ดที่ไม่ระบุธาตุใส่ได้ทุกเด็ค
-- Unit ลงสนามต้องจ่าย Element ตรงสี · Spell/Enchant/Equipment/Domain/Ultimate จ่ายด้วยสีอะไรก็ได้
-- เด็คต้อง 60 ใบ (รวม Avatar), ชื่อซ้ำ ≤ 4, Element Deck 8 ใบ (Avatar 2 สีแบ่ง 4/4), Domain 3 ใบต่อฝั่ง
-
-## Card List / card-api / หลังบ้าน
-คู่มือฉบับเต็มอยู่ใน [MANUAL.md](MANUAL.md) · เอกสาร API ที่ `/api/docs`
-
-**เพิ่มการ์ดผ่าน /admin:** เข้า `/admin` → แท็บ *นำเข้า Excel* (ดาวน์โหลดต้นแบบ/ส่งออกการ์ดปัจจุบัน) → เลือก `.xlsx`/`.csv` (+ รูปตั้งชื่อตาม id เช่น `SD01-001.jpg`, สูงสุด 99 รูป/รอบ, ≤ 5MB/รูป) → *ตรวจสอบก่อน* → *บันทึกเข้าระบบ* · หรือเพิ่มทีละใบที่แท็บ *+ เพิ่มการ์ด 1 ใบ* · ข้อมูลสำรองอัตโนมัติก่อนแก้ทุกครั้ง (กู้คืนได้ในแท็บ *สำรอง/กู้คืน*) · กฎ Excel: 1 แถว = 1 ใบ, ต้องมี deck, no, name, type, ชีท `decks` (ถ้ามี) ใช้เป็นข้อมูลเด็ค
-
-**Deckbuilder (`/cards/` แท็บ Deckbuilder):** แชร์/คัดลอกข้อความ (นำไปวางที่ *เด็คของฉัน → นำเข้าจากข้อความ* ในเกม) · ลิงก์แชร์ `/cards/#deck=...` · ดาวน์โหลด .txt · เด็คที่บันทึกเก็บใน localStorage ของเบราว์เซอร์
+**AvastFall TCG** — *Build Your Strategy, Shape Your Legend.*
