@@ -212,7 +212,7 @@ addEventListener("DOMContentLoaded",boot);
 /* ฝังอยู่ในหน้าเกม: แถบเมนูบนสุดของหน้าหลักเป็นตัวสลับ Card List ↔ Deckbuilder */
 addEventListener("message",e=>{if(e.origin!==location.origin||!e.data)return;
  if(e.data.afView)window.DB&&DB.show&&DB.show(e.data.afView==="deck"?"deck":"cards");
- if(e.data.afOwned){window.DB&&DB.refreshOwned&&DB.refreshOwned(e.data.afOwned);fetch("/api/me/collection",{credentials:"same-origin"}).then(r=>r.json()).then(o=>{OWN=o.owned||{};try{render()}catch(_){}}).catch(()=>{})}
+ if(e.data.afOwned){if(Object.keys(e.data.afOwned).length)window.DB&&DB.refreshOwned&&DB.refreshOwned(e.data.afOwned);fetch("/api/me/collection",{credentials:"same-origin",cache:"no-store"}).then(r=>r.json()).then(o=>{OWN=o.owned||{};if(o.base||o.owned)window.DB&&DB.refreshOwned&&DB.refreshOwned(o.base||o.owned);try{render()}catch(_){}}).catch(()=>{})}
  if(e.data.afDeck){if(window.DB&&DB.ready&&DB.ready())DB.openDeck(e.data.afDeck);else window.__afDeckQ=e.data.afDeck}});
 
 </script>
