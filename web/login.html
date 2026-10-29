@@ -6,44 +6,55 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>เข้าสู่ระบบ · AvastFall TCG</title>
 <meta name="robots" content="noindex">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mali:wght@400;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@1,700;1,800&family=Mali:wght@400;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="/css/lobby.css?v=1"><!-- ธีมล็อบบี้เดียวกับทุกหน้า (พื้นกรมท่า + ลายหกเหลี่ยม) · ใน <style> ด้านล่างตั้งสีชุดเดียวกันไว้เป็นค่าเริ่มต้นเผื่อไฟล์นี้โหลดไม่สำเร็จ -->
 <style>
-:root{--paper:#fbfbf7;--panel:#fff;--ink:#111;--ink2:#666;--line:#111;--rule:#bfe3ea;--gold:#ffc20e;--bad:#c0121f;--good:#1a8a3a;--r:14px;--sh:4px 4px 0 var(--line);
+:root{--paper:#0d1a26;--panel:#152a3b;--ink:#eef3f7;--ink2:#9fb4c4;--line:#02060a;--soft:#223c52;--field:#0d1a26;--edge:#2f5069;--gold:#ffc20e;--bad:#ff6b6b;--good:#4cc16b;--warn:#e3b341;--r:14px;--sh:4px 4px 0 #02060a;
+  --f-lobby:'Barlow Condensed','Mali','Noto Sans Thai',Tahoma,sans-serif;color-scheme:dark;
   box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--paper:#15171a;--panel:#22252a;--ink:#f2f2f2;--ink2:#aaa;--line:#f2f2f2;--rule:#2a3a40;--bad:#ff6b6b;--good:#4cc16b;color-scheme:dark}}
 *{box-sizing:border-box}
 html,body{height:100%}
-body{margin:0;font-family:'Mali','Noto Sans Thai',Tahoma,sans-serif;color:var(--ink);background:var(--paper) repeating-linear-gradient(transparent 0 31px,var(--rule) 31px 32px);display:grid;place-items:center;padding:20px 14px}
+body{margin:0;font-family:'Mali','Noto Sans Thai',Tahoma,sans-serif;color:var(--ink);background-color:var(--paper);display:grid;place-items:center;padding:22px 14px}
 .wrap{width:min(440px,100%)}
-.brand{display:flex;align-items:center;gap:12px;justify-content:center;margin-bottom:18px}
-.brand i{display:grid;place-items:center;width:56px;height:56px;border:3px solid var(--line);border-radius:16px;background:var(--gold);color:#111;font:700 30px/1 inherit;font-style:normal;box-shadow:3px 3px 0 var(--line);transform:rotate(-4deg)}
-.brand h1{margin:0;font-size:1.9rem;line-height:1.1}
-.brand small{display:block;font-size:.8rem;color:var(--ink2);font-weight:400}
-.box{border:3px solid var(--line);border-radius:var(--r);background:var(--panel);box-shadow:var(--sh);padding:20px}
-.tabs{display:grid;grid-template-columns:1fr 1fr;border:3px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:16px}
-.tabs button{font:inherit;font-weight:700;padding:8px;border:0;background:var(--panel);color:var(--ink);cursor:pointer}
-.tabs button+button{border-left:3px solid var(--line)}
-.tabs button[aria-selected="true"]{background:var(--ink);color:var(--paper)}
-label{display:block;font-weight:700;margin:0 0 12px}
-label span{display:block;margin-bottom:4px}
-label small{font-weight:400;color:var(--ink2)}
-input{font:inherit;color:var(--ink);background:var(--paper);border:3px solid var(--line);border-radius:12px;padding:9px 12px;width:100%}
-input:focus-visible{outline:3px solid var(--gold);outline-offset:1px}
-.go{width:100%;font:inherit;font-weight:700;font-size:1.05rem;padding:10px;border:3px solid var(--line);border-radius:99px;background:var(--gold);color:#111;cursor:pointer;box-shadow:3px 3px 0 var(--line);margin-top:4px}
-.go:hover{background:var(--ink);color:var(--paper)}
-.go[disabled]{opacity:.5;cursor:wait}
-.msg{margin:0 0 12px;padding:8px 12px;border:2px solid var(--bad);border-radius:10px;background:rgba(192,18,31,.08);color:var(--bad);font-weight:600}
-.msg.ok{border-color:var(--good);background:rgba(26,138,58,.1);color:var(--good)}
-.msg.warn{border-color:#9a6700;background:rgba(154,103,0,.1);color:#9a6700}
-.foot{text-align:center;color:var(--ink2);font-size:.85rem;margin-top:14px}
+.hero{display:flex;flex-direction:column;align-items:center;text-align:center;margin-bottom:14px}
+.hero .logo{display:block;width:min(210px,54vw);height:auto;aspect-ratio:1/1;filter:drop-shadow(0 6px 0 rgba(0,0,0,.35)) drop-shadow(0 0 22px rgba(255,194,14,.28))}
+.hero .ot{margin-top:2px;font:800 11px/1 var(--f-lobby);letter-spacing:.14em;border:2px solid var(--gold);border-radius:6px;padding:4px 8px;color:var(--gold)}
+.hero p{margin:10px 0 0;color:var(--ink2);font-size:.9rem}
 .perks{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:0 0 16px;padding:0;list-style:none}
-.perks li{border:2px solid var(--line);border-radius:99px;padding:2px 12px;font-size:.82rem;font-weight:600;background:var(--panel)}
+.perks li{border:2px solid var(--line);border-radius:99px;padding:2px 12px;font-size:.8rem;font-weight:600;background:var(--panel);color:var(--ink);box-shadow:2px 2px 0 var(--line)}
+.box{border:3px solid var(--line);border-radius:var(--r);background:var(--panel);box-shadow:var(--sh);padding:20px;position:relative}
+.box::before{content:"";position:absolute;left:18px;right:18px;top:-3px;height:3px;background:var(--gold);border-radius:0 0 3px 3px}
+/* แท็บ: ขีดทองใต้แท็บที่เลือก เหมือนแถบโหมดที่หน้า Home */
+.tabs{display:grid;grid-template-columns:1fr 1fr;border-bottom:2px solid var(--line);margin:0 0 18px}
+.tabs button{position:relative;font:inherit;font-weight:700;padding:10px 6px 12px;border:0;background:none;color:var(--ink2);cursor:pointer;transition:color .15s}
+.tabs button:hover{color:var(--ink)}
+.tabs button[aria-selected="true"]{color:var(--gold)}
+.tabs button[aria-selected="true"]::after{content:"";position:absolute;left:16%;right:16%;bottom:-2px;height:5px;background:var(--gold);border-radius:3px 3px 0 0}
+.tabs button:focus-visible{outline:3px solid var(--gold);outline-offset:-4px;border-radius:8px}
+label{display:block;font-weight:700;margin:0 0 12px}
+label span{display:block;margin-bottom:5px}
+label small{font-weight:400;color:var(--ink2)}
+input{font:inherit;color:var(--ink);background:var(--field);border:2px solid var(--edge);border-radius:12px;padding:10px 13px;width:100%;box-shadow:inset 0 2px 0 rgba(0,0,0,.35)}
+input::placeholder{color:#5f7a90}
+input:focus{outline:none;border-color:var(--gold);box-shadow:inset 0 2px 0 rgba(0,0,0,.35),0 0 0 3px rgba(255,194,14,.28)}
+input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus{-webkit-box-shadow:0 0 0 40px var(--field) inset;-webkit-text-fill-color:var(--ink);caret-color:var(--ink);transition:background-color 9999s}
+/* ปุ่มหลัก: ทรงปลายแหลมสองข้างเหมือนปุ่ม PLAY ที่หน้า Home */
+.go{position:relative;display:block;width:100%;height:58px;margin-top:6px;border:0;padding:0;cursor:pointer;background:#6b4a00;clip-path:polygon(0 50%,3% 0,97% 0,100% 50%,97% 100%,3% 100%);transition:transform .12s,filter .12s}
+.go span{position:absolute;inset:4px;display:grid;place-items:center;clip-path:polygon(0 50%,3% 0,97% 0,100% 50%,97% 100%,3% 100%);background:linear-gradient(#fff2b0,#ffc20e 46%,#e09f00);font:800 1.15rem/1 'Mali','Noto Sans Thai',sans-serif;color:#2a1a00;text-shadow:0 1px 0 rgba(255,255,255,.6)}
+.go:hover{transform:translateY(-2px) scale(1.01);filter:brightness(1.06)}
+.go:active{transform:translateY(1px)}
+.go:focus-visible{outline:4px solid #5aa2ff;outline-offset:4px}
+.go[disabled]{opacity:.55;cursor:wait;transform:none;filter:none}
+.msg{margin:0 0 12px;padding:8px 12px;border:2px solid var(--bad);border-radius:10px;background:rgba(255,107,107,.12);color:var(--bad);font-weight:600}
+.msg.ok{border-color:var(--good);background:rgba(76,193,107,.12);color:var(--good)}
+.msg.warn{border-color:var(--warn);background:rgba(227,179,65,.12);color:var(--warn)}
+.foot{text-align:center;color:var(--ink2);font-size:.85rem;margin-top:14px}
 [hidden]{display:none!important}
 </style>
 </head>
 <body>
 <main class="wrap">
-  <div class="brand"><i>A</i><h1>AvastFall TCG<small>ล็อกอินเพื่อเข้าใช้งาน</small></h1></div>
+  <header class="hero"><h1 style="margin:0;font-size:0"><img class="logo" src="/assets/logo.png" width="210" height="210" alt="AvastFall — Trading Card Game"></h1><span class="ot">OPEN TEST</span><p>ล็อกอินเพื่อเข้าใช้งาน</p></header>
   <ul class="perks"><li>🏠 หน้า Home</li><li>🛒 ร้านค้า</li><li>🃏 จัดเด็ค</li><li>🖼 แกลเลอรีการ์ด</li><li>⚔ ทดลองเล่น</li></ul>
   <div class="box">
     <div class="tabs" role="tablist"><button type="button" role="tab" id="tLogin" aria-selected="true">เข้าสู่ระบบ</button><button type="button" role="tab" id="tSign" aria-selected="false">สมัครสมาชิก</button></div>
@@ -52,14 +63,14 @@ input:focus-visible{outline:3px solid var(--gold);outline-offset:1px}
     <form id="fLogin" autocomplete="on">
       <label><span>อีเมล หรือ ชื่อผู้ใช้</span><input id="lid" name="username" autocomplete="username" required></label>
       <label><span>รหัสผ่าน</span><input id="lpw" name="password" type="password" autocomplete="current-password" required></label>
-      <button class="go" type="submit">เข้าสู่ระบบ</button>
+      <button class="go" type="submit"><span>เข้าสู่ระบบ</span></button>
     </form>
 
     <form id="fSign" autocomplete="on" hidden>
       <label><span>ชื่อผู้ใช้ <small>(3–20 ตัว · A–Z ก–๙ 0–9 _)</small></span><input id="sname" autocomplete="nickname" maxlength="20" required></label>
       <label><span>อีเมล</span><input id="smail" type="email" autocomplete="email" required></label>
       <label><span>รหัสผ่าน <small>(อย่างน้อย 8 ตัวอักษร)</small></span><input id="spw" type="password" autocomplete="new-password" minlength="8" maxlength="72" required></label>
-      <button class="go" type="submit">สมัครและเข้าใช้งาน</button>
+      <button class="go" type="submit"><span>สมัครและเข้าใช้งาน</span></button>
       <p class="foot" style="margin-bottom:0">สมัครใหม่รับเหรียญเริ่มต้นไปซื้อซองการ์ดได้เลย 🎁</p>
     </form>
   </div>
@@ -91,11 +102,11 @@ input:focus-visible{outline:3px solid var(--gold);outline-offset:1px}
   function submit(form, url, body) {
     form.addEventListener('submit', function (e) {
       e.preventDefault(); if (busy) return; busy = true; say('');
-      var btn = form.querySelector('.go'), old = btn.textContent; btn.disabled = true; btn.textContent = 'กำลังดำเนินการ…';
+      var btn = form.querySelector('.go'), lab = btn.querySelector('span'), old = lab.textContent; btn.disabled = true; lab.textContent = 'กำลังดำเนินการ…';
       post(url, body()).then(function (j) {
         if (j.needConfirm) { tab(false); say('สมัครสำเร็จ! ส่งอีเมลยืนยันไปแล้ว — กดลิงก์ในอีเมลก่อน แล้วกลับมาเข้าสู่ระบบ', 'ok'); return; }
         enter();
-      }).catch(function (err) { say(err.message); }).then(function () { busy = false; btn.disabled = false; btn.textContent = old; });
+      }).catch(function (err) { say(err.message); }).then(function () { busy = false; btn.disabled = false; lab.textContent = old; });
     });
   }
   submit($('fLogin'), '/api/auth/login', function () { return { email: $('lid').value.trim(), password: $('lpw').value }; });
