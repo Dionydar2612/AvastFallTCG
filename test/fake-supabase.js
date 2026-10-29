@@ -1,6 +1,6 @@
 // สแตนด์อินของ @supabase/supabase-js สำหรับทดสอบในเครื่อง (ตารางในหน่วยความจำ) — ใช้: node -r ./test/fake-supabase.js server.js
 const Module = require("module"), crypto = require("crypto");
-const PK = { cards: ["id"], card_sets: ["id"], elements: ["name"], card_backups: ["id"], profiles: ["id"], user_decks: ["user_id", "deck_id"], user_cards: ["user_id", "card_id"], shop_items: ["id"], purchases: ["id"] };
+const PK = { cards: ["id"], card_sets: ["id"], elements: ["name"], card_backups: ["id"], profiles: ["id"], user_decks: ["user_id", "deck_id"], user_cards: ["user_id", "card_id"], shop_items: ["id"], purchases: ["id"], update_notes: ["id"], app_meta: ["key"] };
 const T = {}; const tbl = (n) => (T[n] = T[n] || []); let ident = 1;
 const users = new Map(), tokens = new Map();   // email -> {id,email,password,meta} · token -> user
 const mkSession = (u) => { const at = "at_" + crypto.randomUUID(), rt = "rt_" + crypto.randomUUID(); tokens.set(at, u); tokens.set(rt, u); return { access_token: at, refresh_token: rt, expires_in: 3600, user: pub(u) }; };

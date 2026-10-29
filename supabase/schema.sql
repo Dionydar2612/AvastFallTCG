@@ -92,6 +92,20 @@ create table if not exists public.purchases (           -- ประวัติ
 );
 create index if not exists purchases_user_idx on public.purchases (user_id, at desc);
 
+-- ---------- Update Note (ข่าวอัปเดตที่แอดมินเขียนใน /admin) + ค่าระบบเล็ก ๆ ----------
+create table if not exists public.update_notes (
+  id          text primary key,
+  note_date   text not null,                           -- YYYY-MM-DD (วันที่ที่แสดง)
+  title       text not null,
+  items       jsonb not null default '[]'::jsonb,      -- รายการข้อความ ["…","…"]
+  at          timestamptz not null default now()       -- เวลาที่สร้าง (ใช้เรียงลำดับ)
+);
+
+create table if not exists public.app_meta (            -- ค่าระบบเล็ก ๆ เช่น เครื่องหมาย "ใส่ข่าวเริ่มต้นแล้ว" (กันข่าวที่ลบไปแล้วกลับมาเอง)
+  key         text primary key,
+  value       jsonb not null default '{}'::jsonb
+);
+
 -- ---------- RLS: เปิดทุกตาราง ไม่มี policy = เฉพาะ service_role (เซิร์ฟเวอร์) เข้าถึงได้ ----------
 alter table public.card_sets    enable row level security;
 alter table public.cards        enable row level security;
@@ -102,6 +116,8 @@ alter table public.user_decks   enable row level security;
 alter table public.user_cards   enable row level security;
 alter table public.shop_items   enable row level security;
 alter table public.purchases    enable row level security;
+alter table public.update_notes enable row level security;
+alter table public.app_meta     enable row level security;
 
 -- ---------- สิทธิ์ให้เซิร์ฟเวอร์ (service_role) เข้าตารางผ่าน Data API ----------
 -- โปรเจกต์ Supabase ใหม่ ๆ บางตัวไม่ให้สิทธิ์ตารางใหม่อัตโนมัติ → ไม่ใส่ = "Could not find the table ... in the schema cache"

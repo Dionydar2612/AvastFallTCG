@@ -243,14 +243,17 @@ api.post("/images", up.array("files", 100), (req, res) => {
 
 // ---- Update Note (โน้ตแจ้งอัปเดตที่ผู้เล่นทุกคนเห็นในเกม) ----
 api.get("/updates", (_req, res) => res.json({ data: updates.list() }));
-api.post("/updates", (req, res) => {
-  try { res.json({ ok: true, note: updates.add(req.body) }); } catch (e) { res.status(400).json({ error: e.message }); }
+api.post("/updates", async (req, res) => {
+  try { res.json({ ok: true, note: await updates.add(req.body) }); } catch (e) { res.status(400).json({ error: e.message }); }
 });
-api.put("/updates/:id", (req, res) => {
-  try { const n = updates.update(req.params.id, req.body); n ? res.json({ ok: true, note: n }) : res.status(404).json({ error: "ไม่พบโน้ตนี้" }); }
+api.put("/updates/:id", async (req, res) => {
+  try { const n = await updates.update(req.params.id, req.body); n ? res.json({ ok: true, note: n }) : res.status(404).json({ error: "ไม่พบโน้ตนี้" }); }
   catch (e) { res.status(400).json({ error: e.message }); }
 });
-api.delete("/updates/:id", (req, res) => updates.remove(req.params.id) ? res.json({ ok: true }) : res.status(404).json({ error: "ไม่พบโน้ตนี้" }));
+api.delete("/updates/:id", async (req, res) => {
+  try { (await updates.remove(req.params.id)) ? res.json({ ok: true }) : res.status(404).json({ error: "ไม่พบโน้ตนี้" }); }
+  catch (e) { res.status(400).json({ error: e.message }); }
+});
 
 // ---- สำรอง/กู้คืน ----
 api.get("/backups", wrapA(async (_req, res) => res.json({ data: await store.listBackups() })));

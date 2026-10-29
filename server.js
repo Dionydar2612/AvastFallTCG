@@ -15,7 +15,6 @@ const supa = require("./lib/supa");
 const auth = require("./lib/auth");
 const me = require("./lib/me");
 const updates = require("./lib/updates");
-updates.init();
 const playtest = require("./lib/playtest");
 const S = store.state; // แคชของฐานข้อมูลการ์ด (แก้ผ่าน /admin แล้วมีผลทันที)
 
@@ -187,6 +186,7 @@ app.use((_req, res) => res.status(404).type("text/plain; charset=utf-8").send("�
   try {
     await store.init();                                   // โหลดการ์ดจาก Supabase (ครั้งแรกจะ seed จาก data/*.json ให้)
     if (supa.enabled) await me.ensureShopItems();         // สร้างสินค้าในร้านให้ชุดที่ยังไม่มี
+    await updates.init();                                 // โหลด Update Note จาก Supabase (ครั้งแรกจะใส่ข้อมูลเริ่มต้นให้ครั้งเดียว)
   } catch (e) {
     supa.startupError = e.message;
     console.error("❌ เชื่อมต่อ/โหลด Supabase ไม่สำเร็จ:", e.message);
