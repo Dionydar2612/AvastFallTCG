@@ -117,12 +117,12 @@ function barHTML(){
   if(pd.kind==='act'){
     const ph=pd.spec.phase;
     const nxt=ph==='main'?'ไป Attack Phase':'จบ Ultimate Phase';
-    const hint=ph==='main'?'คลิกการ์ดบนมือเพื่อเล่น คลิก Avatar หรือ Unit เพื่อใช้ความสามารถ':'Ultimate Phase: คลิก Ultimate บนมือเพื่อใช้';
+    const hint=ph==='main'?'ลากการ์ดจากมือไปวางบนสนามของคุณ (หรือแตะการ์ดเพื่อเลือกคำสั่ง) · แตะ Avatar/Unit เพื่อใช้ความสามารถ':'Ultimate Phase: ลาก Ultimate จากมือไปวางบนสนาม (หรือแตะเพื่อใช้)';
     return `<div class="bar you"><span class="msg"><b>${nm}</b> · ${ph==='main'?'Main Phase':'Ultimate Phase'}<br><span class="muted">${hint}</span></span><button class="btn pri" data-act="pass">${nxt}</button></div>`;
   }
   if(pd.kind==='attack'){
     const sel=ui.sel!=null?ui.G&&cardMap()[ui.sel]:null;
-    return `<div class="bar you"><span class="msg"><b>${nm}</b> · Attack Phase<br><span class="muted">${sel?`เลือก ${esc(sel.def.name)} แล้ว: คลิกเป้าหมายสีแดง (Unit ฝ่ายตรงข้าม${pd.spec.options.find(o=>o.attacker.uid===ui.sel)?.avatar?' หรือ Avatar':''})`:'คลิก Unit ของคุณที่เรืองแสงเพื่อโจมตี'}</span></span>${sel?'<button class="btn" data-act="unsel">ยกเลิกการเลือก</button>':''}<button class="btn pri" data-act="endatk">จบ Attack Phase</button></div>`;
+    return `<div class="bar you"><span class="msg"><b>${nm}</b> · Attack Phase<br><span class="muted">${sel?`เลือก ${esc(sel.def.name)} แล้ว: คลิกเป้าหมายสีแดง (Unit ฝ่ายตรงข้าม${pd.spec.options.find(o=>o.attacker.uid===ui.sel)?.avatar?' หรือ Avatar':''})`:'ลาก Unit ที่เรืองแสงไปวางบนเป้าหมาย (หรือแตะ Unit แล้วแตะเป้าหมาย)'}</span></span>${sel?'<button class="btn" data-act="unsel">ยกเลิกการเลือก</button>':''}<button class="btn pri" data-act="endatk">จบ Attack Phase</button></div>`;
   }
   if(pd.kind==='pick'&&(pd.spec.kind==='units'||pd.spec.kind==='attackTarget')){
     return `<div class="bar you"><span class="msg"><b>${nm}</b> · ${esc(pd.spec.title)}<br><span class="muted">คลิกเป้าหมายสีแดงบนสนาม</span></span>${pd.spec.optional?'<button class="btn" data-act="skip">ข้าม</button>':''}</div>`;
@@ -158,7 +158,7 @@ function gameHTML(){
   if(ui.cover!==null)return `<div class="cover"><div style="display:grid;gap:14px;justify-items:center"><h1>ส่งอุปกรณ์ให้ ${esc(G.players[ui.cover].name)}</h1><p>ให้ผู้เล่นอีกฝั่งหันหน้าหนี แล้วกดเมื่อพร้อม</p><button class="btn" data-act="ready">พร้อมแล้ว</button></div></div>`;
   const opp=1-v;
   return `<div class="top"><span class="pill">เทิร์น ${G.turn}</span>${phaseBar()}<span class="spacer"></span><button class="btn sm" data-act="settings">⚙ ตั้งค่า</button><button class="btn sm" data-act="help">กติกา</button>${ui.cfg.mode==="online"?"":`<button class="btn sm" data-act="restart">เริ่มใหม่</button>`}<button class="btn sm" data-act="surrender">ยอมแพ้</button></div>
-  <div class="game"><main style="min-width:0">${sideHTML(opp,true,fresh)}${chainHTML()}${barHTML()}${sideHTML(v,false,fresh)}${handHTML()}</main>${panelHTML()}</div>
+  <div class="game" data-ph="${pdOf()&&pdOf().kind||''}"><main style="min-width:0">${sideHTML(opp,true,fresh)}${chainHTML()}${barHTML()}${sideHTML(v,false,fresh)}${handHTML()}</main>${panelHTML()}</div>
   ${ui.menu?menuHTML():''}${ui.over?overHTML():''}${pendingModalHTML()}${ui.modal?modalHTML():''}${ui.settings?settingsHTML():''}`;
 }
 function overHTML(){

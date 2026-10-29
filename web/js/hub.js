@@ -94,10 +94,21 @@
   }
 
   /* ---------- HOME (ล็อบบี้) ---------- */
-  function pickAvatars(decks) {
+  /* Avatar ของเด็คที่ผู้เล่น "เลือกไว้เล่นจริง" (เด็คตัวอย่าง หรือเด็คที่ build เอง) — ใช้เป็นภาพเหรียญตรงกลางหน้า Home */
+  function avatarCard(id) {
+    if (!id || !S.byId) return null;
+    var k = String(id).toLowerCase();
+    return S.byId[k] || S.byId[baseId(k)] || null;
+  }
+  function selectedAvatarId() {
+    var G = game(); if (!G || !G.ui || !G.ui.cfg) return null;
+    try { var d = G.deckByKey(G.ui.cfg.sel[0]); return d ? d.avatar : null; } catch (e) { return null; }
+  }
+  function pickAvatars(decks, first) {
     var av = S.cards.filter(function (c) { return c.type === 'Avatar' && c.image && /^[A-Za-z0-9]+-\d+$/.test(c.id); });
     var out = [], seen = {};
     var add = function (c) { if (c && !seen[c.id]) { seen[c.id] = 1; out.push(c); } };
+    add(first);
     decks.forEach(function (d) { if (out.length < 3 && d.avatar && S.own[d.avatar] > 0) add(S.byId[String(d.avatar).toLowerCase()]); });
     av.filter(function (c) { return S.own[c.id] > 0; }).forEach(function (c) { if (out.length < 3) add(c); });
     var dn = new Date(), seed = dn.getFullYear() * 372 + dn.getMonth() * 31 + dn.getDate(), rest = av.filter(function (c) { return !seen[c.id]; }), i = 0;
@@ -136,10 +147,12 @@
       var decks = readDecks().sort(function (a, b) { return (b.updated || 0) - (a.updated || 0); });
       var infos = decks.map(deckInfo), okDeck = decks.filter(function (d, i) { return infos[i].ok; })[0] || null;
       var G = game(), cur = null, curInfo = null;                                                   // เด็คที่จะใช้เล่นจริง (ตามที่เลือกไว้ในเกม)
-      try { if (G && G.ui && G.ui.cfg) { var d0 = G.deckByKey(G.ui.cfg.sel[0]); if (d0) { cur = { name: d0.name, preset: !!d0.preset, ok: !G.deckErrors(d0.key).length }; } } } catch (e) { }
+      try { if (G && G.ui && G.ui.cfg) { var d0 = G.deckByKey(G.ui.cfg.sel[0]); if (d0) { cur = { name: d0.name, preset: !!d0.preset, avatar: d0.avatar, ok: !G.deckErrors(d0.key).length }; } } } catch (e) { }
       var inGame = !!(G && G.ui && G.ui.screen === 'game');
       var main = decks[0] || null, mainInfo = main ? infos[0] : null;
-      var fan = pickAvatars(decks), emblem = fan[0] || null;
+      var selAv = avatarCard(cur ? cur.avatar : (main && main.avatar)) || avatarCard(main && main.avatar);
+      var fan = pickAvatars(decks, selAv), emblem = selAv || fan[0] || null;     // เหรียญ = Avatar ของเด็คที่เลือก ไม่ใช่เด็คแรกในรายการ
+      S.emblemId = emblem ? emblem.id : null; S.selAvId = cur ? cur.avatar : null;
       var haveDecks = decks.length > 0;
       var sets = setProgress();
       var seen = ''; try { seen = localStorage.getItem('af-notes-seen') || ''; } catch (e) { }
@@ -158,7 +171,7 @@
           '<div class="art"><div class="artcut"><div class="artin"><div class="glow"></div><div class="fan n' + fan.length + '">' + fanHtml + '</div><div class="logo">AVASTFALL<small>TRADING CARD GAME</small></div></div></div></div>' +
           '<div class="side">' +
             '<div class="center">' +
-              '<div class="hexo"><div class="hexi">' + (emblem ? pic(emblem) : '<img src="' + BACK + '" alt="">') + '</div></div>' + deckLine +
+              '<div class="hexo"><div class="hexi" id="emblem">' + (emblem ? pic(emblem) : '<img src="' + BACK + '" alt="">') + '</div></div>' + deckLine +
               '<div id="ctl" class="ctl">' + ctlHtml(inGame, hint) + '</div>' +
             '</div>' +
             '<button type="button" class="daily' + (me.dailyReady ? ' ready' : ' done') + '" data-act="daily"' + (me.dailyReady ? '' : ' disabled') + '><span class="dc"></span><span class="dt"><small>รางวัลรายวัน</small><b>' + (me.dailyReady ? '+' + me.dailyAmount + ' เหรียญ' : 'รับแล้ว ✓') + '</b></span></button>' +
@@ -220,9 +233,18 @@
   function refreshCtl() { var c = $('ctl'); if (c) c.innerHTML = ctlHtml(S.inGame, S.hint); }
   /* ติดตามสถานะห้อง (อยู่ในเว็บหลัก) ทุก 0.5 วินาที: เปลี่ยนเมื่อไรค่อยวาดใหม่ · เกมเริ่มแล้วสลับไปกระดานเอง */
   var lastSig = '';
+  /* เปลี่ยนเด็คที่เลือก (จากหน้าต่างเลือกเด็ค หรือที่อื่น) → เปลี่ยนภาพ Avatar ตรงกลางทันที ไม่ต้องรอโหลดหน้าใหม่ */
+  function syncEmblem() {
+    if (S.view !== 'home') return;
+    var id = selectedAvatarId(); if (!id || id === S.selAvId) return;
+    var c = avatarCard(id), box = $('emblem'); if (!c || !box) return;
+    S.selAvId = id; S.emblemId = c.id; box.innerHTML = pic(c);
+    var f0 = document.querySelector('.fan .fc.f0'); if (f0) f0.innerHTML = pic(c);
+  }
   setInterval(function () {
     if (S.view !== 'home') return;
     var G = game(); if (!G) return; var u = G.ui, o = u.ol;
+    syncEmblem();
     if (o && S.mode !== 'online') { S.mode = 'online'; try { localStorage.setItem('af-lobby-mode', 'online'); } catch (e) { } show('home'); return; }   // เปิดลิงก์ห้อง ?room=
     if (u.screen === 'game' && S.mode === 'online' && !S.inGame) { S.inGame = true; go('play'); return; }
     if (S.mode !== 'online') { lastSig = ''; return; }
