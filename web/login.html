@@ -20,8 +20,6 @@ body{margin:0;font-family:'Mali','Noto Sans Thai',Tahoma,sans-serif;color:var(--
 .hero .logo{display:block;width:min(210px,54vw);height:auto;aspect-ratio:1/1;filter:drop-shadow(0 6px 0 rgba(0,0,0,.35)) drop-shadow(0 0 22px rgba(255,194,14,.28))}
 .hero .ot{margin-top:2px;font:800 11px/1 var(--f-lobby);letter-spacing:.14em;border:2px solid var(--gold);border-radius:6px;padding:4px 8px;color:var(--gold)}
 .hero p{margin:10px 0 0;color:var(--ink2);font-size:.9rem}
-.perks{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:0 0 16px;padding:0;list-style:none}
-.perks li{border:2px solid var(--line);border-radius:99px;padding:2px 12px;font-size:.8rem;font-weight:600;background:var(--panel);color:var(--ink);box-shadow:2px 2px 0 var(--line)}
 .box{border:3px solid var(--line);border-radius:var(--r);background:var(--panel);box-shadow:var(--sh);padding:20px;position:relative}
 .box::before{content:"";position:absolute;left:18px;right:18px;top:-3px;height:3px;background:var(--gold);border-radius:0 0 3px 3px}
 /* แท็บ: ขีดทองใต้แท็บที่เลือก เหมือนแถบโหมดที่หน้า Home */
@@ -55,7 +53,6 @@ input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus
 <body>
 <main class="wrap">
   <header class="hero"><h1 style="margin:0;font-size:0"><img class="logo" src="/assets/logo.png" width="210" height="210" alt="AvastFall — Trading Card Game"></h1><span class="ot">OPEN TEST</span><p>ล็อกอินเพื่อเข้าใช้งาน</p></header>
-  <ul class="perks"><li>🏠 หน้า Home</li><li>🛒 ร้านค้า</li><li>🃏 จัดเด็ค</li><li>🖼 แกลเลอรีการ์ด</li><li>⚔ ทดลองเล่น</li></ul>
   <div class="box">
     <div class="tabs" role="tablist"><button type="button" role="tab" id="tLogin" aria-selected="true">เข้าสู่ระบบ</button><button type="button" role="tab" id="tSign" aria-selected="false">สมัครสมาชิก</button></div>
     <div id="msg" class="msg" hidden></div>
