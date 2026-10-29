@@ -81,13 +81,14 @@
   }
   setCards(ownUnique(window.__AF && window.__AF.owned), 0);
   refreshMe();
+  refreshOwned();   // โหลดรายการการ์ดที่มีตั้งแต่เข้าหน้า (เดิมเรียกเฉพาะหลังซื้อ/เปิดซอง → Deckbuilder เห็นว่าไม่มีการ์ดหลังรีเฟรช)
 
   /* ---------- สื่อสารกับ iframe ---------- */
   function post(frame, msg) { try { if (frame.contentWindow) frame.contentWindow.postMessage(msg, location.origin); } catch (e) { } }
   var tellCards = function (v) { post(cardsFrame, { afView: v }); };
   var pendingDeck = null;
   var sendDeck = function () { if (pendingDeck && ready.cards) { post(cardsFrame, { afDeck: pendingDeck }); pendingDeck = null; } };
-  cardsFrame.addEventListener('load', function () { ready.cards = true; tellCards(cur === 'decks' ? 'deck' : 'cards'); sendDeck(); });
+  cardsFrame.addEventListener('load', function () { ready.cards = true; if (window.__AF && window.__AF.owned) post(cardsFrame, { afOwned: window.__AF.owned }); tellCards(cur === 'decks' ? 'deck' : 'cards'); sendDeck(); });
   hubFrame.addEventListener('load', function () { ready.hub = true; });
 
   addEventListener('message', function (e) {

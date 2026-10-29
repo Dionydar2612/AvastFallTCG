@@ -204,7 +204,7 @@ async function boot(){
   window.DECKS=Object.fromEntries(ds.data.map(d=>[d.id,{name:d.name,total:d.total,rot:d.rotation,el:d.element,rar:d.rarity,art:d.artist}]));
   window.CARDS=cs.data.map(c=>({deck:c.deck,no:c.no,key:c.id,name:c.name,type:c.type,sub:c.sub,cost:c.cost,cri:c.cri,atk:c.atk,def:c.def,sc:c.sc,tribe:c.tribe,
     fx:(c.effects||[]).map(e=>[e.keyword,e.text]),fl:c.flavor,el:c.element,els:c.elements,rar:c.rarity,rot:c.rotation,art:c.artist,img:c.image}));
-  try{const o=await fetch("/api/me/collection",{credentials:"same-origin"}).then(r=>r.ok?r.json():{owned:{}});OWN=o.owned||{}}catch(e){}
+  try{const o=await fetch("/api/me/collection",{credentials:"same-origin"}).then(r=>r.ok?r.json():{owned:{}});OWN=o.owned||{};window.__AF=window.__AF||{};window.__AF.owned=o.base||o.owned||{}}catch(e){}
   init();window.DB&&DB.init();
  }catch(err){document.getElementById("cnt").textContent="โหลดข้อมูลจาก API ไม่สำเร็จ: "+err.message}
 }
