@@ -70,7 +70,7 @@
       window.__AF = window.__AF || {}; window.__AF.owned = j.base || j.owned || {};
       setCards(j.unique, totalCards);
       window.dispatchEvent(new Event('af-owned'));
-      post(cardsFrame, { afOwned: window.__AF.owned });
+      if (hasOwn()) post(cardsFrame, { afOwned: window.__AF.owned });
     }).catch(function () { });
   }
   function refreshMe() {
@@ -88,7 +88,8 @@
   var tellCards = function (v) { post(cardsFrame, { afView: v }); };
   var pendingDeck = null;
   var sendDeck = function () { if (pendingDeck && ready.cards) { post(cardsFrame, { afDeck: pendingDeck }); pendingDeck = null; } };
-  cardsFrame.addEventListener('load', function () { ready.cards = true; if (window.__AF && window.__AF.owned) post(cardsFrame, { afOwned: window.__AF.owned }); tellCards(cur === 'decks' ? 'deck' : 'cards'); sendDeck(); });
+  var hasOwn = function () { var o = window.__AF && window.__AF.owned; return !!o && Object.keys(o).length > 0; };   // ห้ามส่งแผนที่ว่าง/ค้างไปทับค่าที่ iframe โหลดเองได้ถูกต้อง
+  cardsFrame.addEventListener('load', function () { ready.cards = true; if (hasOwn()) post(cardsFrame, { afOwned: window.__AF.owned }); tellCards(cur === 'decks' ? 'deck' : 'cards'); sendDeck(); });
   hubFrame.addEventListener('load', function () { ready.hub = true; });
 
   addEventListener('message', function (e) {
