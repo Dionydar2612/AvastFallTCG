@@ -6,7 +6,7 @@
 <title>Home · AvastFall TCG</title>
 <meta name="description" content="AvastFall TCG (Open Test) — ล็อกอินเพื่อเข้าร้านค้า จัดเด็ค ดูการ์ด และทดลองเล่นกับบอทหรือเพื่อน">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@1,700;1,800&family=Mali:wght@400;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap">
-<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/style.css?v=3">
 <link rel="stylesheet" href="css/site.css?v=7"><!-- แถบเมนูเดียว Home · Decks · Cards · Shop -->
 <link rel="stylesheet" href="css/theme.css">
 <link rel="stylesheet" href="css/lobby.css?v=1"><!-- ธีมรวมให้เหมือนหน้า Card List (ต้องโหลดหลังสุด) -->
@@ -29,9 +29,8 @@
     <button type="button" class="site-me" id="siteMe" aria-haspopup="menu" aria-expanded="false" aria-controls="siteMenu"><span class="av" aria-hidden="true" id="siteAv">?</span><span class="nm" id="siteName">ผู้เล่น</span><svg class="chev" width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M1 3l4 4 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><i class="dot" id="siteMeDot" hidden></i></button>
     <div class="site-menu" id="siteMenu" role="menu" hidden>
       <div class="who"><b id="menuName">ผู้เล่น</b><span id="menuRole" class="role">ผู้เล่น</span></div>
-      <a role="menuitem" class="adm" id="menuAdmin" href="/admin" hidden>⚙ แผงแอดมิน</a>
+      <button type="button" role="menuitem" data-hdr="notes" id="hdrNotes">🔔 แจ้งเตือน · Update Note<i class="dot" id="hdrNotesDot" hidden></i></button>
       <button type="button" role="menuitem" data-hdr="guide" id="hdrGuide">📖 วิธีเล่น</button>
-      <button type="button" role="menuitem" data-hdr="notes" id="hdrNotes">🔔 Update Note<i class="dot" id="hdrNotesDot" hidden></i></button>
       <hr>
       <button type="button" role="menuitem" class="out" id="siteOut">ออกจากระบบ</button>
     </div>

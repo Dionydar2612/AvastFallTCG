@@ -175,13 +175,27 @@ function applyScale(v,save){
   if(save!==false){try{localStorage.setItem(SCALE_KEY,v)}catch(e){}}
   if(ui.screen==='game'&&typeof fitLayout==='function')fitLayout();
 }
+/* ค่ากำหนดส่วนตัวของหน้าเกม (จำไว้ในเบราว์เซอร์): hover = แสดงการ์ดเมื่อเอาเมาส์ชี้ · motion = ลดแอนิเมชัน · log = แสดงบันทึกอัตโนมัติ */
+const PREF_KEY='af-prefs';
+const prefs=Object.assign({hover:true,motion:false},(()=>{try{return JSON.parse(localStorage.getItem(PREF_KEY)||'{}')}catch(e){return {}}})());
+function applyPrefs(){document.documentElement.classList.toggle('rm',!!prefs.motion);try{localStorage.setItem(PREF_KEY,JSON.stringify(prefs))}catch(e){}}
+applyPrefs();
 function settingsHTML(){
-  const v=ui.scale||100;
+  const v=ui.scale||100,bot=ui.cfg.mode==='bot'||ui.cfg.mode==='spec',sp=ui.cfg.speed;
+  const seg=(k,val,on,label)=>`<button class="btn sm ${on?'pri':''}" data-act="pref" data-k="${k}" data-v="${val}">${label}</button>`;
   return `<div class="ov"><div class="dlg narrow"><h2>ตั้งค่า</h2>
+    <h3 class="sh">หน้าจอ</h3>
     <label class="fl">ขนาดหน้าจอ <b id="scaleval">${v}%</b>
       <input id="scalerange" type="range" min="${SCALE_MIN}" max="${SCALE_MAX}" step="5" value="${v}" style="width:100%"></label>
     <div style="display:flex;gap:6px;flex-wrap:wrap">${[80,90,100,110,120].map(n=>`<button class="btn sm ${n===v?'pri':''}" data-act="setscale" data-v="${n}">${n}%</button>`).join('')}</div>
-    <p class="muted">ปรับขนาดการ์ดและตัวอักษรทั้งหน้า ค่าที่เลือกจะถูกจำไว้ในเบราว์เซอร์นี้</p>
-    <div class="acts"><button class="btn" data-act="setscale" data-v="100">รีเซ็ต 100%</button><button class="btn pri" data-act="closesettings">ปิด</button></div></div></div>`;
+    <p class="muted">ปรับขนาดการ์ดและตัวอักษรทั้งหน้า</p>
+    <h3 class="sh">การเล่น</h3>
+    ${bot?`<div class="srow"><span>ความเร็วบอท</span><span class="sseg">${[[0,'ทันที'],[250,'เร็ว'],[550,'ปกติ'],[1000,'ช้า']].map(([n,l])=>`<button class="btn sm ${sp===n?'pri':''}" data-act="pref" data-k="speed" data-v="${n}">${l}</button>`).join('')}</span></div>`:''}
+    <div class="srow"><span>แสดงการ์ดเมื่อเอาเมาส์ชี้</span><span class="sseg">${seg('hover','1',prefs.hover,'เปิด')}${seg('hover','0',!prefs.hover,'ปิด')}</span></div>
+    <div class="srow"><span>แอนิเมชัน</span><span class="sseg">${seg('motion','0',!prefs.motion,'ปกติ')}${seg('motion','1',prefs.motion,'ลดลง')}</span></div>
+    <p class="muted">ค่าทั้งหมดถูกจำไว้ในเบราว์เซอร์นี้</p>
+    <h3 class="sh">เมนูลัด</h3>
+    <div style="display:flex;gap:6px;flex-wrap:wrap"><button class="btn sm" data-act="help">กติกาโดยย่อ</button><button class="btn sm" data-act="feedback">ส่งข้อเสนอแนะ / แจ้งบั๊ก</button>${ui.G?`<button class="btn sm" data-act="dllog">⬇ บันทึกเกม (Battle Log)</button>`:''}</div>
+    <div class="acts"><button class="btn" data-act="setscale" data-v="100">รีเซ็ตขนาด</button><button class="btn pri" data-act="closesettings">ปิด</button></div></div></div>`;
 }
 applyScale(loadScale(),false);

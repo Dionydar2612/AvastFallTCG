@@ -58,7 +58,7 @@ function setInspect(c){
   ui.inspect=c;if(ui.tab==='card'&&pb)pb.innerHTML=inspectorHTML(c);
 }
 const canHover=matchMedia('(hover:hover)').matches;
-root.addEventListener('mouseover',e=>{if(!ui.G||ui.screen!=='game'){const pd0=e.target.closest('[data-pdef]');if(pd0&&canHover)showPop(pdefCard(pd0.dataset.pdef),pd0,false,true);return}const pd0=e.target.closest('[data-pdef]');if(pd0){if(canHover)showPop(pdefCard(pd0.dataset.pdef),pd0,false,true);return}const pp=e.target.closest('[data-pop]');if(pp){const c=cardMap()[+pp.dataset.pop];if(c&&canHover)showPop(c,pp,false);return}const el=e.target.closest('[data-uid]');if(el){const c=cardMap()[+el.dataset.uid];if(c){setInspect(c);if(canHover)showPop(c,el,false)}}});
+root.addEventListener('mouseover',e=>{if(prefs.hover===false)return;if(!ui.G||ui.screen!=='game'){const pd0=e.target.closest('[data-pdef]');if(pd0&&canHover)showPop(pdefCard(pd0.dataset.pdef),pd0,false,true);return}const pd0=e.target.closest('[data-pdef]');if(pd0){if(canHover)showPop(pdefCard(pd0.dataset.pdef),pd0,false,true);return}const pp=e.target.closest('[data-pop]');if(pp){const c=cardMap()[+pp.dataset.pop];if(c&&canHover)showPop(c,pp,false);return}const el=e.target.closest('[data-uid]');if(el){const c=cardMap()[+el.dataset.uid];if(c){setInspect(c);if(canHover)showPop(c,el,false)}}});
 root.addEventListener('mouseout',e=>{if(popPin)return;const el=e.target.closest('[data-uid],[data-pop],[data-pdef]');if(el&&!(e.relatedTarget&&el.contains(e.relatedTarget)))hidePop()});
 root.addEventListener('input',e=>{if(e.target.dataset&&e.target.dataset.fb){ui.fb[e.target.dataset.fb]=e.target.value;return}});
 root.addEventListener('click',e=>{
@@ -98,9 +98,9 @@ function handle(act,d,el,e){
     case 'first':ui.cfg.first=d.v;return render();
     case 'start':return startGame();
     case 'quickplay':return AFApp.launch({mode:'bot'});
-    case 'help':ui.modal={t:'help'};return render();
+    case 'help':ui.settings=false;ui.modal={t:'help'};return render();
     case 'notes':ui.modal={t:'notes'};return render();
-    case 'feedback':ui.fb.msg='';ui.fb.ok=false;ui.modal={t:'feedback'};return render();
+    case 'feedback':ui.settings=false;ui.fb.msg='';ui.fb.ok=false;ui.modal={t:'feedback'};return render();
     case 'fbagain':ui.fb=Object.assign(ui.fb,{text:'',msg:'',ok:false});return render();
     case 'fbsend':return sendFeedback();
     case 'closemodal':ui.modal=null;return render();
@@ -110,6 +110,7 @@ function handle(act,d,el,e){
     case 'tosetup':olLeave(true);ui.token++;ui.screen='setup';ui.page='play';DATA.applyPending();fixSelections();ui.pending=null;ui.over=null;ui.modal=null;render();return AFSite.go('home');   // จบเกม → กลับ Home
     case 'tab':ui.tab=d.v;return render();
     case 'settings':ui.settings=true;return render();
+    case 'pref':{if(d.k==='speed'){ui.cfg.speed=+d.v;saveCfg()}else{prefs[d.k]=d.v==='1';applyPrefs();if(d.k==='hover')hidePop()}return render()}
     case 'closesettings':ui.settings=false;return render();
     case 'setscale':applyScale(+d.v);return render();
     case 'surrender':{

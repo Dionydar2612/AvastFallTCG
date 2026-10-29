@@ -292,3 +292,9 @@ h1,h2,h3{font-family:var(--f-disp);margin:0;text-wrap:balance}
 .elpay .eln{font-size:26px;line-height:1.1}.elpay small{font-size:12.5px}
 .elpay.zero{opacity:.35;cursor:not-allowed;box-shadow:none}
 .elsel{display:flex;flex-wrap:wrap;gap:4px;align-items:center;min-height:34px;margin:6px 0}.elsel>span:first-child{font-weight:600;margin-right:4px}
+
+/* หน้าต่างตั้งค่า + โหมดลดแอนิเมชัน */
+.sh{margin:14px 0 6px;font-size:.95rem;color:var(--ink2);border-bottom:2px solid var(--soft);padding-bottom:2px}
+.srow{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:6px 0}
+.sseg{display:flex;gap:6px;flex-wrap:wrap}
+html.rm *{animation:none!important;transition:none!important}

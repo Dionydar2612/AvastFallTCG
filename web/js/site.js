@@ -44,7 +44,6 @@
   if (avEl) avEl.textContent = String(U.username || '?').charAt(0).toUpperCase();
   if ($('menuName')) $('menuName').textContent = U.username || 'ผู้เล่น';
   if ($('menuRole')) { $('menuRole').textContent = isAdmin ? 'แอดมิน' : 'ผู้เล่น'; $('menuRole').className = 'role' + (isAdmin ? ' admin' : ''); }
-  if ($('menuAdmin')) $('menuAdmin').hidden = !isAdmin;
   var fmt = function (n) { return Number(n).toLocaleString('th-TH'); };
   var bump = function (el) { var c = el.closest('.site-chip'); if (!c || reduce) return; c.classList.remove('bump'); void c.offsetWidth; c.classList.add('bump'); };
   var setCoin = function (n) { if (coinEl && n != null) { var changed = coinEl.textContent !== fmt(n); coinEl.textContent = fmt(n); if (changed) bump(coinEl); } };
@@ -109,8 +108,10 @@
   function launch(o) {
     o = o || {};
     if (!o.mode) { try { o.mode = localStorage.getItem('af-lobby-mode') || 'bot'; } catch (e) { o.mode = 'bot'; } }   // โหมดที่เลือกไว้ที่ Home
-    go('play');
-    if (window.AFApp && AFApp.launch) AFApp.launch(o);
+    if (!window.AFApp || !AFApp.launch) return { ok: false, err: 'ระบบเกมยังโหลดไม่เสร็จ ลองอีกครั้ง' };
+    var r = AFApp.launch(o);
+    if (r && r.ok) go('play');                                    // เริ่มเกมแล้วค่อยสลับไปกระดาน · ถ้าเด็คใช้ไม่ได้ จะอยู่ที่ Home และแจ้งข้อความให้
+    return r || { ok: false, err: '' };
   }
   /* มีเกมค้างอยู่ → แสดงปุ่ม "กลับเข้าเกม" เมื่อผู้เล่นออกไปดูหน้าอื่น */
   var gameBtn = $('siteGame');

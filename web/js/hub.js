@@ -32,8 +32,11 @@
     refreshBuyState();
   }
   function go(target, extra) { tell(Object.assign({ afGo: target }, extra || {})); }
-  function launch(deckId) { tell({ afLaunch: { mode: S.mode, deckId: deckId || null } }); }          // เริ่มเกมทันทีตามโหมดที่เลือก
-  function openSetup() { tell({ afSetup: { mode: S.mode } }); }                                       // หน้าตั้งค่าแมตช์ (เด็ค/คู่ต่อสู้/ห้องออนไลน์)
+  /* เริ่มเกมทันทีตามโหมดที่เลือก (เรียกเข้าเว็บหลักตรง ๆ เพื่อรู้ผลทันที) — ถ้าเด็คใช้ไม่ได้จะแจ้งตรงนี้ ไม่ย้ายหน้า */
+  function launch(deckId) {
+    try { var r = window.parent.AFSite.launch({ mode: S.mode, deckId: deckId || null }); if (r && !r.ok && r.err) toast(r.err, true); }
+    catch (e) { tell({ afLaunch: { mode: S.mode, deckId: deckId || null } }); }
+  }
   var game = function () { try { return window.parent.__af || null; } catch (e) { return null; } };
   var imgOf = function (c) { return c.image || ('/images/' + c.id + '.jpg'); };
   var pic = function (c) { return c ? '<img loading="lazy" src="' + esc(imgOf(c)) + '" alt="' + esc(c.name) + '" onerror="this.onerror=null;this.src=\'' + BACK + '\'">' : '<div class="noimg">?</div>'; };
@@ -130,8 +133,7 @@
           '<div class="side">' +
             '<div class="center">' +
               '<div class="hexo"><div class="hexi">' + (emblem ? pic(emblem) : '<img src="' + BACK + '" alt="">') + '</div></div>' + deckLine +
-              (inGame ? '<button type="button" class="resume" data-act="resume">▶ มีเกมที่กำลังเล่นอยู่ — กลับเข้าเกม</button>' : '') + '<button type="button" class="play" data-act="play"><span>PLAY</span></button><button type="button" class="setbtn" data-act="setup">⚙ ตั้งค่าแมตช์ · เด็ค · คู่ต่อสู้</button>' +
-              '<p class="hint">' + hint + '</p>' +
+              '<div id="ctl" class="ctl">' + ctlHtml(inGame, hint) + '</div>' +
             '</div>' +
             '<button type="button" class="daily' + (me.dailyReady ? ' ready' : ' done') + '" data-act="daily"' + (me.dailyReady ? '' : ' disabled') + '><span class="dc"></span><span class="dt"><small>รางวัลรายวัน</small><b>' + (me.dailyReady ? '+' + me.dailyAmount + ' เหรียญ' : 'รับแล้ว ✓') + '</b></span></button>' +
             '<div class="bottom">' +
@@ -156,9 +158,102 @@
             return '<div class="box note"><h3>' + esc(n.title) + '</h3><div class="d">' + esc(n.date || String(n.at || '').slice(0, 10)) + '</div><ul>' + (n.items || []).slice(0, 3).map(function (i) { return '<li>' + esc(i) + '</li>'; }).join('') + '</ul></div>';
           }).join('') + '</div>' : '') +
         '</div></div>';
-      S.okDeckId = okDeck ? okDeck.id : null;
+      S.okDeckId = okDeck ? okDeck.id : null; S.inGame = inGame; S.hint = hint;
       $('view').innerHTML = h;
     });
+  }
+
+  /* ---------- ปุ่มเล่น / ห้องออนไลน์ (อยู่ที่ Home ทั้งหมด ไม่ต้องย้ายหน้า) ---------- */
+  function ctlHtml(inGame, hint) {
+    var resume = inGame ? '<button type="button" class="resume" data-act="resume">▶ มีเกมที่กำลังเล่นอยู่ — กลับเข้าเกม</button>' : '';
+    if (S.mode === 'online') return resume + onlineHtml();
+    return resume + '<button type="button" class="play" data-act="play"><span>PLAY</span></button><button type="button" class="setbtn" data-act="setup">⚙ ตั้งค่าแมตช์ · เด็ค · คู่ต่อสู้</button><p class="hint">' + (hint || '') + '</p>';
+  }
+  function olStatus(o) {
+    if (o.pid === 0 && !o.hadPeer) return 'รอเพื่อนเข้าห้อง… ส่งรหัสหรือลิงก์ให้เพื่อน';
+    if (!o.peer) return 'เพื่อนหลุดจากห้อง (รอกลับเข้ามา)';
+    if (o.ready) return o.peerReady ? 'กำลังเริ่มเกม…' : 'คุณพร้อมแล้ว รอเพื่อนกดพร้อม…';
+    return o.peerReady ? 'เพื่อนพร้อมแล้ว — กด “พร้อม” ได้เลย' : 'เพื่อนเข้าห้องแล้ว — กด “พร้อม” เมื่อพร้อมเล่น';
+  }
+  function onlineHtml() {
+    var G = game(); if (!G) return '<p class="hint">กำลังเตรียมระบบเกม… ลองสลับโหมดอีกครั้ง</p>';
+    var u = G.ui, o = u.ol, err = u.err ? '<div class="olerr">' + esc(u.err) + '</div>' : '';
+    var derr = G.deckErrors(u.cfg.sel[0]), dwarn = derr.length ? '<div class="olerr">เด็คที่เลือกยังใช้เล่นไม่ได้: ' + esc(derr[0]) + ' · กดที่ป้ายเด็คด้านบนเพื่อเปลี่ยน</div>' : '';
+    var name = '<label class="olrow"><span>ชื่อที่แสดง</span><input id="olname" maxlength="16" autocomplete="off" value="' + esc(u.pname || '') + '" placeholder="ชื่อของคุณ (ไม่ใส่ก็ได้)"></label>';
+    if (!o) {
+      return '<div class="olbox">' + name +
+        '<button type="button" class="play ol" data-act="olcreate"' + (u.olbusy ? ' disabled' : '') + '><span>สร้างห้อง</span></button>' +
+        '<div class="olrow join"><input id="olcode" maxlength="5" autocomplete="off" value="' + esc(u.olcode || '') + '" placeholder="รหัสห้อง 5 ตัว"><button type="button" class="btn pri" data-act="oljoin"' + (u.olbusy ? ' disabled' : '') + '>เข้าห้อง</button></div>' +
+        err + dwarn + '<p class="hint">สร้างห้องแล้วส่งรหัสให้เพื่อน หรือกรอกรหัสที่เพื่อนให้มา · เด็คที่ใช้คือเด็คในป้ายด้านบน</p></div>';
+    }
+    var link = location.origin + '/?room=' + o.code;
+    return '<div class="olbox"><div class="olcode">ห้อง <b>' + esc(o.code) + '</b></div><p class="olst">' + esc(olStatus(o)) + '</p>' + (o.conn === false ? '<p class="hint">⚠ กำลังเชื่อมต่อเซิร์ฟเวอร์ใหม่…</p>' : '') + (o.ready ? '' : name) +
+      '<div class="olrow"><input id="ollink" readonly value="' + esc(link) + '"><button type="button" class="btn sm" data-act="olcopy">คัดลอกลิงก์</button></div>' +
+      '<div class="olrow"><button type="button" class="btn pri" data-act="olready"' + ((!o.peer || o.ready || derr.length) ? ' disabled' : '') + '>พร้อม</button><button type="button" class="btn" data-act="olleave">ออกจากห้อง</button></div>' + err + dwarn + '</div>';
+  }
+  function refreshCtl() { var c = $('ctl'); if (c) c.innerHTML = ctlHtml(S.inGame, S.hint); }
+  /* ติดตามสถานะห้อง (อยู่ในเว็บหลัก) ทุก 0.5 วินาที: เปลี่ยนเมื่อไรค่อยวาดใหม่ · เกมเริ่มแล้วสลับไปกระดานเอง */
+  var lastSig = '';
+  setInterval(function () {
+    if (S.view !== 'home') return;
+    var G = game(); if (!G) return; var u = G.ui, o = u.ol;
+    if (o && S.mode !== 'online') { S.mode = 'online'; try { localStorage.setItem('af-lobby-mode', 'online'); } catch (e) { } show('home'); return; }   // เปิดลิงก์ห้อง ?room=
+    if (u.screen === 'game' && S.mode === 'online' && !S.inGame) { S.inGame = true; go('play'); return; }
+    if (S.mode !== 'online') { lastSig = ''; return; }
+    var sig = JSON.stringify([o && [o.code, o.peer, o.ready, o.peerReady, o.conn, o.hadPeer], u.err, u.olbusy, u.screen]);
+    if (sig === lastSig) return;
+    var ae = document.activeElement; if (ae && ae.closest && ae.closest('#ctl') && ae.tagName === 'INPUT') return;   // กำลังพิมพ์อยู่ ไม่วาดทับ
+    lastSig = sig; S.inGame = u.screen === 'game'; refreshCtl();
+  }, 500);
+  document.addEventListener('input', function (e) {
+    var G = game(); if (!G) return;
+    if (e.target.id === 'olname') { G.ui.pname = e.target.value; try { localStorage.setItem('af-pname', G.ui.pname); } catch (er) { } }
+    if (e.target.id === 'olcode') { e.target.value = e.target.value.toUpperCase(); G.ui.olcode = e.target.value; }
+  });
+  function olAct(act) {
+    var G = game(), W = window.parent; if (!G) return; var u = G.ui;
+    if (act === 'olcreate') { u.cfg.mode = 'online'; G.saveCfg(); W.olCreate(); }
+    else if (act === 'oljoin') { u.cfg.mode = 'online'; G.saveCfg(); W.olJoin(u.olcode); }
+    else if (act === 'olready') W.olReady();
+    else if (act === 'olleave') { W.olLeave(true); u.err = ''; lastSig = ''; refreshCtl(); }
+    else if (act === 'olcopy') {
+      var inp = $('ollink'), btn = document.querySelector('[data-act="olcopy"]'), ok = false;
+      try { if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(inp.value).catch(function () { }); ok = true; } } catch (er) { }
+      if (!ok) { inp.select(); try { ok = document.execCommand('copy'); } catch (er) { } }
+      if (btn) btn.textContent = ok ? 'คัดลอกแล้ว' : 'กดคัดลอกเอง';
+    }
+    lastSig = '';
+  }
+
+  /* ---------- ตั้งค่าแมตช์ (เด็คของทั้งสองฝั่ง · ใครเล่นก่อน) เป็นหน้าต่างบน Home ---------- */
+  function openMatch() {
+    var G = game(); if (!G) { toast('ระบบเกมยังโหลดไม่เสร็จ ลองอีกครั้ง', true); return; }
+    try { G.ui.my = window.parent.loadMy(); G.ui.cfg.mode = S.mode === 'online' ? 'online' : (G.ui.cfg.mode === 'online' ? 'bot' : G.ui.cfg.mode); } catch (e) { }
+    var dlg = openDlg('', function () { show('home'); });
+    var draw = function () {
+      var u = G.ui, c = u.cfg, all = G.allDecks(), top = dlg.scrollTop;
+      var row = function (d, p) {
+        var av = S.byId && S.byId[String(d.avatar || '').toLowerCase()], errs = G.deckErrors(d.key), on = c.sel[p] === d.key;
+        return '<button type="button" class="drow' + (on ? ' on' : '') + '" data-pick="' + p + '" data-k="' + esc(d.key) + '"><span class="th">' + (av ? pic(av) : '') + '</span><span class="tx"><b>' + esc(d.name) + '</b><small>' + (d.preset ? esc(d.series || 'เด็คตัวอย่าง') + ' · ตัวอย่างฟรี' : 'เด็คของฉัน') + '</small></span><span class="' + (errs.length ? 'warn' : 'ok') + '">' + (errs.length ? '⚠ ' + esc(errs[0].length > 46 ? errs[0].slice(0, 46) + '…' : errs[0]) : '✓ พร้อมเล่น') + '</span></button>';
+      };
+      var mine = all.filter(function (d) { return !d.preset; }), pre = all.filter(function (d) { return d.preset; });
+      var list = function (p) { return (mine.length ? '<div class="dgrp">เด็คของฉัน</div>' + mine.map(function (d) { return row(d, p); }).join('') : '') + '<div class="dgrp">เด็คตัวอย่าง (ใช้ฟรี)</div>' + pre.map(function (d) { return row(d, p); }).join(''); };
+      var two = S.mode !== 'online';
+      dlg.innerHTML = '<button type="button" class="x" aria-label="ปิด">✕</button><h2>ตั้งค่าแมตช์</h2><p class="mut" style="margin:0 40px 6px 0">' + (S.mode === 'online' ? 'เลือกเด็คของคุณสำหรับห้องออนไลน์' : 'เลือกเด็คของทั้งสองฝั่งและใครเล่นก่อน · กด PLAY ที่ Home เพื่อเริ่มได้ทันที') + '</p>' +
+        '<div class="mgrid"><section><h3>' + (S.mode === 'bot' ? 'เด็คของคุณ' : S.mode === 'hot' ? 'เด็คผู้เล่น 1' : 'เด็คของคุณ') + '</h3><div class="dlist">' + list(0) + '</div></section>' +
+        (two ? '<section><h3>' + (S.mode === 'bot' ? 'เด็คบอท' : 'เด็คผู้เล่น 2') + '</h3><button type="button" class="btn sm' + (c.picked1 ? '' : ' pri') + '" data-rand="1">🎲 สุ่มเด็คตัวอย่างทุกครั้ง</button><div class="dlist">' + list(1) + '</div></section>' : '') + '</div>' +
+        (two ? '<div class="srow2"><b>ใครเล่นก่อน</b>' + [['random', 'สุ่ม'], ['0', 'ผู้เล่น 1'], ['1', 'ผู้เล่น 2']].map(function (f) { return '<button type="button" class="btn sm' + (String(c.first) === f[0] ? ' pri' : '') + '" data-first="' + f[0] + '">' + f[1] + '</button>'; }).join('') + '</div>' : '') +
+        '<div class="acts3"><button type="button" class="btn pri" data-mclose="1">เสร็จสิ้น</button></div>';
+      dlg.scrollTop = top;
+    };
+    dlg.onclick = function (e) {
+      var G2 = game(), c = G2.ui.cfg, t = e.target;
+      if (t.closest('.x') || t.closest('[data-mclose]')) { closeDlg(); return; }
+      var pk = t.closest('[data-pick]'); if (pk) { c.sel[+pk.dataset.pick] = pk.dataset.k; c['picked' + pk.dataset.pick] = true; G2.saveCfg(); draw(); return; }
+      if (t.closest('[data-rand]')) { c.picked1 = false; G2.saveCfg(); draw(); return; }
+      var f = t.closest('[data-first]'); if (f) { c.first = f.dataset.first; G2.saveCfg(); draw(); }
+    };
+    draw();
   }
 
   /* ---------- ร้านค้า ---------- */
@@ -258,6 +353,9 @@
     var vb = t.closest('[data-view]'); if (vb) { show(vb.dataset.view); return; }
     var md = t.closest('[data-mode]'); if (md) {
       S.mode = md.dataset.mode; try { localStorage.setItem('af-lobby-mode', S.mode); } catch (er) { }
+      var G = game(); if (G) { if (S.mode !== 'online' && G.ui.ol) window.parent.olLeave(true); G.ui.cfg.mode = S.mode === 'online' ? 'online' : (G.ui.cfg.mode === 'online' ? 'bot' : G.ui.cfg.mode); G.saveCfg(); G.ui.err = ''; }
+      var mn = (MODES.filter(function (m) { return m[0] === S.mode; })[0] || MODES[0])[1]; if (S.mode !== 'online') S.hint = 'กด PLAY เพื่อเริ่ม ' + mn + ' ทันที';
+      lastSig = ''; refreshCtl();
       Array.prototype.forEach.call(document.querySelectorAll('.mode'), function (b) { var on = b === md; b.classList.toggle('on', on); b.setAttribute('aria-selected', on); });
       return;
     }
@@ -271,7 +369,8 @@
       S.qty[id] = q; item.querySelector('[data-q]').textContent = q; item.querySelector('[data-total]').textContent = fmt(it.price * q); refreshBuyState();
     } else if (a.dataset.act === 'buy') buy(id, a);
     else if (a.dataset.act === 'play') launch(null);
-    else if (a.dataset.act === 'setup') openSetup();
+    else if (a.dataset.act === 'setup') openMatch();
+    else if (/^ol/.test(a.dataset.act)) olAct(a.dataset.act);
     else if (a.dataset.act === 'resume') go('play');
     else if (a.dataset.act === 'playdeck') launch(a.dataset.deck);
     else if (a.dataset.act === 'daily') { a.disabled = true; api('POST', '/api/me/daily').then(function (r) { setCoins(r.coins); toast('🎁 ได้รับ ' + r.amount + ' เหรียญ!'); show('home'); }).catch(function (er) { toast(er.message, true); a.disabled = false; }); }
