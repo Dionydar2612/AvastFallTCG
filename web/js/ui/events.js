@@ -63,7 +63,7 @@ root.addEventListener('mouseout',e=>{if(popPin)return;const el=e.target.closest(
 root.addEventListener('click',e=>{
   hidePop();
   const a=e.target.closest('[data-act]');
-  if(a)return handle(a.dataset.act,a.dataset,a,e);
+  if(a){if(ui.gmenu&&a.dataset.act!=='gmenu')ui.gmenu=false;return handle(a.dataset.act,a.dataset,a,e)}
   const pdf=e.target.closest('[data-pdef]');if(pdf&&!e.target.closest('[data-act]')){showPop(pdefCard(pdf.dataset.pdef),pdf,false,true);popPin=true;return}
   const pp=e.target.closest('[data-pop]');if(pp){const c=cardMap()[+pp.dataset.pop];if(c)showPop(c,pp,false);popPin=true;return}
   const z=e.target.closest('[data-zone]');
@@ -75,7 +75,7 @@ root.addEventListener('click',e=>{
     if(z.dataset.zone==='discard'){ui.modal={t:'discard',p};ui.menu=null;return render()}
     if(z.dataset.zone==='deck'){ui.modal={t:'pile',p};return render()}
   }
-  if(ui.menu){ui.menu=null;render()}
+  if(ui.menu||ui.gmenu){ui.menu=null;ui.gmenu=false;render()}
 });
 function handle(act,d,el,e){
   const G=ui.G;const pd=pdOf();
@@ -104,6 +104,9 @@ function handle(act,d,el,e){
     case 'restart':return startGame();
     case 'tosetup':olLeave(true);ui.token++;ui.screen='setup';ui.page='play';DATA.applyPending();fixSelections();ui.pending=null;ui.over=null;ui.modal=null;render();return AFSite.go('home');   // จบเกม → กลับ Home
     case 'tab':ui.tab=d.v;return render();
+    case 'gmenu':ui.gmenu=!ui.gmenu;return render();
+    case 'panel':ui.showPanel=!ui.showPanel;return render();
+    case 'gohome':ui.showPanel=false;render();return AFSite.go('home');
     case 'settings':ui.settings=true;return render();
     case 'pref':{if(d.k==='speed'){ui.cfg.speed=+d.v;saveCfg()}else{prefs[d.k]=d.v==='1';applyPrefs();if(d.k==='hover')hidePop()}return render()}
     case 'closesettings':ui.settings=false;return render();

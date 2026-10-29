@@ -13,7 +13,7 @@ function startGame(){
   const io=[0,1].map(p=>c.mode==='hot'||(c.mode==='bot'&&p===humanIdx)?mkHuman(p):AF.makeBot({delay}));
   const names=c.mode==='bot'?['คุณ','บอท']:c.mode==='hot'?['ผู้เล่น 1','ผู้เล่น 2']:['บอท A','บอท B'];
   const G=AF.createGame({decks:[deckOf(0),deckOf(1)],io,names,first:c.first==='random'?undefined:+c.first,refresh:scheduleRender});
-  Object.assign(ui,{G,screen:'game',pending:null,viewer:humanIdx??0,inspect:null,sel:null,menu:null,modal:null,cover:null,seen:0,over:null,tab:'card',peek:false,toast:''});
+  Object.assign(ui,{G,screen:'game',pending:null,viewer:humanIdx??0,inspect:null,sel:null,menu:null,modal:null,cover:null,seen:0,over:null,tab:'card',peek:false,toast:'',gmenu:false,showPanel:false});
   render();
   AF.runGame(G,120).then(r=>{if(ui.token===token){ui.over=r;ui.pending=null;render()}}).catch(e=>{console.error(e);if(ui.token===token){ui.err='เกิดข้อผิดพลาดในระบบ: '+e.message;ui.over={winner:null,reason:ui.err};render()}});
 }
@@ -151,13 +151,15 @@ function panelHTML(){
   if(ui.tab==='card')body=inspectorHTML(ui.inspect&&cardMap()[ui.inspect.uid]);
   else if(ui.tab==='log')body=`<div style="display:flex;justify-content:flex-end;margin-bottom:8px"><button class="btn sm" data-act="dllog">⬇ ดาวน์โหลด Log Battle</button></div><div class="log">${G.log.map(l=>`<div class="${l.extra&&l.extra.divider?'div':'p'+(l.p===null?'':l.p)}">${esc(l.text)}</div>`).join('')}</div>`;
   else body=rulesHTML(true);
-  return `<aside class="panel"><div class="tabs">${tabs.map(([k,l])=>`<button class="${ui.tab===k?'on':''}" data-act="tab" data-v="${k}">${l}</button>`).join('')}</div><div class="pbody">${body}</div></aside>`;
+  return `<aside class="panel ${ui.showPanel?'show':''}"><button class="btn sm pclose" data-act="panel">✕ ปิด</button><div class="tabs">${tabs.map(([k,l])=>`<button class="${ui.tab===k?'on':''}" data-act="tab" data-v="${k}">${l}</button>`).join('')}</div><div class="pbody">${body}</div></aside>`;
 }
 function gameHTML(){
   const G=ui.G;const fresh=freshLog();const v=ui.viewer;
   if(ui.cover!==null)return `<div class="cover"><div style="display:grid;gap:14px;justify-items:center"><h1>ส่งอุปกรณ์ให้ ${esc(G.players[ui.cover].name)}</h1><p>ให้ผู้เล่นอีกฝั่งหันหน้าหนี แล้วกดเมื่อพร้อม</p><button class="btn" data-act="ready">พร้อมแล้ว</button></div></div>`;
   const opp=1-v;
-  return `<div class="top"><span class="pill">เทิร์น ${G.turn}</span>${phaseBar()}<span class="spacer"></span><button class="btn sm" data-act="settings">⚙ ตั้งค่า</button><button class="btn sm" data-act="help">กติกา</button>${ui.cfg.mode==="online"?"":`<button class="btn sm" data-act="restart">เริ่มใหม่</button>`}<button class="btn sm" data-act="surrender">ยอมแพ้</button></div>
+  const btns=`<button class="btn sm" data-act="settings">⚙ ตั้งค่า</button><button class="btn sm" data-act="help">กติกา</button>${ui.cfg.mode==="online"?"":`<button class="btn sm" data-act="restart">เริ่มใหม่</button>`}<button class="btn sm" data-act="surrender">ยอมแพ้</button>`;
+  return `<div class="top"><button class="btn sm home" data-act="gohome" title="ไปหน้า Home (เกมยังค้างอยู่ กลับมาเล่นต่อได้)">⌂ Home</button><span class="pill">เทิร์น ${G.turn}</span>${phaseBar()}<span class="spacer"></span><button class="btn sm narrowonly" data-act="panel">📋 การ์ด/บันทึก</button><span class="tbtns">${btns}</span><button class="btn sm onlym" data-act="gmenu" aria-label="เมนู">☰ เมนู</button></div>
+  ${ui.gmenu?`<div class="gmenu"><button class="btn" data-act="panel">📋 การ์ด · บันทึก · กติกา</button><button class="btn" data-act="settings">⚙ ตั้งค่า</button><button class="btn" data-act="help">📖 กติกาโดยย่อ</button>${ui.cfg.mode==="online"?"":`<button class="btn" data-act="restart">↻ เริ่มใหม่</button>`}<button class="btn" data-act="surrender">🏳 ยอมแพ้</button><button class="btn" data-act="gohome">⌂ ไปหน้า Home</button></div>`:''}
   <div class="game" data-ph="${pdOf()&&pdOf().kind||''}"><main style="min-width:0">${sideHTML(opp,true,fresh)}${chainHTML()}${barHTML()}${sideHTML(v,false,fresh)}${handHTML()}</main>${panelHTML()}</div>
   ${ui.menu?menuHTML():''}${ui.over?overHTML():''}${pendingModalHTML()}${ui.modal?modalHTML():''}${ui.settings?settingsHTML():''}`;
 }

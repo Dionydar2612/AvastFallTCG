@@ -5,20 +5,24 @@ let raf=0;
 function scheduleRender(){if(raf)return;raf=requestAnimationFrame(()=>{raf=0;render()})}
 function fitLayout(){
   const de=document.documentElement;
-  if(!de.classList.contains('fit')||innerWidth<=1050){de.style.removeProperty('--cwb');return}
+  if(!de.classList.contains('fit')){de.style.removeProperty('--cwb');return}
   const main=document.querySelector('.game main');if(!main)return;
-  const top=main.getBoundingClientRect().top+scrollY;
-  const W=innerWidth/((ui.scale||100)/100);   // ความกว้างจริงในหน่วยหลัง zoom
-  let hi=Math.min(82,W*.054,(W-726)/7.2),lo=26;
-  const ok=x=>{de.style.setProperty('--cwb',x+'px');return main.getBoundingClientRect().bottom+scrollY<=innerHeight-8};
+  const z=(ui.scale||100)/100;
+  /* มือถือ: ถ้ากระดานล้นจอครั้งแรก เบราว์เซอร์จะขยาย viewport ออก (innerWidth/Height โตเกินจอจริง) → จำกัดด้วยขนาดจอจริงเสมอ */
+  const IW=Math.min(innerWidth,screen.width||innerWidth),IH=Math.min(innerHeight,screen.height||innerHeight);
+  const W=IW/z;   // ความกว้างจริงในหน่วยหลัง zoom
+  const wide=IW>1050;
+  /* จอกว้าง: เหลือที่ให้แผงข้าง 340px · มือถือ/แท็บเล็ต: แผงข้างซ่อน (เปิดเป็นแผ่นจากปุ่มเมนู) กระดานใช้เต็มความกว้าง */
+  let hi=wide?Math.min(82,W*.054,(W-726)/7.2):Math.min(70,(W-84)/7.4),lo=wide?26:16;
+  const ok=x=>{de.style.setProperty('--cwb',x+'px');return main.getBoundingClientRect().bottom+scrollY<=IH-8&&main.scrollWidth<=main.clientWidth+1};
   if(hi<=lo){de.style.setProperty('--cwb',lo+'px');return}
   if(ok(hi))return;
-  for(let i=0;i<7;i++){const m=(hi+lo)/2;if(ok(m))lo=m;else hi=m}
+  for(let i=0;i<8;i++){const m=(hi+lo)/2;if(ok(m))lo=m;else hi=m}
   de.style.setProperty('--cwb',lo+'px');
 }
 addEventListener('resize',()=>{if(ui.screen==='game')fitLayout()});
 function render(){
-  document.documentElement.classList.toggle('fit',ui.screen==='game');
+  document.documentElement.classList.toggle('fit',ui.screen==='game');document.documentElement.classList.toggle('ingame',ui.screen==='game');
   const keep=document.querySelector('.log');const atBottom=keep?keep.scrollTop+keep.clientHeight>=keep.scrollHeight-30:true;const ps=document.querySelector('.pbody');const pst=ps?ps.scrollTop:0;
   const ovs=document.querySelector('.ov .list');const ovt=ovs?ovs.scrollTop:0;
   const ks={};document.querySelectorAll('[data-ks]').forEach(e=>ks[e.dataset.ks]=e.scrollTop);
