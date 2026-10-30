@@ -155,6 +155,7 @@ Set these in your shell or deployment provider. Do not place real secrets in sou
 | `ADMIN_SECRET` | Optional session-signing secret for legacy/admin functionality where applicable. Keep private. |
 | `RESEND_API_KEY` | Optional Resend API key for email notifications. If omitted, email notifications are not sent. |
 | `NOTIFY_EMAIL` | Optional recipient for feedback notification emails. |
+| `AUDIT_KEEP_DAYS` | Optional. Days to keep rows in `audit_logs` (default `30`). |
 | `MAIL_FROM` | Optional sender address for feedback notification emails. |
 
 **Important:** `SUPABASE_SERVICE_ROLE_KEY` bypasses RLS. It must be configured only as a server-side secret. Never use it in frontend JavaScript, public HTML, or a `VITE_*`/other client-exposed variable.
@@ -200,6 +201,13 @@ The exact fields accepted by the importer are defined by the current application
 ### Card effects
 
 The simulator’s game engine is located in `web/js/engine/`. Card-specific effect scripts are grouped in `web/js/effects/`, while card data and snapshot support are in `web/js/data/`. When card text changes, verify whether the actual in-game behavior must also change. Update the relevant effect script when behavior changes, and keep snapshot/card metadata synchronized with the intended card text.
+
+## Online status and activity logs
+
+- **Online now:** every open game/catalogue/admin tab sends a heartbeat (`POST /api/presence`) about every 40 seconds while visible. A user counts as online if seen within ~100 seconds. Admins see this on the dashboard and in the Users tab (`profiles.last_seen_at`, `profiles.last_page`).
+- **Activity log:** logins, failed logins, sign-ups, purchases and every admin change are stored in `audit_logs` (Admin → บันทึกกิจกรรม). Passwords and tokens are never stored.
+- **JSON logs on stdout:** every request and audit event is also printed as one JSON line, ready to be shipped to an external log tool.
+- Re-run `supabase/schema.sql` once after updating (adds the new columns and table; safe to re-run).
 
 ## Update Notes and player feedback
 

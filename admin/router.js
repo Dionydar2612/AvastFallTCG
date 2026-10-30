@@ -36,6 +36,7 @@ api.use((req, res, next) => {
   next();
 });
 api.use(auth.sameOrigin);
+api.use(require("../lib/log").auditMutations);   // ทุกการแก้ไขของแอดมิน (การ์ด, ราคา, เหรียญ, สิทธิ์, นำเข้า, กู้คืน) ลง audit_logs
 api.use(me.adminRouter);                          // /users · /shop
 
 api.get("/cards", (_req, res) => res.json({ data: S.cards, decks: S.decks, elements: Object.keys(S.elements) }));

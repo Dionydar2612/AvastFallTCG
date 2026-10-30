@@ -25,7 +25,14 @@ button:disabled{opacity:.4;cursor:not-allowed}button.del{border-color:var(--bad)
 .tbl th{font-size:.8rem;color:var(--mut);text-transform:uppercase;letter-spacing:.04em}
 .tbl th,.tbl td{border-bottom:1px solid var(--soft);padding:8px 10px;text-align:left;vertical-align:middle;white-space:nowrap}
 .tbl tbody tr:hover td{background:var(--pap)}
-.tbl td input{width:100%;min-width:70px;padding:3px 6px}
+.tbl td input:not([type=checkbox]):not([type=radio]){width:100%;min-width:70px;padding:3px 6px}
+.tbl td input[type=checkbox]{width:18px;height:18px;min-width:0;padding:0;margin:0;flex:none;accent-color:var(--ink)}
+.chk{display:inline-flex;align-items:center;gap:8px;cursor:pointer;white-space:nowrap}
+.tbl td:last-child{text-align:right}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:#9aa0a6;margin-right:6px;vertical-align:baseline}.dot.on{background:var(--ok);box-shadow:0 0 0 3px rgba(26,127,55,.25)}
+.onl{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}.onl span{display:inline-flex;align-items:center;gap:6px;border:2px solid var(--ink);border-radius:99px;padding:2px 12px;background:var(--pap);font-weight:700}.onl small{font-weight:400;color:var(--mut)}
+.logd{max-width:360px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:12px/1.4 ui-monospace,Menlo,Consolas,monospace;color:var(--mut)}
+.st-ok{color:var(--ok);font-weight:700}.st-bad{color:var(--bad);font-weight:700}
 .map{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:8px 16px}
 .map label{display:flex;flex-direction:column;font-size:.85rem;font-weight:700}.map select{width:100%;font-weight:400}
 .req::after{content:" *";color:var(--bad)}
@@ -106,6 +113,7 @@ button.rar{border-color:#1b4aa8;color:#1b4aa8}
       <button data-t="shop"><span class="ic">🛒</span>ร้านค้า</button>
       <div class="grp">ระบบ</div>
       <button data-t="notes"><span class="ic">📣</span>Update Note</button>
+      <button data-t="logs"><span class="ic">🧾</span>บันทึกกิจกรรม</button>
       <button data-t="backups"><span class="ic">💾</span>สำรอง / กู้คืน</button>
     </nav>
     <div class="foot"><b id="whoami"></b><span>แอดมิน</span><br><a href="/">← กลับไปเล่น</a><button id="logout">ออกจากระบบ</button></div>
@@ -114,6 +122,7 @@ button.rar{border-color:#1b4aa8;color:#1b4aa8}
   <section id="t-dash">
     <div class="pagehead"><h1>แดชบอร์ด</h1><p>ภาพรวมของเกมตอนนี้ — กดการ์ดด้านล่างเพื่อไปทำงานต่อได้เลย</p></div>
     <div class="cards4" id="dashStats"><div class="stat"><span>กำลังโหลด…</span></div></div>
+    <div class="box"><h2>🟢 ออนไลน์ตอนนี้ <span id="onlCnt" class="mut"></span></h2><div id="onlList" class="onl mut">กำลังโหลด…</div></div>
     <div class="box"><h2>ทางลัด</h2><div class="quick">
       <button data-go="single"><span class="ic">＋</span><span>เพิ่มการ์ดใหม่<small>กรอกทีละใบ ตรวจก่อนบันทึก</small></span></button>
       <button data-go="import"><span class="ic">📥</span><span>นำเข้าจาก Excel<small>เพิ่มทีละหลายใบพร้อมรูป</small></span></button>
@@ -242,7 +251,15 @@ button.rar{border-color:#1b4aa8;color:#1b4aa8}
     <p class="mut">ผู้ใช้ทั้งหมดที่สมัครผ่านหน้าเว็บ · ทุกคนเริ่มเป็น <b>ผู้เล่น</b> — ปรับเหรียญหรือตั้งเป็นแอดมินได้ที่นี่ (กดบันทึกท้ายแถว)</p>
     <div class="tools"><input id="userQ" type="search" placeholder="ค้นหาชื่อผู้ใช้ / อีเมล"><span id="userCnt" class="mut"></span></div>
     <div id="userMsg" class="msg" hidden></div>
-    <table class="tbl"><thead><tr><th>ชื่อผู้ใช้</th><th>อีเมล</th><th>สิทธิ์</th><th>เหรียญ</th><th>สมัครเมื่อ</th><th></th></tr></thead><tbody id="userRows"></tbody></table>
+    <table class="tbl"><thead><tr><th>สถานะ</th><th>ชื่อผู้ใช้</th><th>อีเมล</th><th>สิทธิ์</th><th>เหรียญ</th><th>สมัครเมื่อ</th><th></th></tr></thead><tbody id="userRows"></tbody></table>
+  </section>
+
+  <section id="t-logs" class="box" hidden>
+    <h2>บันทึกกิจกรรม</h2>
+    <p class="mut">ล็อกอิน · สมัคร · ซื้อของ · การแก้ไขของแอดมิน (เก็บ 30 วัน, ไม่เก็บรหัสผ่าน) · ทุกเหตุการณ์ออกทาง stdout เป็น JSON ด้วย เพื่อส่งต่อไปเครื่องมือ log ภายนอก</p>
+    <div class="tools"><input id="logQ" type="search" placeholder="ค้นหาชื่อผู้ใช้ / การกระทำ เช่น login, shop, users"><button id="logReload">โหลดใหม่</button><span id="logCnt" class="mut"></span></div>
+    <div id="logMsg" class="msg" hidden></div>
+    <table class="tbl"><thead><tr><th>เวลา</th><th>ผู้ใช้</th><th>การกระทำ</th><th>ผล</th><th>IP</th><th>รายละเอียด</th></tr></thead><tbody id="logRows"></tbody></table>
   </section>
 
   <section id="t-shop" class="box" hidden>
@@ -294,16 +311,28 @@ function showLogin(info){show($("app"),false);show($("login"));$("loginInfo").te
 $("logout").onclick=async()=>{await fetch("/api/auth/logout",{method:"POST",credentials:"same-origin"});location.href="/"};
 
 /* ---------- tabs ---------- */
-const TABS=["dash","import","single","cards","decks","images","notes","users","shop","backups"];
+const TABS=["dash","import","single","cards","decks","images","notes","users","shop","logs","backups"];
 function openTab(t){
   [...$("tabs").querySelectorAll("button")].forEach(x=>x.classList.toggle("on",x.dataset.t===t));
   TABS.forEach(x=>show($("t-"+x),x===t));
-  if(t==="backups")loadBackups();else if(t==="notes")loadNotes();else if(t==="users")loadUsers();else if(t==="shop")loadShop();else if(t==="dash")loadDash();else if(t!=="import")loadAll();
+  if(t==="backups")loadBackups();else if(t==="notes")loadNotes();else if(t==="users")loadUsers();else if(t==="shop")loadShop();else if(t==="logs")loadLogs();else if(t==="dash")loadDash();else if(t!=="import")loadAll();
   scrollTo(0,0);
 }
 $("tabs").onclick=e=>{const b=e.target.closest("button");if(b)openTab(b.dataset.t)};
 document.addEventListener("click",e=>{const g=e.target.closest("[data-go]");if(g)openTab(g.dataset.go)});
+const PAGE_TH={game:"เกม",cards:"การ์ด/เด็ค",admin:"หลังบ้าน"};
+const ago=iso=>{if(!iso)return"ยังไม่เคยเข้า";const s=Math.max(0,(Date.now()-new Date(iso))/1000);return s<60?"เมื่อครู่":s<3600?Math.floor(s/60)+" นาทีที่แล้ว":s<86400?Math.floor(s/3600)+" ชม.ที่แล้ว":Math.floor(s/86400)+" วันที่แล้ว"};
+async function loadOnline(){
+  try{
+    const j=await api("/online");
+    $("onlCnt").textContent=j.enabled===false?"":`· ${j.count} คน`;
+    $("onlList").className="onl"+(j.count?"":" mut");
+    $("onlList").innerHTML=j.enabled===false?"ยังไม่ได้รัน supabase/schema.sql ใหม่ (ต้องมีคอลัมน์ last_seen_at)":j.count?j.data.map(u=>`<span><i class="dot on"></i>${esc(u.username)}${u.role==="admin"?" 👑":""} <small>${esc(PAGE_TH[u.last_page]||"เกม")} · ${esc(ago(u.last_seen_at))}</small></span>`).join(""):"ตอนนี้ไม่มีใครออนไลน์";
+  }catch(e){$("onlList").textContent=e.message}
+}
+setInterval(()=>{if(!$("t-dash").hidden&&document.visibilityState==="visible")loadOnline()},30000);
 async function loadDash(){
+  loadOnline();
   try{
     const j=await api("/stats"),n=v=>Number(v).toLocaleString("th-TH");
     $("dashStats").innerHTML=[["ผู้ใช้ทั้งหมด",n(j.users),`แอดมิน ${j.admins} · สมัครใหม่ 7 วัน ${j.newUsers7d}`],["การ์ดในระบบ",n(j.cards),`${j.sets} ซีรีส์/เด็ค`],["ยังไม่มีรูป",n(j.noImage),j.noImage?"ไปแท็บรูปภาพเพื่ออัปโหลด":"ครบทุกใบ 🎉",j.noImage?"warnc":""],["สินค้าวางขาย",`${j.shopActive}/${j.shopTotal}`,"ซองการ์ด · Starter Deck"],["ยอดซื้อทั้งหมด",n(j.purchases),`ใช้เหรียญไปแล้ว ${n(j.spent)}`],["เหรียญในระบบ",n(j.coinsTotal),"รวมของผู้เล่นทุกคน"]]
@@ -606,16 +635,17 @@ resetNoteForm();
 
 /* ---------- ผู้ใช้ / ร้านค้า ---------- */
 const flash=(id,msg,bad)=>{const el=$(id);el.textContent=msg;el.className="msg "+(bad?"bad":"ok");show(el);setTimeout(()=>show(el,false),3500)};
-let USERS=[];
+let USERS=[],ONL_MS=100000;
+const statusOf=u=>u.last_seen_at&&Date.now()-new Date(u.last_seen_at)<ONL_MS?`<span class="st-ok"><i class="dot on"></i>ออนไลน์</span>`:`<span class="mut"><i class="dot"></i>${esc(ago(u.last_seen_at))}</span>`;
 async function loadUsers(){
-  const j=await api("/users");USERS=j.data;drawUsers()}
+  const j=await api("/users");USERS=j.data;ONL_MS=j.onlineWindowMs||ONL_MS;drawUsers()}
 function drawUsers(){
   const q=($("userQ").value||"").trim().toLowerCase(),j={data:USERS.filter(u=>!q||(u.username+" "+u.email).toLowerCase().includes(q))};
-  $("userCnt").textContent=`${j.data.length}/${USERS.length} คน`;
-  $("userRows").innerHTML=j.data.map(u=>`<tr data-id="${esc(u.id)}"><td><b>${esc(u.username)}</b></td><td>${esc(u.email)}</td>
+  const nOn=USERS.filter(u=>u.last_seen_at&&Date.now()-new Date(u.last_seen_at)<ONL_MS).length;$("userCnt").textContent=`${j.data.length}/${USERS.length} คน · ออนไลน์ ${nOn}`;
+  $("userRows").innerHTML=j.data.map(u=>`<tr data-id="${esc(u.id)}"><td>${statusOf(u)}</td><td><b>${esc(u.username)}</b></td><td>${esc(u.email)}</td>
     <td><select class="u-role"><option value="user"${u.role==="user"?" selected":""}>ผู้เล่น (user)</option><option value="admin"${u.role==="admin"?" selected":""}>แอดมิน (admin)</option></select></td>
     <td><input class="u-coins" type="number" min="0" step="10" value="${u.coins|0}" style="width:110px"></td>
-    <td class="mut">${esc(new Date(u.created_at).toLocaleDateString("th-TH"))}</td><td><button class="u-save">บันทึก</button></td></tr>`).join("")||'<tr><td colspan="6" class="mut">ยังไม่มีผู้ใช้</td></tr>';
+    <td class="mut">${esc(new Date(u.created_at).toLocaleDateString("th-TH"))}</td><td><button class="u-save">บันทึก</button></td></tr>`).join("")||'<tr><td colspan="7" class="mut">ยังไม่มีผู้ใช้</td></tr>';
 }
 $("userQ").oninput=drawUsers;
 $("userRows").onclick=async e=>{const b=e.target.closest(".u-save");if(!b)return;const tr=b.closest("tr");
@@ -627,11 +657,24 @@ async function loadShop(){
   const j=await api("/shop");
   $("shopRows").innerHTML=j.data.map(i=>`<tr data-id="${esc(i.id)}"><td><b>${esc(i.name)}</b><div class="mut">${esc(i.id)}</div></td><td>${i.kind==="pack"?"ซองการ์ด":"Starter Deck"}</td>
     <td><input class="s-price" type="number" min="0" step="10" value="${i.price|0}" style="width:110px"></td>
-    <td><label><input class="s-active" type="checkbox"${i.active?" checked":""}> วางขาย</label></td><td><button class="s-save">บันทึก</button></td></tr>`).join("")||'<tr><td colspan="5" class="mut">ยังไม่มีสินค้า (จะสร้างให้อัตโนมัติจากชุดการ์ด BT…/SD…)</td></tr>';
+    <td><label class="chk"><input class="s-active" type="checkbox"${i.active?" checked":""}> วางขาย</label></td><td><button class="s-save">บันทึก</button></td></tr>`).join("")||'<tr><td colspan="5" class="mut">ยังไม่มีสินค้า (จะสร้างให้อัตโนมัติจากชุดการ์ด BT…/SD…)</td></tr>';
 }
 $("shopRows").onclick=async e=>{const b=e.target.closest(".s-save");if(!b)return;const tr=b.closest("tr");
   try{await api("/shop/"+tr.dataset.id,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({price:tr.querySelector(".s-price").value,active:tr.querySelector(".s-active").checked})});flash("shopMsg","บันทึกแล้ว")}
   catch(err){flash("shopMsg",err.message,true)}};
+
+async function loadLogs(){
+  try{
+    const q=encodeURIComponent($("logQ").value.trim()),j=await api("/logs?limit=200&q="+q);
+    $("logCnt").textContent=`${j.data.length} รายการล่าสุด`;
+    if(j.missing){$("logRows").innerHTML='<tr><td colspan="6" class="mut">ยังไม่มีตาราง audit_logs — รัน supabase/schema.sql ใหม่ใน Supabase SQL Editor</td></tr>';return}
+    $("logRows").innerHTML=j.data.map(r=>{const d=r.detail?JSON.stringify(r.detail):"";return `<tr><td class="mut">${esc(new Date(r.at).toLocaleString("th-TH"))}</td><td><b>${esc(r.username||"-")}</b></td><td>${esc(r.action)}</td><td class="${r.status>=400?"st-bad":"st-ok"}">${esc(r.status??"")}</td><td class="mut">${esc(r.ip||"")}</td><td class="logd" title="${esc(d)}">${esc(d)}</td></tr>`}).join("")||'<tr><td colspan="6" class="mut">ยังไม่มีบันทึก</td></tr>';
+  }catch(e){flash("logMsg",e.message,true)}
+}
+let logT=0;$("logQ").oninput=()=>{clearTimeout(logT);logT=setTimeout(loadLogs,350)};$("logReload").onclick=loadLogs;
+// แอดมินเองก็นับว่าออนไลน์ (ส่ง ping ทุก 40 วินาทีตอนแท็บมองเห็นอยู่)
+const beat=()=>{if(document.visibilityState==="visible")fetch("/api/presence",{method:"POST",credentials:"same-origin",headers:{"Content-Type":"application/json"},body:JSON.stringify({page:"admin"})}).catch(()=>{})};
+beat();setInterval(beat,40000);
 
 start();
 </script></main></body></html>

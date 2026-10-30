@@ -1,6 +1,6 @@
 // สแตนด์อินของ @supabase/supabase-js สำหรับทดสอบในเครื่อง (ตารางในหน่วยความจำ) — ใช้: node -r ./test/fake-supabase.js server.js
 const Module = require("module"), crypto = require("crypto");
-const PK = { cards: ["id"], card_sets: ["id"], elements: ["name"], card_backups: ["id"], profiles: ["id"], user_decks: ["user_id", "deck_id"], user_cards: ["user_id", "card_id"], shop_items: ["id"], purchases: ["id"], update_notes: ["id"], app_meta: ["key"] };
+const PK = { cards: ["id"], card_sets: ["id"], elements: ["name"], card_backups: ["id"], profiles: ["id"], user_decks: ["user_id", "deck_id"], user_cards: ["user_id", "card_id"], shop_items: ["id"], purchases: ["id"], update_notes: ["id"], app_meta: ["key"], audit_logs: ["id"] };
 const T = {}; const tbl = (n) => (T[n] = T[n] || []); let ident = 1;
 const users = new Map(), tokens = new Map();   // email -> {id,email,password,meta} · token -> user
 const mkSession = (u) => { const at = "at_" + crypto.randomUUID(), rt = "rt_" + crypto.randomUUID(); tokens.set(at, u); tokens.set(rt, u); return { access_token: at, refresh_token: rt, expires_in: 3600, user: pub(u) }; };
@@ -14,6 +14,9 @@ class Q {
   update(r) { this.op = "update"; this.body = r; return this; }
   delete() { this.op = "delete"; return this; }
   eq(c, v) { this.f.push((r) => r[c] === v); return this; }
+  gte(c, v) { this.f.push((r) => r[c] != null && r[c] >= v); return this; }
+  lt(c, v) { this.f.push((r) => r[c] != null && r[c] < v); return this; }
+  or(expr) { const ps = String(expr).split(",").map((e) => e.match(/^(\w+)\.ilike\.%(.*)%$/)).filter(Boolean); this.f.push((r) => ps.some(([, c, v]) => String(r[c] || "").toLowerCase().includes(v.toLowerCase()))); return this; }
   in(c, a) { this.f.push((r) => a.includes(r[c])); return this; }
   ilike(c, v) { this.f.push((r) => String(r[c] || "").toLowerCase() === String(v).toLowerCase()); return this; }
   order(c, o = {}) { this.ord = [c, o.ascending === false ? -1 : 1]; return this; }
@@ -26,7 +29,7 @@ class Q {
     const rows = tbl(this.t), pk = PK[this.t], match = (r) => this.f.every((f) => f(r));
     const clone = (x) => JSON.parse(JSON.stringify(x));
     const fin = (arr) => { let a = arr.map(clone); if (this.ord) a.sort((x, y) => (x[this.ord[0]] > y[this.ord[0]] ? 1 : x[this.ord[0]] < y[this.ord[0]] ? -1 : 0) * this.ord[1]); if (this.rng) a = a.slice(this.rng[0], this.rng[1] + 1); if (this.lim) a = a.slice(0, this.lim); return this.one ? { data: a[0] || null, error: null } : { data: a, error: null }; };
-    const defaults = (r) => { if (this.t === "profiles") r = { role: "user", coins: 0, last_daily: null, created_at: new Date().toISOString(), ...r }; if (this.t === "shop_items") r = { active: true, config: {}, description: "", sort: 0, ...r }; if (pk[0] === "id" && PK[this.t].length === 1 && ["card_backups", "purchases"].includes(this.t) && r.id == null) { r.id = ident++; r.at = new Date().toISOString(); } return r; };
+    const defaults = (r) => { if (this.t === "profiles") r = { role: "user", coins: 0, last_daily: null, created_at: new Date().toISOString(), ...r }; if (this.t === "shop_items") r = { active: true, config: {}, description: "", sort: 0, ...r }; if (pk[0] === "id" && PK[this.t].length === 1 && ["card_backups", "purchases", "audit_logs"].includes(this.t) && r.id == null) { r.id = ident++; r.at = new Date().toISOString(); } return r; };
     if (this.op === "select") return fin(rows.filter(match));
     if (this.op === "insert" || this.op === "upsert") {
       const out = [];

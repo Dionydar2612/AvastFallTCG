@@ -16,6 +16,8 @@ const auth = require("./lib/auth");
 const me = require("./lib/me");
 const updates = require("./lib/updates");
 const playtest = require("./lib/playtest");
+const log = require("./lib/log");
+const presence = require("./lib/presence");
 const S = store.state; // แคชของฐานข้อมูลการ์ด (แก้ผ่าน /admin แล้วมีผลทันที)
 
 const PORT = process.env.PORT || 3000;
@@ -24,6 +26,7 @@ const kwOf = (c) => (c.effects || []).map((e) => e.keyword.split(" ")[0]).filter
 
 const app = express();
 app.set("trust proxy", 1);
+app.use(log.accessLog);                         // access log 1 บรรทัด JSON ต่อคำขอ (ข้าม static / health / presence)
 // เส้นทางของเกม (feedback / ห้องออนไลน์ SSE) ต้องมาก่อน compression และ express.json — ต้องล็อกอินก่อนใช้ (ยกเว้นหน้าอ่านข้อเสนอแนะของแอดมินที่ใช้ ADMIN_KEY เดิม)
 app.use((req, res, next) => {
   if (req.path === "/api/feedback" || req.path.startsWith("/api/room/")) return auth.requireAuth(req, res, next);
@@ -73,6 +76,12 @@ api.get("/health", (_req, res) => res.status(supa.startupError ? 503 : 200).json
 api.get("/docs", (_req, res) => res.sendFile(path.join(__dirname, "public", "docs.html")));
 api.use(auth.requireAuth);                     // ตั้งแต่ตรงนี้ลงไปต้องล็อกอิน
 api.use(auth.sameOrigin);
+api.use(log.auditMutations);                   // เก็บ POST/PUT/DELETE ของผู้ใช้ (ซื้อซอง, รางวัลรายวัน ฯลฯ) ลง audit_logs
+// หัวใจ "ออนไลน์": เบราว์เซอร์ส่งมาทุก ~40 วินาที
+api.post("/presence", async (req, res) => {
+  try { await presence.ping(req.session, req.body && req.body.page); res.json({ ok: true }); }
+  catch (e) { console.error("presence:", e.message); res.json({ ok: false }); }
+});
 api.use(me.router);                            // /api/me · /api/me/daily · /api/me/decks · /api/me/collection · /api/shop
 
 const withImageUrl = (req) => (c) => (c.image ? { ...c, imageUrl: `${req.protocol}://${req.get("host")}${c.image}` } : c);
@@ -186,6 +195,7 @@ app.use((_req, res) => res.status(404).type("text/plain; charset=utf-8").send("�
   try {
     await store.init();                                   // โหลดการ์ดจาก Supabase (ครั้งแรกจะ seed จาก data/*.json ให้)
     if (supa.enabled) await me.ensureShopItems();         // สร้างสินค้าในร้านให้ชุดที่ยังไม่มี
+    log.startCleanup();
     await updates.init();                                 // โหลด Update Note จาก Supabase (ครั้งแรกจะใส่ข้อมูลเริ่มต้นให้ครั้งเดียว)
   } catch (e) {
     supa.startupError = e.message;

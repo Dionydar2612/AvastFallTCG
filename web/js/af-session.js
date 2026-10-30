@@ -32,6 +32,12 @@
   addEventListener('pagehide', flush);
   document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'hidden') flush(); });
 
+  // ส่งสัญญาณ "ออนไลน์" ทุก ~40 วินาที (เฉพาะตอนแท็บมองเห็นอยู่) — แอดมินดูได้ที่ /admin
+  var PAGE = /^\/cards/.test(location.pathname) ? 'cards' : 'game';
+  function beat() { if (document.visibilityState === 'visible') api('POST', '/api/presence', { page: PAGE }).catch(function () { }); }
+  beat(); setInterval(beat, 40000);
+  document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible') beat(); });
+
   window.AF = {
     user: (window.__AF && window.__AF.user) || null,
     api: api,
