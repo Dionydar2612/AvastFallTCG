@@ -253,7 +253,10 @@ function aura(G, u, k) {
 }
 function stat(G, u, k) {
   if (u.zone !== 'field') return u.def[k] || 0;
-  let v = u.def[k] || 0;
+  // setBaseAtk ใช้เมื่อเอฟเฟกต์ระบุให้ปรับ ATK ตั้งต้นเป็นค่าใหม่
+  // ค่าบวก/ลบจาก modifier อื่นยังคงนำมาคำนวณต่อจาก ATK ตั้งต้นใหม่นี้
+  const baseOverride = k === 'atk' ? [...u.mods].reverse().find(m => m.setBaseAtk !== undefined) : null;
+  let v = baseOverride ? Math.max(0, baseOverride.setBaseAtk) : (u.def[k] || 0);
   for (const m of u.mods) if (m[k]) v += m[k];
   for (const e of u.equips) { const fe = FXOF(e).equip; if (fe && fe[k]) v += fe[k]; }
   if (u.def.swordUnit) { const fe = FXOF(u).equip; if (fe && fe[k]) v += fe[k]; }   // เอฟเฟกต์ "Unit ที่สวมใส่" ส่งผลต่อตัวมันเอง
@@ -407,6 +410,23 @@ async function destroyUnit(G, u, by) {
   if (u.zone !== 'field') return false;
   by = by || { kind: 'effect' };
   if (by.kind === 'effect' && H.immuneToEffect(G, u)) { log(G, `${u.def.name} ไม่ถูกทำลายด้วยความสามารถการ์ด`, u.owner); return false; }
+  if (by.kind === 'battle') {
+    // Counter ที่ป้องกันการทำลายจากการต่อสู้ (เช่น SD07-023)
+    if (u.mods && u.mods.some(m => m.flag === 'battleImmune')) {
+      log(G, `${u.def.name} ไม่ถูกทำลายจากการต่อสู้ครั้งนี้`, u.owner);
+      return false;
+    }
+    // ความสามารถ battleSave ของ Unit ฝ่ายเดียวกับ Unit ที่กำลังจะถูกทำลาย (เช่น SD07-009)
+    const protectors = G.players[u.owner].field.filter(Boolean);
+    for (const source of protectors) {
+      if (silenced(G, source)) continue;
+      const save = FXOF(source).battleSave;
+      if (save && await save({ G, p: source.owner, self: source, unit: u, by })) {
+        log(G, `${source.def.name}: ป้องกัน ${u.def.name} จากการถูกทำลายในการต่อสู้นี้`, source.owner);
+        return false;
+      }
+    }
+  }
   const P = G.players[u.owner];
   const wasSilenced = silenced(G, u);
   const fx = FXOF(u);
@@ -629,7 +649,12 @@ async function runAbility(G, p, card, ab, kind, label, via = null) {
   if (ab.targets) { tg = await ab.targets(ctx); if (tg === undefined || tg === false) return false; }
   if (ab.optional) { const yes = await H.yesNo(G, p, `ใช้ความสามารถ ${label || ''} ของ ${card.def.name}?`); if (!yes) return false; }
   log(G, `${G.players[p].name} ใช้ ${label || 'ความสามารถ'} ของ ${card.def.name}`, p, { ability: card.uid });
-  const item = { kind: kind || 'unit-ability', controller: p, source: via || card, label: `${label || ''} ${card.def.name}`.trim(), resolve: async (it) => { await ab.resolve({ G, p, self: card, via, item: it }, tg); if (ab.prophecy) { /* handled in resolve */ } } };
+  const item = {
+    kind: kind || 'unit-ability', controller: p, source: via || card,
+    label: `${label || ''} ${card.def.name}`.trim(),
+    target: tg !== null && tg !== undefined ? tg : (ab.targetSelf ? card : null),
+    resolve: async (it) => { await ab.resolve({ G, p, self: card, via, item: it }, tg); if (ab.prophecy) { /* handled in resolve */ } }
+  };
   await runChain(G, item);
   return true;
 }
@@ -777,10 +802,16 @@ async function payAndCast(G, p, card, kind) {
 async function castEnchant(G, p, card) {
   const fx = FXOF(card);
   await payAndCast(G, p, card, 'Enchant');
+  // เลือกเป้าหมายก่อนเปิด Counter window สำหรับ Spell ที่ประกาศ prepare ไว้
+  // ทำให้ Counter สามารถอ้างอิง Unit เป้าหมายจริงได้ก่อนเอฟเฟกต์หลัก resolve
+  const preparedTarget = fx.spell && fx.spell.prepare
+    ? await fx.spell.prepare({ G, p, self: card })
+    : null;
   const item = {
     kind: 'spell', controller: p, source: card, label: card.def.name,
+    target: preparedTarget,
     resolve: async (self) => {
-      if (fx.spell && fx.spell.resolve) await fx.spell.resolve({ G, p, self: card, item: self });
+      if (fx.spell && fx.spell.resolve) await fx.spell.resolve({ G, p, self: card, item: self, target: preparedTarget });
       else log(G, `(${card.def.name} ยังไม่มีสคริปต์เอฟเฟกต์ — ใช้แถบเครื่องมือทำผลเอง)`, p);
       if (fx.prophecySpell) await runSpellProphecy(G, p, card, fx);
     },
@@ -832,9 +863,12 @@ async function castUltimate(G, p, card) {
   await payElems(G, p, cost, null, `ULTIMATE ${card.def.name}`);
   place(G, card, 'limbo');
   log(G, `${G.players[p].name} ใช้ ULTIMATE: ${card.def.name} (Spend ${cost})`, p, { cast: card.uid });
+  const preparedTarget = fx.ultimate && fx.ultimate.prepare
+    ? await fx.ultimate.prepare({ G, p, self: card })
+    : null;
   const item = {
-    kind: 'ultimate', controller: p, source: card, label: card.def.name,
-    resolve: async (self) => { if (fx.ultimate && fx.ultimate.resolve) await fx.ultimate.resolve({ G, p, self: card, item: self }); else log(G, `(${card.def.name} ยังไม่มีสคริปต์เอฟเฟกต์ — ใช้แถบเครื่องมือทำผลเอง)`, p); },
+    kind: 'ultimate', controller: p, source: card, label: card.def.name, target: preparedTarget,
+    resolve: async (self) => { if (fx.ultimate && fx.ultimate.resolve) await fx.ultimate.resolve({ G, p, self: card, item: self, target: preparedTarget }); else log(G, `(${card.def.name} ยังไม่มีสคริปต์เอฟเฟกต์ — ใช้แถบเครื่องมือทำผลเอง)`, p); },
     after: async () => { if (card.zone === 'limbo') place(G, card, 'discard'); }
   };
   await runChain(G, item);
