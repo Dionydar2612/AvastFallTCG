@@ -71,6 +71,13 @@
     if (val == null) return false;
     return (r[0] == null || val >= r[0]) && (r[1] == null || val <= r[1]);
   }
+  // ตัดกลุ่มที่กรองไม่ได้จริงออก (มีตัวเลือกน้อยกว่า 2 ค่า เช่น Rotation ที่ทุกใบเป็น A)
+  const prune = spec => spec.filter(g => g.t !== 'chips' || g.items.length > 1);
+  // เรียงตัวเลือกตามจำนวนการ์ดที่มี (มาก→น้อย) แล้วตามชื่อ · rows = การ์ดทั้งหมด, f(row) = ค่าของแถวนั้น
+  function items(rows, f, mk) {
+    const n = new Map(); rows.forEach(r => new Set((f(r) || []).filter(x => x != null && x !== '')).forEach(v => n.set(v, (n.get(v) || 0) + 1)));
+    return [...n.entries()].sort((a, b) => b[1] - a[1] || String(a[0]).localeCompare(String(b[0]), 'th')).map(([v]) => mk ? mk(v) : { v });
+  }
   function reset(st) { for (const k of Object.keys(st)) delete st[k]; }
 
   // ----- ผูกอีเวนต์ (เรียกครั้งเดียวต่อ root) · onChange() ถูกเรียกทุกครั้งที่ตัวกรองเปลี่ยน -----
@@ -111,5 +118,5 @@
   }
   // ช่วงที่ผู้ใช้ใส่สลับกัน (ต่ำสุด > สูงสุด) → สลับให้เองตอนกรอง
   const _in = inRange;
-  window.MF = { render, bind, count, has, inRange: (st, k, v) => { const r = rangeOf(st, k); if (r[0] != null && r[1] != null && r[0] > r[1]) { return _in({ __r: { [k]: [r[1], r[0]] } }, k, v); } return _in(st, k, v); }, reset, active };
+  window.MF = { prune, items, render, bind, count, has, inRange: (st, k, v) => { const r = rangeOf(st, k); if (r[0] != null && r[1] != null && r[0] > r[1]) { return _in({ __r: { [k]: [r[1], r[0]] } }, k, v); } return _in(st, k, v); }, reset, active };
 })();

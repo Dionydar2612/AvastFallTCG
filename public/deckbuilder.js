@@ -45,17 +45,19 @@
     const defs = Object.values(DEFS).filter(d => d.kind !== 'Avatar');
     const u = f => [...new Set(defs.flatMap(f))].filter(x => x !== '' && x != null).sort((a, b) => String(a).localeCompare(String(b), 'th')).map(v => ({ v }));
     const mx = k => Math.max(0, ...defs.map(d => +d[k] || 0));
+    const multi = f => defs.some(d => new Set(f(d)).size > 1);
     SPEC = [
       { t: 'chips', k: 'deck', label: 'เด็ค/ซีรีส์', items: u(d => [d.deck]) },
       { t: 'chips', k: 'kind', label: 'ประเภท', items: KINDS.map(v => ({ v })) },
-      { t: 'chips', k: 'el', label: 'ธาตุ', items: [...new Set(defs.flatMap(d => d.els))].map(v => ({ v, i: ico(v, 15) })), mode: true },
+      { t: 'chips', k: 'el', label: 'ธาตุ', items: [...new Set(defs.flatMap(d => d.els))].map(v => ({ v, i: ico(v, 15) })), mode: multi(d => d.els) },
       { t: 'chips', k: 'rar', label: 'ความหายาก', items: u(d => [d.rar]), adv: true },
-      { t: 'chips', k: 'kw', label: 'Keyword', items: u(d => d.kws), mode: true, adv: true },
-      { t: 'chips', k: 'tag', label: 'เผ่า / สังกัด', items: u(d => d.tags), mode: true, adv: true, limit: 12 },
+      { t: 'chips', k: 'kw', label: 'Keyword', items: MF.items(defs, d => d.kws), mode: multi(d => d.kws), adv: true },
+      { t: 'chips', k: 'tag', label: 'เผ่า / สังกัด', items: MF.items(defs, d => d.tags), mode: multi(d => d.tags), adv: true, limit: 12 },
       { t: 'range', k: 'cost', label: 'Cost', min: 0, max: mx('cost'), adv: true },
       { t: 'range', k: 'atk', label: 'ATK', min: 0, max: mx('atk'), adv: true },
       { t: 'range', k: 'def', label: 'DEF', min: 0, max: mx('def'), adv: true },
       { t: 'range', k: 'cri', label: 'CRI', min: 0, max: mx('cri'), adv: true }];
+    SPEC = MF.prune(SPEC);
   }
   function clearAll() {
     S.q = ''; const q = $('dq'); if (q) q.value = ''; MF.reset(S.mf); S.own = true; S.fin = false;
