@@ -70,3 +70,16 @@
 .lad-foot{padding:6px 18px 16px;text-align:center;font-size:.8rem;font-weight:600;color:#12435f}
 @media (max-width:640px){.lad-head{padding-right:52px}.lad-head .st{width:100%}}
 @media (prefers-reduced-motion:reduce){.rk-MASTER::before,.rkw .rk-dot,.lad-go{animation:none}}
+
+/* ช่องผู้เล่นในห้องออนไลน์กับเพื่อน */
+.olslots{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%}
+.olslot{position:relative;display:flex;flex-direction:column;align-items:center;gap:3px;min-width:0;padding:8px 8px 10px;border:3px solid #02060a;border-radius:12px;background:#0d1a26;color:var(--ink);text-align:center;transition:background .2s,border-color .2s}
+.olslot small{align-self:flex-start;font:800 10px/1 var(--f);letter-spacing:.14em;color:var(--ink2);text-transform:uppercase}
+.olslot .av{display:grid;place-items:center;width:44px;height:44px;border-radius:50%;border:3px solid currentColor;font:800 22px/1 var(--f-lobby,sans-serif);font-style:italic}
+.olslot b{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.95rem}
+.olslot em{font-style:normal;font-size:.78rem;font-weight:700}
+.olslot.empty{border-style:dashed;border-color:#4a5a6a;color:#7e8d9b;background:transparent}
+.olslot.empty b{font-weight:600}
+.olslot.joined{border-color:var(--gold);color:var(--gold)}.olslot.joined b{color:var(--ink)}
+.olslot.ready{border-color:#4cc16b;background:#14803a;color:#fff;box-shadow:0 0 0 3px rgba(76,193,107,.35)}
+.olslot.ready small{color:#d4ffe0}.olslot.ready .av{background:#fff;color:#14803a;border-color:#fff}.olslot.ready b{color:#fff}

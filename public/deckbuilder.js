@@ -493,9 +493,9 @@ html.embed #dedit .db-wrap{height:calc(100vh - 84px)}
 .db-pill.z{background:#e6e6e6;color:#555}
 .db-t .db-minus{position:absolute;top:10px;right:10px;width:28px;height:28px;border-radius:50%;border:2px solid #111;background:#fff;color:#111;font:700 1rem/1 sans-serif;cursor:pointer;z-index:2;padding:0}
 .db-t:hover .db-img img{transform:translateY(-2px)}
-#dedit .db-side{position:static;max-height:none;height:100%;overflow:hidden;padding:12px;gap:8px;min-height:0}
-#dedit .db-side>.db-mini{flex:1;min-height:90px;overflow:auto;align-content:start;padding:4px;grid-template-columns:repeat(auto-fill,minmax(84px,1fr))}
-#dedit .db-side>.db-bot{max-height:34%;overflow:auto}
+#dedit .db-side{position:static;max-height:none;height:100%;overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;padding:12px;gap:8px;min-height:0}
+#dedit .db-side>.db-mini{flex:1 0 auto;min-height:170px;overflow:visible;align-content:start;padding:4px;grid-template-columns:repeat(auto-fill,minmax(84px,1fr))}
+#dedit .db-side>.db-bot{max-height:none;overflow:visible}
 .db-av{width:104px}
 .db-tab{display:flex;flex-direction:column;align-items:center;line-height:1.15;padding:6px 2px}.db-tab b{display:block;margin:0;font-size:1.05rem}
 .db-elh{cursor:pointer}

@@ -155,7 +155,8 @@
       var fan = pickAvatars(decks, selAv), emblem = selAv || fan[0] || null;     // เหรียญ = Avatar ของเด็คที่เลือก ไม่ใช่เด็คแรกในรายการ
       S.emblemId = emblem ? emblem.id : null; S.selAvId = cur ? cur.avatar : null;
       var haveDecks = decks.length > 0;
-      var sets = setProgress();
+      var ru = me.user || {}, rkL = LG_ORDER.indexOf(ru.league) < 0 ? 'BRONZE' : ru.league, rkI = LG_ORDER.indexOf(rkL), rkA = LG_AT[rkI], rkB = LG_AT[rkI + 1];
+      var rk = { league: rkL, points: ru.points || 0, w: ru.wins || 0, l: ru.losses || 0, n: ru.rankClaimable || 0, next: rkB != null, pct: rkB != null ? Math.max(0, Math.min(100, Math.round(((ru.points || 0) - rkA) / (rkB - rkA) * 100))) : 100 };
       var seen = ''; try { seen = localStorage.getItem('af-notes-seen') || ''; } catch (e) { }
       var n0 = (r[1].data || [])[0], newNote = !!(n0 && n0.title && ((n0.id || n0.date) + '|' + n0.title) !== seen);
 
@@ -176,7 +177,7 @@
               '<div id="ctl" class="ctl">' + ctlHtml(inGame, hint) + '</div>' +
             '</div>' +
             '<div class="bottom">' +
-              '<button type="button" class="profile" data-act="sets" title="ดูความคืบหน้าแต่ละชุดการ์ด"><span class="hexb"><b>' + sets.done + '</b></span><span class="pinfo"><small>SETS</small><b>' + (sets.next ? esc(sets.next.code) + ' · ขาดอีก ' + (sets.next.total - sets.next.have) + ' ใบ' : sets.list.length ? 'ครบทุกชุดแล้ว 🎉' : 'ยังไม่มีข้อมูลชุด') + '</b><span class="bar"><i class="' + (sets.next ? '' : 'full') + '" style="width:' + (sets.next ? Math.round(sets.next.have / sets.next.total * 100) : 100) + '%"></i></span><em>ชุดที่สะสมครบ ' + sets.done + ' / ' + sets.list.length + ' ชุด</em></span></button>' +
+              '<button type="button" class="profile" data-act="ladder" title="ดูแรงค์และรางวัลเลื่อนแรงค์"><span class="hexb"><b>' + esc(rk.league.charAt(0)) + '</b></span><span class="pinfo"><small>RANK</small><b>' + rk.league + ' · ' + fmt(rk.points) + ' แต้ม</b><span class="bar"><i class="' + (rk.next ? '' : 'full') + '" style="width:' + rk.pct + '%"></i></span><em>' + (rk.n ? '🎁 มีรางวัลรอรับ ' + rk.n + ' รายการ' : 'ชนะ ' + rk.w + ' · แพ้ ' + rk.l + (rk.w + rk.l ? ' · ชนะ ' + Math.round(rk.w / (rk.w + rk.l) * 100) + '%' : '')) + '</em></span></button>' +
               '<button type="button" class="decksbox" data-go="decks" title="ไปจัดเด็ค"><span class="dinfo"><small>DECKS</small><b>' + (main ? esc(main.name || 'เด็คใหม่') : 'ยังไม่มีเด็ค') + '</b><em>' + decks.length + ' เด็ค</em></span><span class="dbox"><i></i></span></button>' +
             '</div>' +
           '</div>' +
@@ -203,6 +204,7 @@
   }
 
   /* ---------- แรงค์: กรอบตามลีก (โหมดจับคู่ออนไลน์) + หน้า Ladder รางวัลเลื่อนแรงค์ ---------- */
+  var LG_ORDER = ['BRONZE', 'SILVER', 'GOLD', 'PLATINUM', 'DIAMOND', 'MASTER'], LG_AT = [0, 100, 250, 500, 800, 1200];   // ต้องตรงกับ lib/rank.js
   var LG_TH = { BRONZE: 'BRONZE', SILVER: 'SILVER', GOLD: 'GOLD', PLATINUM: 'PLATINUM', DIAMOND: 'DIAMOND', MASTER: 'MASTER' };
   function rkFrame(lg, inner, id, gem, off) {
     return '<div class="rk rk-' + lg + '"><i class="rk-fr"></i><i class="rk-bv"></i><span class="rk-tab">' + lg.charAt(0) + '</span>' +
@@ -277,6 +279,14 @@
     if (S.mode === 'online') return resume + onlineHtml();
     return resume + '<button type="button" class="play" data-act="play"><span>PLAY</span></button><p class="hint">' + (hint || '') + '</p>';
   }
+  /* ช่องผู้เล่นในห้อง: ว่าง (เส้นประ) → เข้าห้องแล้ว (ขอบทอง) → พร้อมแล้ว (เขียว) */
+  function slotsHtml(o, myName) {
+    var me = { st: o.ready ? 'ready' : 'joined', name: String(myName || 'คุณ'), tag: 'คุณ', txt: o.ready ? '✓ พร้อมแล้ว' : 'ยังไม่พร้อม' };
+    var fr = !o.peer ? { st: 'empty', name: o.hadPeer ? 'เพื่อนหลุดจากห้อง' : 'รอเพื่อนเข้าห้อง…', tag: 'เพื่อน', txt: o.hadPeer ? 'รอกลับเข้ามา' : 'ว่าง' }
+      : { st: o.peerReady ? 'ready' : 'joined', name: 'เพื่อน', tag: 'เพื่อน', txt: o.peerReady ? '✓ พร้อมแล้ว' : 'เข้าห้องแล้ว · ยังไม่พร้อม' };
+    var one = function (x) { return '<div class="olslot ' + x.st + '"><small>' + x.tag + '</small><span class="av">' + (x.st === 'empty' ? '?' : x.tag === 'เพื่อน' ? '👤' : esc(x.name.charAt(0).toUpperCase())) + '</span><b>' + esc(x.name) + '</b><em>' + x.txt + '</em></div>'; };
+    return '<div class="olslots" aria-live="polite">' + one(me) + one(fr) + '</div>';
+  }
   function olStatus(o) {
     if (o.pid === 0 && !o.hadPeer) return 'รอเพื่อนเข้าห้อง… ส่งรหัสหรือลิงก์ให้เพื่อน';
     if (!o.peer) return 'เพื่อนหลุดจากห้อง (รอกลับเข้ามา)';
@@ -297,7 +307,7 @@
         err + dwarn + '<p class="hint">สร้างห้องแล้วส่งรหัสให้เพื่อน หรือกรอกรหัสที่เพื่อนให้มา · เด็คที่ใช้คือเด็คในป้ายด้านบน</p></div>';
     }
     var link = location.origin + '/?room=' + o.code;
-    return '<div class="olbox"><div class="olcode">ห้อง <b>' + esc(o.code) + '</b></div><p class="olst">' + esc(olStatus(o)) + '</p>' + (o.conn === false ? '<p class="hint">⚠ กำลังเชื่อมต่อเซิร์ฟเวอร์ใหม่…</p>' : '') + (o.ready ? '' : name) +
+    return '<div class="olbox"><div class="olcode">ห้อง <b>' + esc(o.code) + '</b></div>' + slotsHtml(o, acc || u.pname) + '<p class="olst">' + esc(olStatus(o)) + '</p>' + (o.conn === false ? '<p class="hint">⚠ กำลังเชื่อมต่อเซิร์ฟเวอร์ใหม่…</p>' : '') + (o.ready ? '' : name) +
       '<div class="olrow"><input id="ollink" readonly value="' + esc(link) + '"><button type="button" class="btn sm" data-act="olcopy">คัดลอกลิงก์</button></div>' +
       '<div class="olrow"><button type="button" class="btn pri" data-act="olready"' + ((!o.peer || o.ready || derr.length) ? ' disabled' : '') + '>พร้อม</button><button type="button" class="btn" data-act="olleave">ออกจากห้อง</button></div>' + err + dwarn + '</div>';
   }
