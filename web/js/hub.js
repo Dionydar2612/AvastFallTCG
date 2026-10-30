@@ -218,7 +218,9 @@
     var G = game(); if (!G) return '<p class="hint">กำลังเตรียมระบบเกม… ลองสลับโหมดอีกครั้ง</p>';
     var u = G.ui, o = u.ol, err = u.err ? '<div class="olerr">' + esc(u.err) + '</div>' : '';
     var derr = G.deckErrors(u.cfg.sel[0]), dwarn = derr.length ? '<div class="olerr">เด็คที่เลือกยังใช้เล่นไม่ได้: ' + esc(derr[0]) + ' · กดที่ป้ายเด็คด้านบนเพื่อเปลี่ยน</div>' : '';
-    var name = '<label class="olrow"><span>ชื่อที่แสดง</span><input id="olname" maxlength="16" autocomplete="off" value="' + esc(u.pname || '') + '" placeholder="ชื่อของคุณ (ไม่ใส่ก็ได้)"></label>';
+    var acc = S.me && S.me.user && S.me.user.username;
+    if (acc) u.pname = String(acc).slice(0, 16);   // ชื่อที่แสดงตอนเล่น = ชื่อบัญชีเสมอ
+    var name = acc ? '<div class="olrow who"><span>เล่นในชื่อ</span><b>' + esc(acc) + '</b></div>' : '<label class="olrow"><span>ชื่อที่แสดง</span><input id="olname" maxlength="16" autocomplete="off" value="' + esc(u.pname || '') + '" placeholder="ชื่อของคุณ (ไม่ใส่ก็ได้)"></label>';
     if (!o) {
       return '<div class="olbox">' + name +
         '<button type="button" class="play ol" data-act="olcreate"' + (u.olbusy ? ' disabled' : '') + '><span>สร้างห้อง</span></button>' +

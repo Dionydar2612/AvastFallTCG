@@ -7,9 +7,10 @@
 const OL={es:null,q:[],w:null,chain:Promise.resolve(),n:0,tok:0};
 ui.ol=null;ui.olcode='';
 
-const olName=()=>String(ui.pname||'').trim().slice(0,16);
+const accName=()=>String((window.__AF&&window.__AF.user&&window.__AF.user.username)||'').trim();   // ชื่อที่แสดงตอนเล่น = ชื่อบัญชี
+const olName=()=>(accName()||String(ui.pname||'').trim()).slice(0,16);
 try{ui.pname=localStorage.getItem('af-pname')||''}catch(e){ui.pname=''}
-const nameInput=()=>`<div class="opt"><label for="olname">ชื่อที่แสดงตอนเล่น</label><input id="olname" value="${esc(ui.pname||'')}" maxlength="16" placeholder="ชื่อของคุณ (ไม่ใส่ก็ได้)" autocomplete="off" style="padding:6px 10px;border:2px solid var(--ink);border-radius:8px;font-size:15px;min-width:180px"></div>`;
+const nameInput=()=>accName()?`<div class="opt"><label>เล่นในชื่อ</label><b>${esc(accName().slice(0,16))}</b></div>`:`<div class="opt"><label for="olname">ชื่อที่แสดงตอนเล่น</label><input id="olname" value="${esc(ui.pname||'')}" maxlength="16" placeholder="ชื่อของคุณ (ไม่ใส่ก็ได้)" autocomplete="off" style="padding:6px 10px;border:2px solid var(--ink);border-radius:8px;font-size:15px;min-width:180px"></div>`;
 function olHash(){try{const s=JSON.stringify(Object.keys(AF.defs).sort().map(k=>[k,AF.defs[k]]));let h=5381;for(let i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(i))|0;return String(h>>>0)}catch(e){return ''}}
 async function olApi(path,body){
   let r,j;
