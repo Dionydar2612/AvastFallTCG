@@ -13,7 +13,33 @@ const mine = (G, p, f) => H.myUnits(G, p, f);
 const full = (G, p) => G.players[p].field.filter(Boolean).length >= 4;           // มี Unit ครบ 4 ใบ
 const standN = (G, p) => AF.standElems(G.players[p]).length;
 const isWater = c => (c.def.els || []).includes(WATER);
-const pickMany = (G, p, title, cards, max) => H.pickCards(G, p, { title, cards, min: 0, max, optional: true, kind: 'units' });
+// เลือก Unit ทีละใบ: หลังเลือกแต่ละใบจะถามว่าต้องการเลือกเพิ่มหรือไม่
+// ยังคงเลือกข้ามได้ (optional) และไม่สามารถเลือก Unit ใบเดิมซ้ำ
+const pickMany = async (G, p, title, cards, max) => {
+  const pool = (cards || []).filter(Boolean);
+  const selected = [];
+  const limit = Math.max(0, Math.min(Number(max) || 0, pool.length));
+  if (!limit || !pool.length) return selected;
+
+  const first = await H.pickUnit(G, p, pool, `${title} (เลือกใบแรก หรือยกเลิกเพื่อไม่เลือก)`, true);
+  if (!first) return selected;
+  selected.push(first);
+
+  while (selected.length < limit) {
+    const remaining = pool.filter(card => !selected.some(chosen => chosen.uid === card.uid));
+    if (!remaining.length) break;
+    const more = await H.yesNo(
+      G,
+      p,
+      `เลือกแล้ว ${selected.length} ใบ ต้องการเลือก Unit เพิ่มอีก ${Math.min(1, limit - selected.length)} ใบหรือไม่?`
+    );
+    if (!more) break;
+    const next = await H.pickUnit(G, p, remaining, `${title} (เลือกใบที่ ${selected.length + 1})`);
+    if (!next) break;
+    selected.push(next);
+  }
+  return selected;
+};
 const buff = (G, u, n, p, k = 'atk') => {
   if (!u || u.zone !== 'field') return;
   addMod(G, u, { [k]: n, until: 'turnEnd' });
