@@ -1,4 +1,4 @@
-/* แถบเมนูเดียวของทั้งเว็บ: Home · Play · Decks · Cards · Shop  (ต้องล็อกอินก่อน — เซิร์ฟเวอร์ตรวจแล้วจึงส่งหน้านี้มา)
+/* แถบเมนูเดียวของทั้งเว็บ: Home · Play · Decks · Cards · Shop · Rewards  (ต้องล็อกอินก่อน — เซิร์ฟเวอร์ตรวจแล้วจึงส่งหน้านี้มา)
    - Home / Shop = /hub.html ใน iframe เดียวกัน · Play = เกม (#app) · Decks / Cards = /cards/?embed=1 ใน iframe เดียวกัน
    - iframe โหลดตอนกดครั้งแรก · สลับแท็บแล้วเกมที่ค้างอยู่ไม่หาย เพราะเกมยังรันอยู่ในหน้าเดิม
    - ลิงก์ #shop · #play · #decks · #cards · #deck=... (ลิงก์แชร์เด็ค) เปิดแท็บนั้นตรง ๆ · ไม่มี hash = Home
@@ -7,7 +7,7 @@
    - iframe คุยกับหน้านี้ผ่าน postMessage:
        afGo {afGo:'shop', deckId?}   ขอสลับแท็บ        afLaunch {mode, deckId?}   ไปหน้า Play พร้อมตั้งโหมด/เด็ค
        afCoins n                      เหรียญเปลี่ยน       afOwned 1                 ซื้อ/ได้การ์ดใหม่ → โหลดข้อมูลการ์ดที่มีใหม่ทุกหน้า
-       afHubView 'home'|'shop'        สลับภายใน hub     afDecksChanged 1          Deckbuilder บันทึก/ลบเด็ค
+       afHubView 'home'|'shop'|'rewards'  สลับภายใน hub     afDaily bool  มีรางวัลรายวันรอรับไหม     afDecksChanged 1          Deckbuilder บันทึก/ลบเด็ค
        afHdr 'guide'|'notes'|'feedback'  วิธีเล่น (ไปหน้าเกม) · แจ้งเตือน/ข้อเสนอแนะ (หน้าต่างซ้อนบนหน้าเดิม ไม่ย้ายหน้า) */
 (function () {
   'use strict';
@@ -15,12 +15,12 @@
   var cardsFrame = document.getElementById('cardsFrame'), hubFrame = document.getElementById('hubFrame');
   var panes = { play: document.getElementById('panePlay'), cards: document.getElementById('paneCards'), hub: document.getElementById('paneHub') };
   var btns = [].slice.call(sw.querySelectorAll('button[data-tab]'));
-  var ORDER = ['home', 'decks', 'cards', 'shop'];                    // แท็บบนแถบเมนู
-  var FLOW = ['home', 'play', 'decks', 'cards', 'shop'];            // ลำดับสำหรับทิศทางเอฟเฟกต์ (play = หน้าเกม/ตั้งค่าแมตช์ ซ้อนอยู่ใต้ Home ไม่มีแท็บของตัวเอง)
+  var ORDER = ['home', 'decks', 'cards', 'shop', 'rewards'];                    // แท็บบนแถบเมนู
+  var FLOW = ['home', 'play', 'decks', 'cards', 'shop', 'rewards'];            // ลำดับสำหรับทิศทางเอฟเฟกต์ (play = หน้าเกม/ตั้งค่าแมตช์ ซ้อนอยู่ใต้ Home ไม่มีแท็บของตัวเอง)
   var navOf = function (t) { return t === 'play' ? 'home' : t; };
-  var PANE = { home: 'hub', shop: 'hub', play: 'play', cards: 'cards', decks: 'cards' };
-  var TITLE = { home: 'Home · AvastFall TCG', play: 'เกม · AvastFall TCG', decks: 'Decks · AvastFall TCG', cards: 'Cards · AvastFall TCG', shop: 'Shop · AvastFall TCG' };
-  var HASH = { home: '', play: '#play', decks: '#decks', cards: '#cards', shop: '#shop' };
+  var PANE = { home: 'hub', shop: 'hub', play: 'play', cards: 'cards', decks: 'cards', rewards: 'hub' };
+  var TITLE = { home: 'Home · AvastFall TCG', play: 'เกม · AvastFall TCG', decks: 'Decks · AvastFall TCG', cards: 'Cards · AvastFall TCG', shop: 'Shop · AvastFall TCG', rewards: 'Rewards · AvastFall TCG' };
+  var HASH = { home: '', play: '#play', decks: '#decks', cards: '#cards', shop: '#shop', rewards: '#rewards' };
   var ALIAS = { deck: 'decks', deckbuilder: 'decks', hub: 'home' };
   var scrollAt = { play: 0 };
   var cur = 'home', ready = { cards: false, hub: false };
@@ -97,6 +97,7 @@
     var d = e.data;
     if (d.afDecksChanged) window.dispatchEvent(new Event('af-decks-sync'));          // Deckbuilder บันทึก/ลบเด็ค → เกมโหลดรายการเด็คใหม่
     if (d.afCoins != null) setCoin(d.afCoins);
+    if (d.afDaily != null) { var rd = $('tabRewardsDot'); if (rd) rd.hidden = !d.afDaily; }                    // มีรางวัลรายวันรอรับ → จุดแดงที่แท็บ Rewards
     if (d.afOwned) { refreshOwned(); refreshMe(); }
     if (d.afHubView && PANE[d.afHubView] === 'hub' && cur !== d.afHubView && PANE[cur] === 'hub') go(d.afHubView, { fromHub: true });
     if (d.afLaunch) launch(d.afLaunch);
@@ -163,7 +164,7 @@
     }).catch(function () { if (pEl && body.isConnected) body.innerHTML = '<p class="af-err">โหลดข่าวอัปเดตไม่สำเร็จ ลองใหม่อีกครั้ง</p>'; });
   }
 
-  var PAGE = { home: 'Home', play: 'เกม', decks: 'Decks', cards: 'Cards', shop: 'Shop' };
+  var PAGE = { home: 'Home', play: 'เกม', decks: 'Decks', cards: 'Cards', shop: 'Shop', rewards: 'Rewards' };
   function openFeedback() {
     var cats = (window.AF && AF.feedback && AF.feedback.CATEGORIES) || [['suggest', 'ข้อเสนอแนะ']];
     var body = shell('💬 ข้อเสนอแนะ', '<p class="af-mut">อยากให้ปรับหรือเพิ่มอะไร พบจุดผิดปกติ หรือการ์ดใบไหนทำงานไม่ตรงข้อความ บอกได้ที่นี่ ผู้พัฒนาจะอ่านทุกข้อความ</p>' +
@@ -244,8 +245,9 @@
 
   /* เริ่มต้น: Home เป็นหน้าแรก (เกมกับ Cards ซ่อนไว้จนกว่าจะกดแท็บ) */
   var h0 = location.hash.replace(/^#/, ''); h0 = ALIAS[h0] || h0;
-  hubFrame.src = hubFrame.dataset.src + (h0 === 'shop' ? '#shop' : '#home');
-  if (/^#(deck=|home|shop|play|cards|decks|deckbuilder)/.test(location.hash)) { cur = h0 === 'shop' ? 'shop' : 'home'; fromHash(true); }
+  var HUBV = h0 === 'shop' || h0 === 'rewards' ? h0 : 'home';
+  hubFrame.src = hubFrame.dataset.src + '#' + HUBV;
+  if (/^#(deck=|home|shop|rewards|play|cards|decks|deckbuilder)/.test(location.hash)) { cur = HUBV; fromHash(true); }
 
   window.AFSite = { go: go, openDeck: openDeck, launch: launch, panel: panel, get tab() { return cur; } };
 })();

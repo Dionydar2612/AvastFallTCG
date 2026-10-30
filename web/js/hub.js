@@ -1,7 +1,7 @@
-/* Home (ล็อบบี้) · ร้านค้า  (web/hub.html — ฝังเป็น iframe ในเว็บหลัก แท็บ Home/Shop อยู่ที่แถบเมนูหลัก)
-   - Home จัดวางแบบล็อบบี้เกม: ซ้ายภาพเด่น · กลางเหรียญตราเด็ค + ปุ่ม PLAY · ขวาแถบรางวัลรายวัน · ล่างซ้ายความคืบหน้าชุดการ์ด · ล่างขวาเด็ค
+/* Home (ล็อบบี้) · ร้านค้า · รางวัล  (web/hub.html — ฝังเป็น iframe ในเว็บหลัก แท็บ Home/Shop/Rewards อยู่ที่แถบเมนูหลัก)
+   - Home จัดวางแบบล็อบบี้เกม: ซ้ายภาพเด่น · กลางเหรียญตราเด็ค + ปุ่ม PLAY · ล่างซ้ายความคืบหน้าชุดการ์ด · ล่างขวาเด็ค
    - ข้อมูลทั้งหมดมาจาก API ที่ต้องล็อกอิน (Supabase): /api/me · /api/me/daily · /api/me/collection · /api/shop · /api/shop/buy · /api/cards
-   - คุยกับเว็บหลักผ่าน postMessage: afGo (สลับแท็บ) · afLaunch (ไปหน้า Play พร้อมโหมด/เด็ค) · afCoins · afOwned · afHubView · afHdr */
+   - คุยกับเว็บหลักผ่าน postMessage: afGo (สลับแท็บ) · afLaunch (ไปหน้า Play พร้อมโหมด/เด็ค) · afCoins · afOwned · afHubView · afDaily · afHdr */
 (function () {
   'use strict';
   var $ = function (id) { return document.getElementById(id); };
@@ -142,7 +142,7 @@
   function renderHome() {
     try { var m0 = localStorage.getItem('af-lobby-mode'); if (MODES.some(function (m) { return m[0] === m0; })) S.mode = m0; } catch (e) { }
     return Promise.all([api('GET', '/api/me'), api('GET', '/api/updates').catch(function () { return { data: [] }; }), loadCards(), api('GET', '/api/shop').catch(function () { return { data: [] }; }), loadOwned().catch(function () { })]).then(function (r) {
-      var me = r[0], notes = (r[1].data || []).slice(0, 3), shop = (r[3].data || []).slice(0, 3); S.me = me; setCoins(me.user.coins); S.items = {}; shop.forEach(function (i) { S.items[i.id] = i; });
+      var me = r[0], notes = (r[1].data || []).slice(0, 3), shop = (r[3].data || []).slice(0, 3); S.me = me; setCoins(me.user.coins); tell({ afDaily: !!me.dailyReady }); S.items = {}; shop.forEach(function (i) { S.items[i.id] = i; });
       var st = me.stats, pct = st.totalCards ? Math.round(st.ownedUnique / st.totalCards * 100) : 0;
       var decks = readDecks().sort(function (a, b) { return (b.updated || 0) - (a.updated || 0); });
       var infos = decks.map(deckInfo), okDeck = decks.filter(function (d, i) { return infos[i].ok; })[0] || null;
@@ -174,7 +174,6 @@
               '<div class="hexo"><div class="hexi" id="emblem">' + (emblem ? pic(emblem) : '<img src="' + BACK + '" alt="">') + '</div></div>' + deckLine +
               '<div id="ctl" class="ctl">' + ctlHtml(inGame, hint) + '</div>' +
             '</div>' +
-            '<button type="button" class="daily' + (me.dailyReady ? ' ready' : ' done') + '" data-act="daily"' + (me.dailyReady ? '' : ' disabled') + '><span class="dc"></span><span class="dt"><small>รางวัลรายวัน</small><b>' + (me.dailyReady ? '+' + me.dailyAmount + ' เหรียญ' : 'รับแล้ว ✓') + '</b></span></button>' +
             '<div class="bottom">' +
               '<button type="button" class="profile" data-act="sets" title="ดูความคืบหน้าแต่ละชุดการ์ด"><span class="hexb"><b>' + sets.done + '</b></span><span class="pinfo"><small>SETS</small><b>' + (sets.next ? esc(sets.next.code) + ' · ขาดอีก ' + (sets.next.total - sets.next.have) + ' ใบ' : sets.list.length ? 'ครบทุกชุดแล้ว 🎉' : 'ยังไม่มีข้อมูลชุด') + '</b><span class="bar"><i class="' + (sets.next ? '' : 'full') + '" style="width:' + (sets.next ? Math.round(sets.next.have / sets.next.total * 100) : 100) + '%"></i></span><em>ชุดที่สะสมครบ ' + sets.done + ' / ' + sets.list.length + ' ชุด</em></span></button>' +
               '<button type="button" class="decksbox" data-go="decks" title="ไปจัดเด็ค"><span class="dinfo"><small>DECKS</small><b>' + (main ? esc(main.name || 'เด็คใหม่') : 'ยังไม่มีเด็ค') + '</b><em>' + decks.length + ' เด็ค</em></span><span class="dbox"><i></i></span></button>' +
@@ -363,7 +362,7 @@
     return Promise.all([api('GET', '/api/shop'), loadCards(), loadOwned().catch(function () { })]).then(function (r) {
       var items = r[0].data; S.items = {}; items.forEach(function (i) { S.items[i.id] = i; }); setCoins(r[0].coins);
       var packs = items.filter(function (i) { return i.kind === 'pack'; }), starters = items.filter(function (i) { return i.kind === 'starter'; });
-      $('view').innerHTML = '<div class="page"><div class="pagehead"><div><h1>ร้านค้า</h1><p class="mut">ใช้เหรียญซื้อซองการ์ดและ Starter Deck · รับเหรียญฟรีทุกวันที่หน้า Home</p></div><span class="grow"></span><div class="bal"><i class="cn"></i><span>เหรียญของคุณ</span><b data-bal>' + fmt(S.coins) + '</b></div><button type="button" class="btn" data-go="cards">🃏 ดูการ์ดของฉัน</button></div>' +
+      $('view').innerHTML = '<div class="page"><div class="pagehead"><div><h1>ร้านค้า</h1><p class="mut">ใช้เหรียญซื้อซองการ์ดและ Starter Deck · รับเหรียญฟรีทุกวันที่แท็บ Rewards</p></div><span class="grow"></span><div class="bal"><i class="cn"></i><span>เหรียญของคุณ</span><b data-bal>' + fmt(S.coins) + '</b></div><button type="button" class="btn" data-go="cards">🃏 ดูการ์ดของฉัน</button></div>' +
         (starters.length ? '<h2>Starter Deck <small>ได้การ์ดครบชุด ใบละ 3 ใบ พร้อมจัดเด็คได้ทันที — เหมาะสำหรับมือใหม่</small></h2><div class="shop">' + starters.map(itemHtml).join('') + '</div>' : '') +
         (packs.length ? '<h2>ซองการ์ด <small>สุ่มได้ใบหายากเพิ่ม</small></h2><div class="shop">' + packs.map(itemHtml).join('') + '</div>' : '') +
         (!items.length ? '<div class="box empty">ยังไม่มีสินค้าวางขาย</div>' : '') + '</div>';
@@ -459,12 +458,50 @@
     draw();
   }
 
+  /* ---------- รางวัล (แท็บ Rewards) — รางวัลรายวันแบบตารางเลื่อนแนวนอน · รีเซ็ตเที่ยงคืนเวลาไทย (ตรงกับเซิร์ฟเวอร์) ---------- */
+  var rwTimer = 0, RW_DAYS = 7, DAY_MS = 86400000;
+  function bkk(ms, opt) { return new Intl.DateTimeFormat('th-TH', Object.assign({ timeZone: 'Asia/Bangkok' }, opt)).format(new Date(ms)); }
+  function untilReset() { return DAY_MS - ((Date.now() + 7 * 3600000) % DAY_MS); }   // เวลาไทย = UTC+7 ไม่มี DST
+  function clock(ms) { var s = Math.max(0, Math.ceil(ms / 1000)), p = function (x) { return (x < 10 ? '0' : '') + x; }; return p(Math.floor(s / 3600)) + ':' + p(Math.floor(s % 3600 / 60)) + ':' + p(s % 60); }
+  function renderRewards() {
+    return api('GET', '/api/me').then(function (me) {
+      S.me = me; setCoins(me.user.coins); tell({ afDaily: !!me.dailyReady });
+      var ready = !!me.dailyReady, amt = me.dailyAmount, t0 = Date.now();
+      var tiers = '';
+      for (var i = 0; i < RW_DAYS; i++) {
+        var ms = t0 + i * DAY_MS, st = i === 0 ? (ready ? 'ready' : 'claimed') : 'locked';
+        var foot = st === 'ready' ? '<button type="button" class="collect" data-act="daily">รับเลย</button>'
+          : st === 'claimed' ? '<span class="got">✓ รับแล้ว</span>'
+          : '<span class="lock">🔒 ' + (i === 1 ? 'พรุ่งนี้' : 'อีก ' + i + ' วัน') + '</span>';
+        tiers += '<div class="tier ' + st + '"><div class="tn"><small>DAY</small><b>' + (i + 1) + '</b></div><div class="td">' + (i === 0 ? 'วันนี้' : bkk(ms, { weekday: 'short', day: 'numeric', month: 'short' })) + '</div>' +
+          '<div class="tcell"><span class="bigcoin"></span><b>+' + fmt(amt) + '</b><small>เหรียญ</small></div><div class="tfoot">' + foot + '</div></div>';
+      }
+      $('view').innerHTML = '<div class="page rw">' +
+        '<div class="rw-banner"><div class="bt"><small>AVASTFALL TCG</small><h1>DAILY REWARDS</h1><p>ล็อกอินมารับเหรียญฟรีทุกวัน · นำไปซื้อซองการ์ดและ Starter Deck ที่ร้านค้า</p></div><div class="bal"><i class="cn"></i><span>เหรียญของคุณ</span><b data-bal>' + fmt(S.coins) + '</b></div></div>' +
+        '<div class="rw-top">' +
+          '<div class="rw-card rw-lv"><span class="hexb"><b>' + (ready ? '!' : '✓') + '</b></span><div class="lt"><small>TODAY</small><b>' + (ready ? 'มีรางวัลรอรับ' : 'รับรางวัลวันนี้แล้ว') + '</b><span class="bar"><i class="' + (ready ? '' : 'full') + '" style="width:' + (ready ? 0 : 100) + '%"></i></span></div></div>' +
+          '<div class="rw-card rw-next"><small>' + (ready ? 'รอบนี้เหลือเวลา' : 'รับรางวัลถัดไปใน') + '</small><b class="clk" data-clock>' + clock(untilReset()) + '</b><em>รีเซ็ตทุกเที่ยงคืน (เวลาไทย)</em></div>' +
+          '<div class="rw-card rw-quest"><small>DAILY REWARD</small><div class="qrow"><span class="bigcoin sm"></span><b>+' + fmt(amt) + ' เหรียญ</b></div>' +
+            (ready ? '<button type="button" class="collect big" data-act="daily">COLLECT</button>' : '<button type="button" class="collect big" disabled>รับแล้ว ✓</button>') + '</div>' +
+        '</div>' +
+        '<h2>ตารางรางวัล <small>' + RW_DAYS + ' วันนับจากวันนี้ · เข้ามารับได้วันละครั้ง</small><span class="grow"></span><button type="button" class="btn sm" data-go="shop">ไปร้านค้า ›</button></h2>' +
+        '<div class="rw-track" tabindex="0" aria-label="ตารางรางวัลรายวัน">' + tiers + '</div>' +
+      '</div>';
+      var tick = function () {
+        var ms = untilReset(), el = document.querySelector('[data-clock]');
+        if (el) el.textContent = clock(ms);
+        if (ms <= 1000 && S.view === 'rewards') { clearInterval(rwTimer); setTimeout(function () { if (S.view === 'rewards') show('rewards'); }, 1500); }   // ข้ามเที่ยงคืน → โหลดสถานะใหม่
+      };
+      clearInterval(rwTimer); rwTimer = setInterval(tick, 1000);
+    });
+  }
+
   /* ---------- สลับหน้า ---------- */
-  var RENDER = { home: renderHome, shop: renderShop };
+  var RENDER = { home: renderHome, shop: renderShop, rewards: renderRewards };
   var seq = 0;
   function show(v) {
-    if (!RENDER[v]) v = 'home'; S.view = v; var my = ++seq;
-    document.title = { home: 'Home', shop: 'ร้านค้า' }[v] + ' · AvastFall TCG';
+    if (!RENDER[v]) v = 'home'; S.view = v; var my = ++seq; clearInterval(rwTimer);
+    document.title = { home: 'Home', shop: 'ร้านค้า', rewards: 'Rewards' }[v] + ' · AvastFall TCG';
     try { history.replaceState(null, '', '#' + v); } catch (e) { }
     tell({ afHubView: v });
     return RENDER[v]().then(function () {
@@ -505,7 +542,7 @@
     else if (/^ol/.test(a.dataset.act)) olAct(a.dataset.act);
     else if (a.dataset.act === 'resume') go('play');
     else if (a.dataset.act === 'playdeck') launch(a.dataset.deck);
-    else if (a.dataset.act === 'daily') { a.disabled = true; api('POST', '/api/me/daily').then(function (r) { setCoins(r.coins); toast('🎁 ได้รับ ' + r.amount + ' เหรียญ!'); show('home'); }).catch(function (er) { toast(er.message, true); a.disabled = false; }); }
+    else if (a.dataset.act === 'daily') { a.disabled = true; api('POST', '/api/me/daily').then(function (r) { setCoins(r.coins); tell({ afDaily: false }); toast('🎁 ได้รับ ' + r.amount + ' เหรียญ!'); show(S.view); }).catch(function (er) { toast(er.message, true); a.disabled = false; }); }
   });
   /* เว็บหลักสั่งสลับหน้า (แท็บ Home / Shop บนแถบเมนู) */
   addEventListener('message', function (e) {

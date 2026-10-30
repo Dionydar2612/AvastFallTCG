@@ -101,3 +101,5 @@ body.shell{padding:0}
 .af-btn:hover{background:var(--gold);color:#111}
 .af-btn.pri{background:var(--gold);color:#111;box-shadow:3px 3px 0 var(--line)}
 .af-btn[disabled]{opacity:.55;cursor:not-allowed}
+/* จุดแดงที่แท็บ Rewards = มีรางวัลรายวันที่ยังไม่ได้รับ */
+.site-sw button .dot{position:absolute;top:13px;right:4px}
