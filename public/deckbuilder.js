@@ -16,7 +16,7 @@
 
   let DEFS = {}, DECKS = {}, ELS = [], inited = false;
   const owned = id => (((window.__AF || {}).owned) || {})[id] || 0;          // จำนวนที่ผู้ใช้มีจริง (รวมเวอร์ชันพิเศษเข้าใบหลักแล้ว)
-  const S = { own: true, id: null, name: DEFAULT_NAME, avatar: null, counts: {}, edeck: null, tab: 'ALL', q: '', fd: '', ft: '', fe: '', sort: 'id', fin: false, sh: 'mid', elopen: false };
+  const S = { own: true, id: null, name: DEFAULT_NAME, avatar: null, counts: {}, edeck: null, tab: 'ALL', q: '', mf: {}, sort: 'id', fin: false, sh: 'mid', elopen: false };
 
   /* ---------------- storage (try/catch เสมอ) ---------------- */
   const lsGet = k => { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch (e) { return null; } };
@@ -33,9 +33,33 @@
       const raw = c.cost != null ? c.cost : c.sc;
       const list = Array.isArray(c.els) && c.els.length ? c.els : [c.el || (DECKS[c.deck] || {}).el].filter(Boolean);
       const els = [...new Set(list)];
-      DEFS[id] = { id, deck: c.deck, no: c.no, name: c.name, kind, cost: raw == null ? 0 : raw, noCost: raw == null, tribe: c.tribe || '', els, img: c.img || '', fx: c.fx || [] };
+      DEFS[id] = { id, deck: c.deck, no: c.no, name: c.name, kind, cost: raw == null ? 0 : raw, noCost: raw == null, tribe: c.tribe || '', els, img: c.img || '', fx: c.fx || [],
+        rar: c.rar || (DECKS[c.deck] || {}).rar || '', atk: c.atk == null ? null : +c.atk, def: c.def == null ? null : +c.def, cri: c.cri == null ? null : +c.cri,
+        tags: String(c.tribe || '').split('/').map(x => x.trim()).filter(Boolean), kws: [...new Set((c.fx || []).map(e => String(e[0] || '').split(' ')[0]).filter(k => k && k !== 'COST'))] };
     }
     ELS = Object.keys(window.ELEMENTS || {});
+  }
+  /* ---------------- ตัวกรองหลายตัว (public/mfilter.js) ---------------- */
+  let SPEC = [], MFSYNC = () => { };
+  function buildSpec() {
+    const defs = Object.values(DEFS).filter(d => d.kind !== 'Avatar');
+    const u = f => [...new Set(defs.flatMap(f))].filter(x => x !== '' && x != null).sort((a, b) => String(a).localeCompare(String(b), 'th')).map(v => ({ v }));
+    const mx = k => Math.max(0, ...defs.map(d => +d[k] || 0));
+    SPEC = [
+      { t: 'chips', k: 'deck', label: 'เด็ค/ซีรีส์', items: u(d => [d.deck]) },
+      { t: 'chips', k: 'kind', label: 'ประเภท', items: KINDS.map(v => ({ v })) },
+      { t: 'chips', k: 'el', label: 'ธาตุ', items: [...new Set(defs.flatMap(d => d.els))].map(v => ({ v, i: ico(v, 15) })), mode: true },
+      { t: 'chips', k: 'rar', label: 'ความหายาก', items: u(d => [d.rar]), adv: true },
+      { t: 'chips', k: 'kw', label: 'Keyword', items: u(d => d.kws), mode: true, adv: true },
+      { t: 'chips', k: 'tag', label: 'เผ่า / สังกัด', items: u(d => d.tags), mode: true, adv: true, limit: 12 },
+      { t: 'range', k: 'cost', label: 'Cost', min: 0, max: mx('cost'), adv: true },
+      { t: 'range', k: 'atk', label: 'ATK', min: 0, max: mx('atk'), adv: true },
+      { t: 'range', k: 'def', label: 'DEF', min: 0, max: mx('def'), adv: true },
+      { t: 'range', k: 'cri', label: 'CRI', min: 0, max: mx('cri'), adv: true }];
+  }
+  function clearAll() {
+    S.q = ''; const q = $('dq'); if (q) q.value = ''; MF.reset(S.mf); S.own = true; S.fin = false;
+    renderFilters(); renderPool();
   }
   const cmpId = (a, b) => a.deck.localeCompare(b.deck) || a.no.localeCompare(b.no);
   /* ข้อยกเว้นบน Avatar (ตรงกับ AF.allowedInDeck ใน web/js/engine/engine.js): Avatar บางใบใส่การ์ดนอกธาตุได้
@@ -153,6 +177,7 @@
           <label class="db-sr"><span aria-hidden="true">🔍</span><input id="dq" type="search" placeholder="ค้นหาชื่อ / รหัส / เผ่า"></label>
           <button class="chip db-tb" data-a="fpanel" id="dfb">⚙ Filters<i id="dfn" hidden></i></button>
           <button class="chip db-tb" data-a="spanel" id="dsb">⇅ Sorting</button>
+          <button class="chip db-tb" data-a="clrall" id="dclr" type="button" hidden>✕ ล้าง</button>
           <div class="db-panel db-filters" id="dfil" hidden></div>
           <div class="db-panel db-sortp" id="dsort" hidden></div>
         </div>
@@ -172,6 +197,7 @@
     </div>
     <div id="dov" class="db-ov" hidden></div><div id="dbt" class="db-toast" role="status"></div>`;
     $('dfil').innerHTML = '';
+    MFSYNC = MF.bind($('dfil'), SPEC, S.mf, renderPool);
     initSheetDrag(); applySh();
     $('v-deck').addEventListener('contextmenu', e => { if (!canHover) return; const t = e.target.closest && e.target.closest('.db-img[data-id]'); if (t) { e.preventDefault(); add(t.dataset.id, -1); } });
     $('dq').addEventListener('input', e => { S.q = e.target.value; renderPool(); });
@@ -183,17 +209,14 @@
   }
 
   function renderFilters() {
-    const decks = [...new Set(Object.values(DEFS).map(d => d.deck))].sort();
-    const els = [...new Set(Object.values(DEFS).flatMap(d => d.els))];
-    const sel = (k, items, all0) => `<select data-k="${k}" aria-label="${esc(all0)}"><option value="">${esc(all0)}</option>${items.map(o => Array.isArray(o) ? opt(o[0], S[k], o[1]) : opt(o, S[k])).join('')}</select>`;
-    $('dfil').innerHTML = sel('fd', decks, 'ทุกเด็ค') + sel('ft', KINDS, 'ทุกประเภท') + sel('fe', els, 'ทุกธาตุ') +
-      `<label class="db-chk"><input type="checkbox" data-k="own" ${S.own ? 'checked' : ''}> เฉพาะที่ฉันมี</label><label class="db-chk"><input type="checkbox" data-k="fin" ${S.fin ? 'checked' : ''}> เฉพาะที่อยู่ในเด็ค</label>`;
+    $('dfil').innerHTML = `<div class="db-fh"><label class="db-chk"><input type="checkbox" data-k="own" ${S.own ? 'checked' : ''}> เฉพาะที่ฉันมี</label><label class="db-chk"><input type="checkbox" data-k="fin" ${S.fin ? 'checked' : ''}> เฉพาะที่อยู่ในเด็ค</label><button type="button" class="mf-clr" data-a="clrall">✕ ล้างทั้งหมด</button></div>` + MF.render(SPEC, S.mf);
+    MFSYNC();
     renderSort();
   }
   const SORTS = [['id', 'เรียงตามรหัส'], ['cost', 'Cost ต่ำ → สูง'], ['costd', 'Cost สูง → ต่ำ'], ['name', 'เรียงตามชื่อ']];
   function renderSort() { $('dsort').innerHTML = SORTS.map(([v, l]) => `<button class="chip ${S.sort === v ? 'on' : ''}" data-a="sortset" data-v="${v}">${l}</button>`).join(''); }
   function closePanels() { if ($('dfil')) { $('dfil').hidden = true; $('dsort').hidden = true; } }
-  function updBadge() { const n = ['fd', 'ft', 'fe'].filter(k => S[k]).length + (S.fin ? 1 : 0) + (S.own ? 0 : 1); $('dfn').textContent = n || ''; $('dfn').hidden = !n; }
+  function updBadge() { const n = MF.count(SPEC, S.mf) + (S.fin ? 1 : 0) + (S.own ? 0 : 1); $('dfn').textContent = n || ''; $('dfn').hidden = !n; const c = $('dclr'); if (c) c.hidden = !(n || S.q.trim()); }
   const SH = ['min', 'mid', 'full'];
   const isMob = () => !!(window.matchMedia && matchMedia('(max-width:900px)').matches);
   function applySh() { const e = $('dedit'); if (e) SH.forEach(k => e.classList.toggle('sh-' + k, S.sh === k)); }
@@ -212,13 +235,14 @@
 
   function renderPool() {
     hideZoom();
-    const av = DEFS[S.avatar], nc = nameCounts(S), q = S.q.trim().toLowerCase();
+    const av = DEFS[S.avatar], nc = nameCounts(S), q = S.q.trim().toLowerCase(), terms = q.split(/\s+/).filter(Boolean);
     const sorter = S.sort === 'cost' ? (x, y) => x.cost - y.cost || cmpId(x, y) : S.sort === 'costd' ? (x, y) => y.cost - x.cost || cmpId(x, y)
       : S.sort === 'name' ? (x, y) => x.name.localeCompare(y.name, 'th') || cmpId(x, y) : cmpId;
     const pool = Object.values(DEFS).filter(d => d.kind !== 'Avatar');
-    const lib = pool.filter(d => (S.tab === 'ALL' || tabOf(d.kind) === S.tab) && (!S.fd || d.deck === S.fd) && (!S.ft || d.kind === S.ft) &&
-      (!S.fe || d.els.includes(S.fe)) && (!S.fin || (S.counts[d.id] || 0) > 0) && (!S.own || owned(d.id) > 0 || (S.counts[d.id] || 0) > 0) &&
-      (!q || (d.name + ' ' + d.id + ' ' + d.tribe).toLowerCase().includes(q))).sort(sorter);
+    const lib = pool.filter(d => (S.tab === 'ALL' || tabOf(d.kind) === S.tab) && MF.has(S.mf, 'deck', [d.deck]) && MF.has(S.mf, 'kind', [d.kind]) && MF.has(S.mf, 'el', d.els) && MF.has(S.mf, 'rar', [d.rar]) && MF.has(S.mf, 'kw', d.kws) && MF.has(S.mf, 'tag', d.tags) &&
+      MF.inRange(S.mf, 'cost', d.noCost ? null : d.cost) && MF.inRange(S.mf, 'atk', d.atk) && MF.inRange(S.mf, 'def', d.def) && MF.inRange(S.mf, 'cri', d.cri) &&
+      (!S.fin || (S.counts[d.id] || 0) > 0) && (!S.own || owned(d.id) > 0 || (S.counts[d.id] || 0) > 0) &&
+      (!terms.length || ((h) => terms.every(t => h.includes(t)))((d.name + ' ' + d.id + ' ' + d.tribe).toLowerCase()))).sort(sorter);
     updBadge();
     $('dcnt').innerHTML = `แสดง <b>${lib.length}</b> จาก <b>${pool.length}</b> ใบ`;
     $('dgrid').innerHTML = lib.map(d => {
@@ -381,6 +405,7 @@
         openOv(`<div class="zpop zd">${zoomHtml(d)}</div><div class="db-acts"><button class="chip pri" data-a="add" data-id="${esc(id)}">＋ เพิ่มลงเด็ค</button><button class="chip" data-a="closeov">ปิด</button></div>`); return;
       }
       case 'tab': S.tab = t.dataset.v; return renderSide();
+      case 'clrall': return clearAll();
       case 'fpanel': { const o = $('dfil').hidden; closePanels(); $('dfil').hidden = !o; return; }
       case 'spanel': { const o = $('dsort').hidden; closePanels(); $('dsort').hidden = !o; return; }
       case 'sortset': S.sort = t.dataset.v; renderSort(); closePanels(); return renderPool();
@@ -423,6 +448,9 @@
     if (document.getElementById('dzoom-css')) return;
     const s = document.createElement('style'); s.id = 'dzoom-css';
     s.textContent = `
+#dfil.db-panel:not([hidden]){display:block;max-height:min(72vh,620px);overflow:auto}
+#dfil .db-fh{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center;margin-bottom:12px;position:sticky;top:-12px;z-index:2;background:var(--card,#fff);padding:6px 0}#dfil .db-fh .mf-clr{margin-left:auto}
+#dfil .mf-chips .chip{font-size:.88rem}#dclr[hidden]{display:none!important}
 #dzoom{position:fixed;left:0;top:0;z-index:2147483000;box-sizing:border-box;width:360px;max-width:calc(100vw - 16px);padding:10px;pointer-events:none;opacity:0;visibility:hidden;transform:scale(.97);transition:opacity .12s,transform .12s;background:var(--card,#fff);color:var(--ink,#111);border:3px solid var(--ink,#111);border-radius:20px;box-shadow:8px 8px 0 rgba(0,0,0,.35);overflow:hidden;font-size:15px;line-height:1.5}
 #dzoom.on{opacity:1;visibility:visible;transform:none}
 #dzoom .zi,.zpop .zi{display:flex;justify-content:center}
@@ -575,7 +603,7 @@ html.embed #dedit .db-wrap{height:calc(100vh - 84px)}
     refreshOwned(map) { window.__AF = window.__AF || {}; window.__AF.owned = map || {}; if (!inited) return; renderFilters(); if (S.mode === 'edit') renderSide(); else renderList(); },
     init() {
       if (inited) return; inited = true;
-      buildDefs(); injectZoomCss(); skeleton(); renderFilters(); initZoom();
+      buildDefs(); buildSpec(); injectZoomCss(); skeleton(); renderFilters(); initZoom();
       document.querySelectorAll('.sitetabs a[data-v]').forEach(a => a.addEventListener('click', ev => { ev.preventDefault(); showView(a.dataset.v); }));
       setMode('list');
       fromHash();

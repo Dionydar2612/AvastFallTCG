@@ -23,6 +23,10 @@ input,select{font:inherit;color:var(--ink);background:var(--card);border:3px sol
 .chip{font:inherit;color:var(--ink);background:var(--card);border:2px solid var(--ink);border-radius:99px;padding:4px 14px;cursor:pointer}
 .chip.on{background:var(--ink);color:var(--bg)}
 .filters{padding:16px;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:14px}
+.mfbox{padding:16px;margin-bottom:14px}
+.srch{display:flex;gap:10px;align-items:flex-start;margin-bottom:12px}.srch .search{margin-bottom:0;flex:1;min-width:0}
+#clr{white-space:nowrap;align-self:stretch;font-weight:700;padding:4px 16px;box-shadow:3px 3px 0 var(--ink)}#clr[hidden]{display:none}
+@media(max-width:560px){.srch{flex-direction:column}#clr{align-self:flex-start;padding:4px 14px}}
 .filters label{font-weight:700;display:block;margin-bottom:4px}
 .filters input[type=range]{padding:0;border:0;accent-color:var(--ink)}
 .cnt{text-align:center;color:var(--mut);margin:10px 0}
@@ -122,14 +126,12 @@ table.ct{border-collapse:collapse;width:100%;min-width:640px}
 <div id="v-cards">
 <h1>การ์ดทั้งหมด</h1>
 <p style="margin:-4px 0 12px"><a href="/api/docs" target="_blank" rel="noopener" style="color:var(--ink)">📘 API สำหรับนักพัฒนา</a></p>
-<input id="q" class="search" placeholder="ค้นหาการ์ดด้วยชื่อ เลขการ์ด หรือข้อความในเอฟเฟกต์...">
+<div class="srch"><input id="q" class="search" placeholder="ค้นหาด้วยชื่อ เลขการ์ด เผ่า หรือข้อความเอฟเฟกต์… (เว้นวรรคเพื่อค้นหลายคำพร้อมกัน)"><button id="clr" class="chip" type="button" hidden>✕ ล้างการค้นหา</button></div>
 <div class="row"><span>เรียงตาม:</span><span id="sorts"></span></div>
 <div class="modes" id="modes"><span>มุมมอง:</span><span id="modeBtns"></span><span class="sp"></span>
 <label id="szw">ขนาด <input id="sz" type="range" min="90" max="300" step="10" value="150"></label>
 <select id="own" aria-label="กรองตามคอลเลกชัน"><option value="">การ์ดทั้งหมด</option><option value="own">เฉพาะที่ฉันมี</option><option value="miss">เฉพาะที่ยังไม่มี</option></select></div>
-<div class="box filters"><div><label>เด็ค/ซีรีส์</label><select id="fd"><option value="">ทั้งหมด</option></select></div><div><label>Rotation</label><select id="fo"><option value="">ทั้งหมด</option></select></div><div><label>ประเภทการ์ด</label><select id="ft"><option value="">ทั้งหมด</option></select></div><div><label>ธาตุ</label><select id="fe"><option value="">ทั้งหมด</option></select></div><div><label>ความหายาก</label><select id="fr"><option value="">ทั้งหมด</option></select></div><div><label>Keyword</label><select id="fk"><option value="">ทั้งหมด</option></select></div>
-<div><label>Cost สูงสุด: <span id="cv">0</span></label><input id="fc" type="range" min="0" max="10" value="10"></div>
-</div>
+<div class="box mfbox" id="mfBox"></div>
 <div class="cnt" id="cnt"></div>
 <div class="grid" id="grid"></div>
 </div>
@@ -138,7 +140,11 @@ table.ct{border-collapse:collapse;width:100%;min-width:640px}
 <div id="modal"><button class="nav" id="prev">‹</button><div class="dlg box" id="dlg"></div><button class="nav" id="next">›</button></div>
 <script>
 const $=id=>document.getElementById(id);
-const FIL={fd:"deck",fo:"rot",ft:"type",fe:"el",fr:"rar"};
+const MFS={};let SPEC=[],MFSYNC=()=>{};   // ตัวกรองหลายตัว (public/mfilter.js)
+const tagsOf=c=>String(c.tribe||"").split("/").map(x=>x.trim()).filter(Boolean);
+const elsOf=c=>c.els&&c.els.length?c.els:[c.el].filter(Boolean);
+const kwsOf=c=>uniq(c.fx.map(e=>String(e[0]||"").split(" ")[0])).filter(k=>k&&k!=="COST");
+const statOf=(c,k)=>c[k]==null?null:+c[k];
 const SORTS={no:"ซีรีส์",name:"ชื่อ",type:"ประเภท",cost:"Cost"};
 let ALL=[],list=[],cur=0,sort="no",OWN={};
 const MODES={gallery:"🖼 แกลเลอรี",list:"📃 รายการ",table:"📊 ตาราง",series:"📚 แยกตามซีรีส์"};
@@ -152,9 +158,23 @@ const pic=c=>c.img?`<img loading="lazy" src="${c.img}" alt="${c.name}">`:`<div c
 function init(){
  ALL=CARDS.map((c,i)=>{const d=DECKS[c.deck]||{};const m={rot:d.rot,el:d.el,rar:d.rar,art:d.art,...c,i,fx:c.fx||[]};
   m.code=`${m.deck} ${m.rot||"-"} ${m.no}/${d.total||"?"}`;m.img=(typeof IMAGES!=="undefined"&&IMAGES[c.key||c.deck+"-"+c.no])||c.img||"";return m});
- for(const[id,k]of Object.entries(FIL))uniq(ALL.map(c=>c[k])).forEach(v=>$(id).insertAdjacentHTML("beforeend",`<option>${v}</option>`));
- uniq(ALL.flatMap(c=>c.fx.map(e=>e[0].split(" ")[0]))).filter(k=>k!=="COST").forEach(k=>$("fk").insertAdjacentHTML("beforeend",`<option>${k}</option>`));
- const mx=Math.max(0,...ALL.map(costOf));$("fc").max=mx;$("fc").value=mx;
+ const items=f=>uniq(ALL.flatMap(f)).sort((a,b)=>String(a).localeCompare(String(b),"th")).map(v=>({v}));
+ const mx=k=>Math.max(0,...ALL.map(c=>k==="cost"?(c.cost??c.sc??0):+c[k]||0));
+ SPEC=[
+  {t:"chips",k:"deck",label:"เด็ค/ซีรีส์",items:items(c=>[c.deck])},
+  {t:"chips",k:"type",label:"ประเภทการ์ด",items:items(c=>[c.type])},
+  {t:"chips",k:"el",label:"ธาตุ",items:uniq(ALL.flatMap(elsOf)).map(v=>({v,i:ico(v,16)})),mode:true},
+  {t:"chips",k:"rar",label:"ความหายาก",items:items(c=>[c.rar])},
+  {t:"chips",k:"sub",label:"ประเภทย่อย (Spell)",items:items(c=>[c.sub]),adv:true},
+  {t:"chips",k:"kw",label:"Keyword",items:items(kwsOf),mode:true,adv:true},
+  {t:"chips",k:"tribe",label:"เผ่า / สังกัด",items:items(tagsOf),mode:true,adv:true,limit:14},
+  {t:"chips",k:"rot",label:"Rotation",items:items(c=>[c.rot]),adv:true},
+  {t:"range",k:"cost",label:"Cost",min:0,max:mx("cost"),adv:true},
+  {t:"range",k:"cri",label:"CRI",min:0,max:mx("cri"),adv:true},
+  {t:"range",k:"atk",label:"ATK",min:0,max:mx("atk"),adv:true},
+  {t:"range",k:"def",label:"DEF",min:0,max:mx("def"),adv:true}];
+ $("mfBox").innerHTML=MF.render(SPEC,MFS);MFSYNC=MF.bind($("mfBox"),SPEC,MFS,render);
+ $("clr").onclick=()=>{$("q").value="";$("own").value="";MF.reset(MFS);MFSYNC();render()};
  $("sorts").innerHTML=Object.entries(SORTS).map(([k,v])=>`<button class="chip" data-s="${k}">${v}</button>`).join(" ");
  $("grid").onclick=e=>{const b=e.target.closest("[data-n]");if(b)show(+b.dataset.n)};
  $("modeBtns").innerHTML=Object.entries(MODES).map(([k,v])=>`<button class="chip" data-m="${k}">${v}</button>`).join(" ");
@@ -162,16 +182,20 @@ function init(){
  $("sz").value=gw;$("sz").oninput=()=>{gw=+$("sz").value;try{localStorage.setItem("cl-gw",gw)}catch(_){}$("grid").style.setProperty("--gw",gw+"px")};
  $("own").addEventListener("input",render);
  $("sorts").onclick=e=>{if(e.target.dataset.s){sort=e.target.dataset.s;render()}};
- ["q","fk","fc",...Object.keys(FIL)].forEach(i=>$(i).addEventListener("input",render));
+ $("q").addEventListener("input",render);
  $("prev").onclick=()=>show(cur-1);$("next").onclick=()=>show(cur+1);
  $("modal").onclick=e=>{if(e.target.id==="modal")closeM()};
  addEventListener("keydown",e=>{if(!$("modal").classList.contains("open"))return;if(e.key==="Escape")closeM();if(e.key==="ArrowLeft")show(cur-1);if(e.key==="ArrowRight")show(cur+1)});
  render();
 }
 function render(){
- const q=$("q").value.trim().toLowerCase(),k=$("fk").value,mx=+$("fc").value,v=id=>$(id).value;
- $("cv").textContent=mx;
- list=ALL.filter(c=>Object.entries(FIL).every(([id,f])=>!v(id)||c[f]===v(id))&&costOf(c)<=mx&&(!$("own").value||($("own").value==="own")===!!OWN[c.key||c.deck+"-"+c.no])&&(!k||c.fx.some(e=>e[0].startsWith(k)))&&(!q||[c.no,c.name,c.code,c.tribe,...c.fx.map(e=>e[1])].join(" ").toLowerCase().includes(q)));
+ const q=$("q").value.trim().toLowerCase(),terms=q.split(/\s+/).filter(Boolean),ow=$("own").value;
+ const hasC=c=>c.cost!=null||c.sc!=null;
+ list=ALL.filter(c=>MF.has(MFS,"deck",[c.deck])&&MF.has(MFS,"type",[c.type])&&MF.has(MFS,"el",elsOf(c))&&MF.has(MFS,"rar",[c.rar])&&MF.has(MFS,"sub",[c.sub])&&MF.has(MFS,"kw",kwsOf(c))&&MF.has(MFS,"tribe",tagsOf(c))&&MF.has(MFS,"rot",[c.rot])
+  &&MF.inRange(MFS,"cost",hasC(c)?costOf(c):null)&&MF.inRange(MFS,"cri",statOf(c,"cri"))&&MF.inRange(MFS,"atk",statOf(c,"atk"))&&MF.inRange(MFS,"def",statOf(c,"def"))
+  &&(!ow||(ow==="own")===!!OWN[c.key||c.deck+"-"+c.no])
+  &&(!terms.length||(h=>terms.every(t=>h.includes(t)))([c.no,c.name,c.code,c.tribe,c.deck+"-"+c.no,...c.fx.map(e=>e[1])].join(" ").toLowerCase())));
+ const nf=MF.count(SPEC,MFS)+(ow?1:0)+(q?1:0);$("clr").hidden=!nf;$("clr").textContent="✕ ล้างการค้นหา"+(nf?` (${nf})`:"");
  list.sort({no:(a,b)=>a.i-b.i,name:(a,b)=>a.name.localeCompare(b.name,"th"),type:(a,b)=>a.type.localeCompare(b.type)||a.i-b.i,cost:(a,b)=>costOf(a)-costOf(b)||a.i-b.i}[sort]);
  document.querySelectorAll("#sorts .chip").forEach(b=>b.classList.toggle("on",b.dataset.s===sort));
  $("cnt").innerHTML=`แสดง <b>${list.length}</b> จาก <b>${ALL.length}</b> การ์ด`;
@@ -216,5 +240,6 @@ addEventListener("message",e=>{if(e.origin!==location.origin||!e.data)return;
  if(e.data.afDeck){if(window.DB&&DB.ready&&DB.ready())DB.openDeck(e.data.afDeck);else window.__afDeckQ=e.data.afDeck}});
 
 </script>
-<script src="/cards/deckbuilder.js?v=9"></script>
+<script src="/cards/mfilter.js?v=1"></script>
+<script src="/cards/deckbuilder.js?v=10"></script>
 </body></html>
