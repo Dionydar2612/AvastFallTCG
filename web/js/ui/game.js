@@ -12,8 +12,8 @@ function startGame(){
     order:(G,pp,spec)=>req(token,p,'order',spec),respond:(G,pp,spec)=>req(token,p,'respond',spec),mulligan:(G,pp,spec)=>req(token,p,'mulligan',spec)});
   const io=[0,1].map(p=>c.mode==='hot'||(c.mode==='bot'&&p===humanIdx)?mkHuman(p):AF.makeBot({delay}));
   const names=c.mode==='bot'?['คุณ','บอท']:c.mode==='hot'?['ผู้เล่น 1','ผู้เล่น 2']:['บอท A','บอท B'];
-  const G=AF.createGame({decks:[deckOf(0),deckOf(1)],io,names,first:c.first==='random'?undefined:+c.first,refresh:scheduleRender});
-  Object.assign(ui,{G,screen:'game',pending:null,viewer:humanIdx??0,inspect:null,sel:null,menu:null,modal:null,cover:null,seen:0,over:null,tab:'card',peek:false,toast:'',gmenu:false,showPanel:false});
+  const G=AF.createGame({decks:[deckOf(0),deckOf(1)],io,names,first:c.first==='random'?undefined:+c.first,parallelMull:c.mode!=='hot',refresh:scheduleRender});
+  Object.assign(ui,{G,intro:{first:G.first},screen:'game',pending:null,viewer:humanIdx??0,inspect:null,sel:null,menu:null,modal:null,cover:null,seen:0,over:null,tab:'card',peek:false,toast:'',gmenu:false,showPanel:false});
   render();
   AF.runGame(G,120).then(r=>{if(ui.token===token){ui.over=r;ui.pending=null;render()}}).catch(e=>{console.error(e);if(ui.token===token){ui.err='เกิดข้อผิดพลาดในระบบ: '+e.message;ui.over={winner:null,reason:ui.err};render()}});
 }
@@ -112,7 +112,7 @@ function handHTML(){
 function barHTML(){
   const G=ui.G;const pd=pdOf();
   if(ui.over)return '';
-  if(!pd||ui.cover!==null){return `<div class="bar"><span class="msg muted">${G.phase==='setup'?'เตรียมเกม…':`${esc(G.players[G.active].name)} กำลังเล่น…`}${ui.ol&&!ui.ol.peer&&!ui.over?' · ⚠ เพื่อนหลุดการเชื่อมต่อ รอกลับเข้าห้อง':''}</span>${ui.cfg.mode!=='hot'&&ui.cfg.mode!=='online'?`<button class="btn sm" data-act="speed">${ui.cfg.speed===0?'ความเร็ว: ทันที':ui.cfg.speed<300?'ความเร็ว: เร็ว':ui.cfg.speed<800?'ความเร็ว: ปกติ':'ความเร็ว: ช้า'}</button>`:''}</div>`}
+  if(!pd||ui.cover!==null){return `<div class="bar"><span class="msg muted">${G.phase==='setup'?(ui.cfg.mode==='hot'?'เตรียมเกม…':'รอผู้เล่นอีกฝั่งเลือกมือเริ่มต้น… (ของคุณเลือกแล้ว)'):`${esc(G.players[G.active].name)} กำลังเล่น…`}${ui.ol&&!ui.ol.peer&&!ui.over?' · ⚠ เพื่อนหลุดการเชื่อมต่อ รอกลับเข้าห้อง':''}</span>${ui.cfg.mode!=='hot'&&ui.cfg.mode!=='online'?`<button class="btn sm" data-act="speed">${ui.cfg.speed===0?'ความเร็ว: ทันที':ui.cfg.speed<300?'ความเร็ว: เร็ว':ui.cfg.speed<800?'ความเร็ว: ปกติ':'ความเร็ว: ช้า'}</button>`:''}</div>`}
   const nm=esc(G.players[pd.p].name);
   if(pd.kind==='act'){
     const ph=pd.spec.phase;
@@ -153,8 +153,15 @@ function panelHTML(){
   else body=rulesHTML(true);
   return `<aside class="panel ${ui.showPanel?'show':''}"><button class="btn sm pclose" data-act="panel">✕ ปิด</button><div class="tabs">${tabs.map(([k,l])=>`<button class="${ui.tab===k?'on':''}" data-act="tab" data-v="${k}">${l}</button>`).join('')}</div><div class="pbody">${body}</div></aside>`;
 }
+function introHTML(){
+  const G=ui.G,f=G.first,s=1-f,hot=ui.cfg.mode==='hot',me=ui.viewer;
+  const card=(p,first)=>`<div class="ti-p ${first?'first':'second'} ${!hot&&p===me?'me':''}"><span class="ti-n">${first?'1':'2'}</span><div><b>${esc(G.players[p].name)}</b>${!hot&&p===me?' <em>(คุณ)</em>':''}<small>${first?'เริ่มก่อน':'เริ่มหลัง'}</small></div></div>`;
+  const note=hot?'สองคนใช้เครื่องเดียวกัน ตอนเลือกมือเริ่มต้นจะถามทีละคน แล้วระบบจะบอกให้ส่งเครื่องต่อ':ui.cfg.mode==='online'?'ต่างคนต่างเลือกเปลี่ยนมือเริ่มต้นได้พร้อมกัน ไม่ต้องรอเพื่อน':'เลือกว่าจะเปลี่ยนมือเริ่มต้นหรือเก็บไว้ในขั้นต่อไป';
+  return `<div class="cover"><div class="ti"><h1>ลำดับการเล่น</h1><p class="muted">${ui.cfg.mode!=='online'&&ui.cfg.first!=='random'?'ตามที่ตั้งค่าไว้':'สุ่มแล้ว'}</p>${card(f,true)}${card(s,false)}${!hot&&me===f?'<p class="ti-t"><b>คุณได้เล่นก่อน</b></p>':!hot&&me===s?'<p class="ti-t"><b>คุณเล่นหลัง</b></p>':''}<p class="muted">${note}</p><button class="btn pri" data-act="intro">ไปเลือกมือเริ่มต้น</button></div></div>`;
+}
 function gameHTML(){
   const G=ui.G;const fresh=freshLog();const v=ui.viewer;
+  if(ui.intro)return introHTML();
   if(ui.cover!==null)return `<div class="cover"><div style="display:grid;gap:14px;justify-items:center"><h1>ส่งอุปกรณ์ให้ ${esc(G.players[ui.cover].name)}</h1><p>ให้ผู้เล่นอีกฝั่งหันหน้าหนี แล้วกดเมื่อพร้อม</p><button class="btn" data-act="ready">พร้อมแล้ว</button></div></div>`;
   const opp=1-v;
   const btns=`<button class="btn sm" data-act="settings">⚙ ตั้งค่า</button><button class="btn sm" data-act="help">กติกา</button>${ui.cfg.mode==="online"?"":`<button class="btn sm" data-act="restart">เริ่มใหม่</button>`}<button class="btn sm" data-act="surrender">ยอมแพ้</button>`;

@@ -128,6 +128,7 @@ function handle(act,d,el,e){
       setTimeout(()=>URL.revokeObjectURL(a.href),1000);
       return;
     }
+    case 'intro':ui.intro=null;return render();
     case 'ready':ui.viewer=ui.cover;ui.cover=null;return render();
     case 'speed':{const s=ui.cfg.speed;ui.cfg.speed=s>=800?0:s===0?250:s<300?550:1000;saveCfg();return render()}
     case 'pass':return answer({t:'pass'});

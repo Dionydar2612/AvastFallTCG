@@ -6,7 +6,7 @@ function pendingModalHTML(){
   const pd=pdOf();if(!pd||ui.cover!==null)return '';
   const s=pd.spec;const G=ui.G;
   if(pd.kind==='mulligan'){
-    return `<div class="ov"><div class="dlg"><h2>${esc(G.players[pd.p].name)}: มือเริ่มต้น</h2><p class="muted">เปลี่ยนมือได้ 1 ครั้ง การ์ดทั้งหมดจะไปอยู่ใต้เด็ค จั่วใหม่ 6 ใบ แล้วสับเด็ค</p><div class="cgrid">${s.hand.map(c=>`<div class="pc"><div class="card ${cardArt(c.def.id)}" data-pop="${c.uid}"></div><small>${esc(c.def.name)}</small></div>`).join('')}</div><div class="acts"><button class="btn" data-act="mull" data-v="1">เปลี่ยนมือ (Mulligan)</button><button class="btn pri" data-act="mull" data-v="0">เก็บมือนี้</button></div></div></div>`;
+    return `<div class="ov"><div class="dlg"><h2>${esc(G.players[pd.p].name)}: มือเริ่มต้น</h2><p class="muted">${pd.p===G.first?'เริ่มก่อน':'เริ่มหลัง'}${ui.cfg.mode==='hot'?'':' · เลือกได้เลย ไม่ต้องรออีกฝั่ง'} · เปลี่ยนมือได้ 1 ครั้ง การ์ดทั้งหมดจะไปอยู่ใต้เด็ค จั่วใหม่ 6 ใบ แล้วสับเด็ค</p><div class="cgrid">${s.hand.map(c=>`<div class="pc"><div class="card ${cardArt(c.def.id)}" data-pop="${c.uid}"></div><small>${esc(c.def.name)}</small></div>`).join('')}</div><div class="acts"><button class="btn" data-act="mull" data-v="1">เปลี่ยนมือ (Mulligan)</button><button class="btn pri" data-act="mull" data-v="0">เก็บมือนี้</button></div></div></div>`;
   }
   if(pd.kind==='respond'){
     const it=s.item;const P=G.players[pd.p];

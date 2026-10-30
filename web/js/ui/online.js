@@ -113,7 +113,7 @@ function olStart(m){
   const io=[0,1].map(p=>p===me?local(p):remote());
   const names=[0,1].map(p=>(m.names&&m.names[p])||'ผู้เล่น '+(p+1));
   const G=AF.createGame({decks:m.decks,io,names,first:m.first,seed:m.seed,refresh:scheduleRender});
-  Object.assign(ui,{G,screen:'game',pending:null,viewer:me,inspect:null,sel:null,menu:null,modal:null,cover:null,seen:0,over:null,tab:'card',peek:false,toast:'',err:''});
+  Object.assign(ui,{G,intro:{first:G.first},screen:'game',pending:null,viewer:me,inspect:null,sel:null,menu:null,modal:null,cover:null,seen:0,over:null,tab:'card',peek:false,toast:'',err:''});
   render();
   AF.runGame(G,120).then(r=>{if(ui.token===token){ui.over=r;ui.pending=null;render()}}).catch(e=>{console.error(e);if(ui.token===token){const ds=/desync/.test(e.message);ui.err=ds?'สถานะเกมของสองเครื่องไม่ตรงกัน (desync) ต้องจบเกมนี้':'เกิดข้อผิดพลาดในระบบ: '+e.message;ui.over={winner:null,reason:ui.err};render()}});
 }

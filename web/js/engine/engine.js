@@ -120,7 +120,7 @@ AF.createGame = function (cfg) {
   const G = {
     seed, rng: mulberry32(seed), uidSeq: 0, turn: 0, active: 0, first: 0, phase: 'setup',
     stack: [], over: null, log: [], players: [], io: cfg.io, names: cfg.names || ['ผู้เล่น 1', 'ผู้เล่น 2'],
-    tf: null, refresh: cfg.refresh || (() => { }), version: 0, events: []
+    tf: null, refresh: cfg.refresh || (() => { }), version: 0, events: [], parallelMull: cfg.parallelMull !== false
   };
   for (let i = 0; i < 2; i++) {
     const d = cfg.decks[i];
@@ -961,9 +961,14 @@ async function setup(G) {
   for (const P of G.players) { P.avatar.card.zone = 'avatar'; }
   for (const P of G.players) { draw(G, P.idx, 6); }
   const order = [G.first, opp(G.first)];
+  // ทั้งสองฝั่งตัดสินใจเปลี่ยนมือ "พร้อมกัน" (ไม่ต้องรอกัน) แล้วค่อยนำผลมาใช้ตามลำดับเดิม (ผู้เล่นคนแรกก่อน) เพื่อให้สุ่ม/สับเด็คตรงกันทั้งสองเครื่อง
+  // โหมดสองคนในเครื่องเดียวใช้หน้าจอเดียวกัน จึงถามทีละคน (parallelMull:false)
+  const ans = {};
+  if (G.parallelMull) { const r = await Promise.all(order.map(p => ask(G, p, 'mulligan', { hand: G.players[p].hand.slice() }))); order.forEach((p, i) => { ans[p] = r[i]; }); }
+  else for (const p of order) ans[p] = await ask(G, p, 'mulligan', { hand: G.players[p].hand.slice() });
   for (const p of order) {
     const P = G.players[p];
-    const mul = await ask(G, p, 'mulligan', { hand: P.hand.slice() });
+    const mul = ans[p];
     if (mul) {
       const old = P.hand.splice(0, P.hand.length); old.forEach(c => { c.zone = 'deck'; P.deck.push(c); });
       draw(G, p, 6); shuffleDeck(G, p);

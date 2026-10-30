@@ -399,3 +399,13 @@ html.ingame .top:not(.side){position:sticky;top:0;z-index:20;background:var(--pa
 .side{grid-template-columns:minmax(0,1fr)}
 
 .side.top{display:grid;overflow:visible;margin-bottom:0}
+
+.ti{display:grid;gap:14px;justify-items:center;max-width:420px;width:100%}
+.ti h1{margin:0}.ti p{margin:0}
+.ti-p{display:flex;align-items:center;gap:14px;width:100%;padding:12px 16px;border:3px solid currentColor;border-radius:14px;text-align:left}
+.ti-p.first{background:var(--gold,#ffc20e);color:#111}
+.ti-p.me{box-shadow:0 0 0 4px rgba(255,194,14,.45)}
+.ti-p b{font-size:1.25rem}.ti-p em{font-style:normal;opacity:.75}
+.ti-p small{display:block;font-weight:700;font-size:.95rem}
+.ti-n{display:grid;place-items:center;width:40px;height:40px;border-radius:50%;border:3px solid currentColor;font:800 1.3rem/1 inherit;flex:none}
+.ti-t{font-size:1.1rem}
