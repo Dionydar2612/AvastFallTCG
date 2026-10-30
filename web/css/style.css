@@ -409,3 +409,44 @@ html.ingame .top:not(.side){position:sticky;top:0;z-index:20;background:var(--pa
 .ti-p small{display:block;font-weight:700;font-size:.95rem}
 .ti-n{display:grid;place-items:center;width:40px;height:40px;border-radius:50%;border:3px solid currentColor;font:800 1.3rem/1 inherit;flex:none}
 .ti-t{font-size:1.1rem}
+
+/* ---------- อ่านรายละเอียด/สกิลการ์ดให้ชัดบนมือถือ ----------
+   โครงของ inspectorHTML: .ihd (รูป + ชื่อ/ชิป) แล้วตามด้วย .fxl (ข้อความสกิล)
+   จอกว้าง = .ihd/.itx ไม่มีผลต่อเลย์เอาต์ (display:contents) · มือถือ = รูปซ้าย ชื่ออยู่ขวา สกิลเต็มความกว้างข้างล่าง ตัวใหญ่ เลื่อนอ่านได้ */
+.ihd,.itx{display:contents}
+.pop-x{display:none}
+@media (max-width:1050px){
+  .panel .insp .ihd{display:flex;gap:12px;align-items:flex-start;margin-bottom:8px}
+  .panel .insp .itx{display:block;min-width:0;flex:1}
+  .panel .insp .big{width:min(34vw,170px);max-width:none;margin:0;flex:none}
+  .panel .insp h3{font-size:18px;line-height:1.25}
+  .panel .insp .fxl{font-size:15px;gap:8px;line-height:1.55}
+}
+@media (max-width:700px){
+  #cardpop.sheet{pointer-events:auto;left:8px!important;right:8px;top:calc(env(safe-area-inset-top,0px) + 6px)!important;transform:none;width:auto;
+    max-height:min(70dvh,calc(100dvh - 150px));overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;
+    padding:12px 14px 16px;font-size:15.5px;line-height:1.55;border-radius:16px;z-index:85}
+  #cardpop.sheet .pop-x{display:flex;position:sticky;top:0;z-index:3;width:max-content;margin:0 0 -34px auto;min-height:34px;padding:2px 12px;align-items:center;font-size:13px}
+  #cardpop.sheet .ihd{display:flex;gap:12px;align-items:flex-start;margin-bottom:10px}
+  #cardpop.sheet .itx{display:block;min-width:0;flex:1}
+  #cardpop.sheet .insp .big{width:min(36vw,150px);max-width:none;margin:0;flex:none;cursor:zoom-in}
+  #cardpop.sheet .insp h3{font-size:19px;line-height:1.25;margin-bottom:4px;padding-right:76px}
+  #cardpop.sheet .kv{gap:5px}
+  #cardpop.sheet .kv .chip{font-size:12.5px;padding:1px 9px}
+  #cardpop.sheet .insp .fxl{font-size:15.5px;gap:9px}
+  #cardpop.sheet .kw{font-size:12px;padding:3px 7px;margin-right:6px}
+  #cardpop.sheet .note{font-size:14px}
+  #cardpop.sheet .muted{font-size:13.5px}
+  /* แตะรูปการ์ดเพื่อขยายเต็มความกว้าง (แตะอีกครั้งเพื่อย่อ) */
+  #cardpop.sheet.zoom .ihd{flex-direction:column;align-items:center}
+  #cardpop.sheet.zoom .insp .big{width:min(74vw,320px);cursor:zoom-out}
+  #cardpop.sheet.zoom .itx{width:100%}
+  #cardpop.sheet.zoom .insp h3{padding-right:0;text-align:center}
+  #cardpop.sheet.zoom .kv{justify-content:center}
+  .menu{z-index:90}
+
+  /* สนามเล่นบนมือถือ: ลดของรองบนกระดานเพื่อให้ Unit/Avatar ใหญ่ขึ้น (ดูรายละเอียดผ่านแผ่นด้านบนเมื่อแตะ) */
+  .mini{--cw:calc(var(--cwb)*.56)}
+  .mslot{width:calc(var(--cwb)*.56);height:calc(var(--cwb)*.79)}
+  .azone>.zlab{display:none}
+}

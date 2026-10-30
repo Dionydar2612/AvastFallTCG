@@ -40,10 +40,11 @@ function showPop(c,el,pin,force){
     if(!ui.G||ui.screen!=='game'||ui.cover!==null){return hidePop()}
     if(c.zone==='hand'&&c.owner!==ui.viewer&&!ui.peek&&ui.cfg.mode!=='spec')return hidePop();
     if(c.zone==='deck')return hidePop();}
-    pop.innerHTML=inspectorHTML(c);popPin=!!pin;pop.hidden=false;
-    const r=el.getBoundingClientRect(),W=250,vw=innerWidth,vh=innerHeight;
-    const sheet=vw<700;pop.classList.toggle('sheet',sheet);
-    if(sheet)return;
+    const vw=innerWidth,vh=innerHeight,sheet=vw<700;
+    pop.innerHTML=(sheet?'<button type="button" class="btn sm pop-x" data-popx aria-label="ปิด">✕ ปิด</button>':'')+inspectorHTML(c);popPin=!!pin;pop.hidden=false;
+    const r=el.getBoundingClientRect(),W=250;
+    pop.classList.toggle('sheet',sheet);pop.classList.remove('zoom');pop.scrollTop=0;
+    if(sheet)return;   // มือถือ: แผ่นรายละเอียดเต็มความกว้าง เลื่อนอ่านได้ (css .sheet)
     const menuW=pin&&ui.menu!==false?300:0;
     let x=r.right+8+(pin?menuW-r.width:0);
     if(x+W>vw-8)x=r.left-W-8;
@@ -53,6 +54,12 @@ function showPop(c,el,pin,force){
   }catch(e){hidePop()}
 }
 document.addEventListener('keydown',e=>{if(e.key==='Escape')hidePop()});
+/* มือถือ: แผ่นรายละเอียดการ์ดแตะได้ — ปุ่มปิด · แตะรูปการ์ดเพื่อขยาย/ย่อ */
+pop.addEventListener('click',e=>{
+  if(!pop.classList.contains('sheet'))return;
+  if(e.target.closest('[data-popx]'))return hidePop();
+  if(e.target.closest('.big'))pop.classList.toggle('zoom');
+});
 function setInspect(c){
   const pb=document.querySelector('.pbody');if(!c||(ui.inspect&&ui.inspect.uid===c.uid))return;
   ui.inspect=c;if(ui.tab==='card'&&pb)pb.innerHTML=inspectorHTML(c);
