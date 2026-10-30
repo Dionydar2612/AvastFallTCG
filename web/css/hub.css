@@ -35,8 +35,8 @@ button{font:inherit;color:var(--ink)}
 .mode:focus-visible,.sublink:focus-visible{outline:3px solid var(--gold);outline-offset:-5px}
 
 /* ---------- เวที ---------- */
-.stage{position:relative;display:grid;grid-template-columns:minmax(0,46fr) minmax(0,54fr);height:calc(100vh - 46px);height:calc(100dvh - 46px);min-height:540px;max-height:840px;overflow:hidden}
-.art{position:relative;margin-right:-9%;z-index:2;filter:drop-shadow(4px 0 0 var(--gold))}
+.stage{position:relative;display:grid;grid-template-columns:minmax(0,46fr) minmax(0,54fr);min-height:540px;min-height:max(540px,calc(100dvh - 46px));overflow:hidden}   /* สูงตามเนื้อหา ไม่ตัดกล่องห้อง/SETS/DECKS */
+.art{position:relative;margin-right:-9%;z-index:2;align-self:stretch;filter:drop-shadow(4px 0 0 var(--gold))}
 .artcut{height:100%;clip-path:polygon(0 0,100% 0,84% 100%,0 100%)}
 .artin{position:relative;height:100%;overflow:hidden;background:radial-gradient(90% 70% at 40% 28%,#2f8aa0 0,#17506a 42%,#0a2233 100%)}
 .artin::before{content:"";position:absolute;inset:-20%;background:repeating-conic-gradient(from 0deg at 42% 48%,rgba(255,255,255,.06) 0 6deg,transparent 6deg 18deg)}
@@ -54,8 +54,8 @@ button{font:inherit;color:var(--ink)}
 
 .side{position:relative;display:flex;flex-direction:column;padding-left:17%;background-color:var(--hexbg);
   background-image:var(--hexsvg)}
-.center{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:18px 12px 0;min-height:0}
-.hexo{width:clamp(150px,27vh,236px);aspect-ratio:1.1547;clip-path:polygon(25% 0,75% 0,100% 50%,75% 100%,25% 100%,0 50%);background:conic-gradient(from 30deg,#ffc20e,#1b4aa8,#111,#ffc20e,#1b4aa8,#111,#ffc20e);padding:7px;filter:drop-shadow(0 8px 0 rgba(0,0,0,.18))}
+.center{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:14px 12px 0}
+.hexo{width:clamp(120px,21vh,200px);aspect-ratio:1.1547;clip-path:polygon(25% 0,75% 0,100% 50%,75% 100%,25% 100%,0 50%);background:conic-gradient(from 30deg,#ffc20e,#1b4aa8,#111,#ffc20e,#1b4aa8,#111,#ffc20e);padding:7px;filter:drop-shadow(0 8px 0 rgba(0,0,0,.18))}
 .hexi{width:100%;height:100%;clip-path:polygon(25% 0,75% 0,100% 50%,75% 100%,25% 100%,0 50%);background:#223c52;overflow:hidden}
 .hexi img,.hexi .noimg{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 8%;transform:scale(2.1);transform-origin:50% 20%}
 .dpill{display:inline-flex;align-items:center;gap:10px;max-width:100%;padding:5px 18px;border:3px solid #02060a;border-radius:99px;background:var(--panel);color:var(--ink);box-shadow:3px 3px 0 #02060a;cursor:pointer;font:700 15px/1.3 var(--f)}
