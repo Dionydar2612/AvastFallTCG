@@ -1,32 +1,29 @@
 <!DOCTYPE html>
 <html lang="th"><head><meta charset="utf-8">
-<link rel="icon" href="/favicon.ico" sizes="any"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png"><link rel="icon" type="image/png" sizes="192x192" href="/assets/icon-192.png"><link rel="apple-touch-icon" href="/assets/apple-touch-icon.png"><meta name="theme-color" content="#0a2233">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex,nofollow">
 <title>Admin – Card Battle</title>
-<link rel="stylesheet" href="/css/lobby.css?v=1">
 <style>
-:root{--bg:#fbfbf7;--ink:#111;--card:#fff;--mut:#666;--ok:#1a7f37;--bad:#c0121f;--warn:#9a6700;--pap:#fff8ec;--gold:#ffc20e;--rule:#bfe3ea;--soft:#e6e4dc;--nav:#0f1c27;box-sizing:border-box}
-@media(prefers-color-scheme:dark){:root{--bg:#15171a;--ink:#f2f2f2;--card:#22252a;--mut:#aaa;--ok:#4cc16b;--bad:#ff6b6b;--warn:#e3b341;--pap:#2d2a22;--rule:#2a3a40;--soft:#34383e}}
-*{box-sizing:border-box}html{scroll-padding-top:12px}
-body{margin:0;background:var(--bg) repeating-linear-gradient(transparent 0 31px,var(--rule) 31px 32px);color:var(--ink);font:15px/1.6 'Mali',Tahoma,'Noto Sans Thai',sans-serif}
-main{margin:0}
-h1{font-size:1.7rem;margin:0;line-height:1.2}h2{margin:0 0 6px;font-size:1.25rem}h3{margin:16px 0 6px;font-size:1rem;color:var(--mut)}
-.box{border:3px solid var(--ink);border-radius:14px;background:var(--card);box-shadow:4px 4px 0 var(--ink);padding:18px;margin-bottom:18px}
+:root{--bg:#fbfbf7;--ink:#111;--card:#fff;--mut:#666;--ok:#1a7f37;--bad:#c0121f;--warn:#9a6700;--pap:#fff8ec;--gold:#ffc20e;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root{--bg:#15171a;--ink:#f2f2f2;--card:#22252a;--mut:#aaa;--ok:#4cc16b;--bad:#ff6b6b;--warn:#e3b341;--pap:#2d2a22}}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.6 'Mali',Tahoma,'Noto Sans Thai',sans-serif}
+main{max-width:1100px;margin:0 auto;padding:18px 14px 60px}
+h1{font-size:1.6rem;margin:0}h2{margin:0 0 10px;font-size:1.2rem}h3{margin:14px 0 6px;font-size:1rem;color:var(--mut)}
+.box{border:3px solid var(--ink);border-radius:14px;background:var(--card);box-shadow:4px 4px 0 var(--ink);padding:16px;margin-bottom:16px}
 input,select,button{font:inherit;color:var(--ink);background:var(--card);border:2px solid var(--ink);border-radius:10px;padding:6px 10px}
-input[type=file]{width:100%}input[type=checkbox],input[type=radio]{width:auto}
+input[type=file]{width:100%}
 textarea{font:inherit;color:var(--ink);background:var(--card);border:2px solid var(--ink);border-radius:10px;padding:6px 10px;width:100%}
-input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible{outline:3px solid var(--gold);outline-offset:1px}
-button{cursor:pointer;font-weight:700;transition:background .12s}button:hover{background:var(--gold);color:#111}
+button{cursor:pointer;font-weight:700}button:hover{background:var(--gold);color:#111}
 button.pri{background:var(--ink);color:var(--bg)}button.pri:hover{background:var(--gold);color:#111}
-button:disabled{opacity:.4;cursor:not-allowed}button.del{border-color:var(--bad);color:var(--bad)}button.del:hover{background:var(--bad);color:#fff}
+button:disabled{opacity:.4;cursor:not-allowed}button.del{border-color:var(--bad);color:var(--bad)}
+.top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}.tabs button{border-radius:99px}.tabs button.on{background:var(--ink);color:var(--bg)}
 .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0}
 .tbl{width:100%;border-collapse:collapse;display:block;overflow-x:auto}
-.tbl th{font-size:.8rem;color:var(--mut);text-transform:uppercase;letter-spacing:.04em}
-.tbl th,.tbl td{border-bottom:1px solid var(--soft);padding:8px 10px;text-align:left;vertical-align:middle;white-space:nowrap}
-.tbl tbody tr:hover td{background:var(--pap)}
+.tbl th,.tbl td{border-bottom:1px solid var(--mut);padding:6px 8px;text-align:left;vertical-align:middle;white-space:nowrap}
 .tbl td input{width:100%;min-width:70px;padding:3px 6px}
-.map{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:8px 16px}
+.map{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:8px 16px}
 .map label{display:flex;flex-direction:column;font-size:.85rem;font-weight:700}.map select{width:100%;font-weight:400}
 .req::after{content:" *";color:var(--bad)}
 .msg{padding:10px 12px;border-radius:10px;border:2px solid;margin:8px 0;white-space:pre-wrap}
@@ -36,105 +33,56 @@ button:disabled{opacity:.4;cursor:not-allowed}button.del{border-color:var(--bad)
 .thumb{width:36px;height:50px;object-fit:cover;border-radius:4px;border:1px solid var(--mut);vertical-align:middle}
 .drop{border:3px dashed var(--ink);border-radius:14px;padding:26px;text-align:center}.drop.over{background:var(--pap)}
 ul.l{margin:6px 0;padding-left:20px}
+#login{max-width:380px;margin:60px auto}
 dialog{border:3px solid var(--ink);border-radius:14px;background:var(--card);color:var(--ink);box-shadow:4px 4px 0 var(--ink);padding:18px;max-width:440px;width:92vw}
 dialog::backdrop{background:rgba(0,0,0,.55)}
 .chips{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}.chips button{border-radius:99px;padding:3px 14px}.chips button.on{background:var(--ink);color:var(--bg)}
-.paste{border:3px dashed var(--ink);border-radius:14px;padding:12px 14px;margin:10px 0;background:var(--pap)}.paste textarea{background:var(--card);margin-top:6px}
+.paste{border:3px dashed var(--ink);border-radius:14px;padding:12px 14px;margin:10px 0;background:var(--pap)}
+.paste textarea{background:var(--card);margin-top:6px}
 button.rar{border-color:#1b4aa8;color:#1b4aa8}
+/* ---- ร้านค้า: ตารางความกว้างคงที่ ไม่ให้คอลัมน์ซ้อนกัน ---- */
+.shop{width:100%;min-width:640px;table-layout:fixed;border-collapse:collapse}
+.shopwrap{overflow-x:auto}
+.shop th,.shop td{padding:10px 12px;text-align:left;vertical-align:middle;border-bottom:1px solid var(--mut)}
+.shop th{font-size:.85rem;color:var(--mut)}
+.shop .c-prod{width:auto}.shop .c-kind{width:120px}.shop .c-price{width:130px}.shop .c-sale{width:90px;text-align:center}.shop .c-act{width:110px;text-align:right}
+.shop td.c-sale,.shop th.c-sale{text-align:center}.shop td.c-act,.shop th.c-act{text-align:right}
+.shop .pname{font-weight:700;overflow-wrap:anywhere}.shop .psku{font-size:.85rem;color:var(--mut);overflow-wrap:anywhere}
+.shop td.c-price input{width:100%;min-width:0;padding:6px 10px}
+.shop td.c-sale input{width:20px;height:20px;padding:0;cursor:pointer}
+.shop td.c-act button{white-space:nowrap}
+.shop tr.dirty td{background:var(--pap)}
+@media(max-width:700px){.shop .c-kind{width:90px}.shop .c-price{width:100px}}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--ok);margin-right:6px;box-shadow:0 0 0 0 var(--ok);animation:pulse 2s infinite}
+@keyframes pulse{70%{box-shadow:0 0 0 7px transparent}}
+.stat{display:flex;gap:12px;flex-wrap:wrap;margin:10px 0}.stat>div{border:2px solid var(--ink);border-radius:12px;padding:8px 16px;min-width:130px;background:var(--pap)}
+.stat b{display:block;font-size:1.6rem;line-height:1.2}
+.lv{font-weight:700}.lv.error{color:var(--bad)}.lv.warn{color:var(--warn)}.lv.info{color:var(--ok)}
+.logs td{white-space:normal;overflow-wrap:anywhere;font-size:.85rem}
 [hidden]{display:none!important}
-#login{max-width:420px;margin:70px auto;padding:22px}
-/* ---- เลย์เอาต์: เมนูซ้าย + เนื้อหา ---- */
-#app{display:grid;grid-template-columns:250px minmax(0,1fr);min-height:100vh}
-.side{position:sticky;top:0;align-self:start;height:100vh;overflow:auto;background:var(--nav);color:#fff;padding:16px 12px 20px;border-right:3px solid #000;display:flex;flex-direction:column;gap:4px}
-.brand{display:flex;align-items:center;gap:10px;padding:2px 8px 14px;font-weight:700;font-size:1.05rem}
-.brand .lg{display:block;width:40px;height:40px;flex:none;object-fit:contain;filter:drop-shadow(0 2px 0 rgba(0,0,0,.5))}
-.brand small{display:block;font-weight:400;font-size:.72rem;color:#9fb4c4;line-height:1.2}
-.grp{margin:12px 8px 4px;font-size:.72rem;letter-spacing:.1em;color:#7f95a6;text-transform:uppercase;font-weight:700}
-.nav button{display:flex;align-items:center;gap:10px;width:100%;text-align:left;border:0;border-radius:10px;background:none;color:#c6d3de;padding:8px 12px;font-weight:600}
-.nav button:hover{background:rgba(255,255,255,.1);color:#fff}
-.nav button.on{background:var(--gold);color:#111}
-.nav .ic{width:22px;text-align:center}
-.side .foot{margin-top:auto;padding:14px 8px 0;border-top:1px solid rgba(255,255,255,.15);font-size:.85rem;color:#b8c7d4}
-.side .foot b{color:#fff;display:block}
-.side .foot a,.side .foot button{display:inline-block;margin:8px 8px 0 0;font-size:.82rem;padding:3px 12px;border-radius:99px;border:2px solid #4b6174;background:none;color:#e5edf3;text-decoration:none}
-.side .foot a:hover,.side .foot button:hover{background:var(--gold);color:#111;border-color:var(--gold)}
-.main{padding:24px 28px 70px;min-width:0;max-width:1180px;width:100%}
-.pagehead{margin-bottom:16px}.pagehead p{margin:2px 0 0;color:var(--mut)}
-.cards4{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-bottom:18px}
-.stat{border:3px solid var(--ink);border-radius:14px;background:var(--card);box-shadow:4px 4px 0 var(--ink);padding:12px 16px}
-.stat b{display:block;font-size:1.9rem;line-height:1.15}.stat span{color:var(--mut);font-size:.85rem}
-.stat.warnc b{color:var(--warn)}
-.quick{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
-.quick button{display:flex;gap:12px;align-items:center;text-align:left;padding:12px 14px;border-radius:12px}
-.quick button span.ic{font-size:1.5rem}.quick small{display:block;font-weight:400;color:var(--mut)}
-.quick button:hover small{color:#333}
-.badge{display:inline-block;border:2px solid var(--ink);border-radius:99px;padding:0 10px;font-size:.75rem;font-weight:700;background:var(--soft)}.badge.admin{background:var(--gold);color:#111}
-.help{border-left:5px solid var(--gold);background:var(--pap);border-radius:0 10px 10px 0;padding:8px 14px;margin:8px 0 12px;font-size:.9rem}
-.tools{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:6px 0 10px}.tools input{flex:1;min-width:180px}
-@media(max-width:560px){.cards4{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:860px){
- #app{display:block}
- .side{position:sticky;z-index:10;height:auto;flex-direction:row;align-items:center;gap:4px;overflow-x:auto;padding:8px 10px;border-right:0;border-bottom:3px solid #000;scrollbar-width:none}
- .side::-webkit-scrollbar{display:none}
- .brand{padding:0 8px 0 0;flex:none}.brand small,.grp,.side .foot{display:none}
- .nav{display:flex;gap:4px;flex:none}.nav button{width:auto;white-space:nowrap;padding:6px 12px}
- .main{padding:16px 12px 60px}
-}
 </style></head><body><main>
 
 <div id="login" class="box" hidden>
   <h2>🔐 Admin</h2>
   <p id="loginInfo" class="mut"></p>
-  <div class="row"><a href="/?next=/admin"><button class="pri" type="button">ไปหน้าเข้าสู่ระบบ</button></a></div>
-  <p class="mut">หลังบ้านใช้บัญชีเดียวกับเกม — บัญชีต้องมี role = admin (ตั้งอีเมลใน <code>ADMIN_EMAILS</code> บนเซิร์ฟเวอร์ หรือแก้คอลัมน์ role ในตาราง profiles ของ Supabase)</p>
+  <div class="row"><input id="pw" type="password" placeholder="รหัสผ่าน" autocomplete="current-password" style="flex:1"><button class="pri" id="loginBtn">เข้าสู่ระบบ</button></div>
+  <div id="loginErr" class="msg bad" hidden></div>
 </div>
 
 <div id="app" hidden>
-  <aside class="side">
-    <div class="brand"><img class="lg" src="/assets/logo-128.png" width="40" height="40" alt=""><div>AvastFall Admin<small>แผงจัดการหลังบ้าน</small></div></div>
-    <nav class="nav" id="tabs" aria-label="เมนูแอดมิน">
-      <div class="grp">ภาพรวม</div>
-      <button data-t="dash" class="on"><span class="ic">📊</span>แดชบอร์ด</button>
-      <div class="grp">การ์ด</div>
-      <button data-t="cards"><span class="ic">🃏</span>รายการการ์ด</button>
-      <button data-t="single"><span class="ic">＋</span>เพิ่มการ์ด 1 ใบ</button>
-      <button data-t="import"><span class="ic">📥</span>นำเข้า Excel</button>
-      <button data-t="images"><span class="ic">🖼</span>รูปภาพ</button>
-      <button data-t="decks"><span class="ic">📚</span>เด็ค / ซีรีส์</button>
-      <div class="grp">ผู้เล่น &amp; ร้านค้า</div>
-      <button data-t="users"><span class="ic">👤</span>ผู้ใช้</button>
-      <button data-t="shop"><span class="ic">🛒</span>ร้านค้า</button>
-      <div class="grp">ระบบ</div>
-      <button data-t="notes"><span class="ic">📣</span>Update Note</button>
-      <button data-t="backups"><span class="ic">💾</span>สำรอง / กู้คืน</button>
-    </nav>
-    <div class="foot"><b id="whoami"></b><span>แอดมิน</span><br><a href="/">← กลับไปเล่น</a><button id="logout">ออกจากระบบ</button></div>
-  </aside>
-  <div class="main">
-  <section id="t-dash">
-    <div class="pagehead"><h1>แดชบอร์ด</h1><p>ภาพรวมของเกมตอนนี้ — กดการ์ดด้านล่างเพื่อไปทำงานต่อได้เลย</p></div>
-    <div class="cards4" id="dashStats"><div class="stat"><span>กำลังโหลด…</span></div></div>
-    <div class="box"><h2>ทางลัด</h2><div class="quick">
-      <button data-go="single"><span class="ic">＋</span><span>เพิ่มการ์ดใหม่<small>กรอกทีละใบ ตรวจก่อนบันทึก</small></span></button>
-      <button data-go="import"><span class="ic">📥</span><span>นำเข้าจาก Excel<small>เพิ่มทีละหลายใบพร้อมรูป</small></span></button>
-      <button data-go="shop"><span class="ic">🛒</span><span>ตั้งราคา / ปิดขาย<small>ซองการ์ด · Starter Deck</small></span></button>
-      <button data-go="notes"><span class="ic">📣</span><span>โพสต์ Update Note<small>แจ้งข่าวผู้เล่นทุกคน</small></span></button>
-    </div></div>
-    <div class="box"><h2>ผู้สมัครล่าสุด</h2>
-      <div class="help">ผู้สมัครใหม่ทุกคนจะเป็น <b>ผู้เล่น (user)</b> โดยอัตโนมัติ และเริ่มต้นไม่มีการ์ดเลย — ต้องซื้อจากร้านค้าก่อนจึงจัดเด็คได้ · ต้องการให้ใครเป็นแอดมิน ไปที่แท็บ <b>ผู้ใช้</b> แล้วเปลี่ยนสิทธิ์</div>
-      <div id="dashUsers" class="mut">…</div></div>
-  </section>
+  <div class="top"><h1>🃏 Card Battle – Admin</h1>
+    <div class="row"><a href="/cards/" target="_blank" style="color:inherit">เปิดหน้า Card List ↗</a><button id="logout">ออกจากระบบ</button></div></div>
+  <div class="tabs" id="tabs">
+    <button data-t="import" class="on">นำเข้า Excel</button><button data-t="single">+ เพิ่มการ์ด 1 ใบ</button><button data-t="cards">การ์ด</button><button data-t="decks">เด็ค</button>
+    <button data-t="images">รูปภาพ</button><button data-t="shop">🛒 ร้านค้า</button><button data-t="online">🟢 ออนไลน์ <span id="onBadge" class="mut"></span></button><button data-t="logs">📜 Log</button><button data-t="notes">📣 Update Note</button><button data-t="backups">สำรอง/กู้คืน</button></div>
 
-  <section id="t-import" class="box" hidden>
+  <section id="t-import" class="box">
     <h2>นำเข้าการ์ดจาก Excel / CSV</h2>
     <div class="row"><a href="/admin/api/template.xlsx"><button>⬇ ดาวน์โหลดไฟล์ต้นแบบ</button></a>
       <a href="/admin/api/export.xlsx"><button>⬇ ส่งออกการ์ดปัจจุบัน (.xlsx)</button></a>
-      <span class="mut">รองรับ .xlsx, .csv (UTF-8) และวาง CSV/ข้อมูลจากชีทได้</span></div>
-    <h3>1) เลือกไฟล์ หรือวาง CSV</h3>
+      <span class="mut">รองรับ .xlsx และ .csv (UTF-8)</span></div>
+    <h3>1) เลือกไฟล์</h3>
     <input type="file" id="file" accept=".xlsx,.csv">
-    <p class="mut" style="margin:10px 0 4px">หรือ <b>วางข้อมูล CSV</b> ตรงนี้ (แถวแรกเป็นหัวคอลัมน์ · คัดลอกจาก Excel/Google Sheets มาวางได้เลย)</p>
-    <textarea id="csvText" rows="7" spellcheck="false" placeholder="deck,no,variant,name,type,element,cost,atk,def,effect1_keyword,effect1_text&#10;SD01,001,,ตัวอย่างยูนิต,Unit,ไฟ,2,3,2,,เมื่อลงสนาม จั่วการ์ด 1 ใบ" style="width:100%;font-family:ui-monospace,Consolas,monospace;font-size:13px;white-space:pre"></textarea>
-    <div class="row"><button id="csvUse" class="pri">📋 ใช้ข้อมูลที่วาง</button><button id="csvSample" type="button">ใส่ตัวอย่าง</button><button id="csvClear" type="button">ล้าง</button><span id="csvInfo" class="mut"></span></div>
     <h3>1.1) เลือกรูปการ์ด (ไม่บังคับ)</h3>
     <p class="mut">เลือกหลายรูปพร้อมกันได้ ชื่อไฟล์ต้องตรงกับรหัสการ์ดที่ Excel สร้าง เช่น <code>SD01-001.jpg</code> หรือ <code>SD03-009SR.png</code> · รองรับ JPG/PNG/WEBP · ไม่เกิน 5MB ต่อรูป รูปและ Excel จะถูกตรวจสอบพร้อมกัน และจะบันทึกเมื่อกดยืนยันเท่านั้น</p>
     <input type="file" id="importImgs" multiple accept="image/jpeg,image/png,image/webp">
@@ -224,6 +172,32 @@ button.rar{border-color:#1b4aa8;color:#1b4aa8}
     <h3>การ์ดที่ยังไม่มีรูป</h3><div id="noimg" class="mut"></div>
   </section>
 
+  <section id="t-shop" class="box" hidden>
+    <h2>ร้านค้า</h2>
+    <p class="mut">สินค้าถูกสร้างให้อัตโนมัติเมื่อมีชุดใหม่ (BT… = ซองการ์ด · SD… = Starter Deck) · แก้ราคา / ปิดขายได้ที่นี่ มีผลทันที</p>
+    <div id="shopMsg"></div>
+    <div class="shopwrap"><table class="shop">
+      <colgroup><col class="c-prod"><col class="c-kind"><col class="c-price"><col class="c-sale"><col class="c-act"></colgroup>
+      <thead><tr><th class="c-prod">สินค้า</th><th class="c-kind">ประเภท</th><th class="c-price">ราคา (เหรียญ)</th><th class="c-sale">วางขาย</th><th class="c-act"></th></tr></thead>
+      <tbody id="shopRows"></tbody></table></div>
+  </section>
+
+  <section id="t-online" class="box" hidden>
+    <h2><span class="dot"></span>ผู้ใช้ออนไลน์ตอนนี้</h2>
+    <p class="mut">นับจากผู้ที่เปิดหน้าเว็บอยู่ (ส่งสัญญาณทุก ~25 วินาที · เงียบเกิน 70 วินาทีถือว่าออฟไลน์) · อัปเดตอัตโนมัติทุก 10 วินาที · ไม่เก็บ IP จริง</p>
+    <div class="stat" id="onStat"></div>
+    <table class="tbl"><thead><tr><th>ผู้ใช้</th><th>หน้าที่เปิดอยู่</th><th>อุปกรณ์</th><th>อยู่มาแล้ว</th><th>เห็นล่าสุด</th></tr></thead><tbody id="onRows"></tbody></table>
+  </section>
+
+  <section id="t-logs" class="box" hidden>
+    <h2>📜 Log ระบบ</h2>
+    <p class="mut">แสดง 500 รายการล่าสุดในหน่วยความจำ · ไฟล์เต็มเก็บถาวรที่ <code>DATA_DIR/logs/</code> (14 วัน) ดาวน์โหลดได้ด้านล่าง</p>
+    <div class="row"><label>ระดับ: <select id="lgLevel"><option value="">ทั้งหมด</option><option value="warn">warn ขึ้นไป</option><option value="error">error เท่านั้น</option></select></label>
+      <label>ชนิด: <select id="lgType"><option value="">ทั้งหมด</option><option value="audit">การกระทำของแอดมิน</option><option value="http">HTTP ช้า/ผิดพลาด</option><option value="presence">ผู้ใช้เข้า/ออก</option></select></label>
+      <button id="lgReload">↻ รีเฟรช</button><span id="lgFiles" class="mut"></span></div>
+    <table class="tbl logs"><thead><tr><th>เวลา</th><th>ระดับ</th><th>ข้อความ</th></tr></thead><tbody id="lgRows"></tbody></table>
+  </section>
+
   <section id="t-notes" class="box" hidden>
     <h2>📣 Update Note (แจ้งผู้เล่น)</h2>
     <p class="mut">โน้ตที่โพสต์ที่นี่จะแสดงให้ผู้เล่นทุกคนเห็นในปุ่มกระดิ่ง Update Note ของหน้าเกม (มีจุดแดงเมื่อมีโน้ตใหม่) เก็บบนดิสก์ถาวรของ Render ไม่ต้องแก้โค้ด และลบได้จากหน้านี้เท่านั้น</p>
@@ -237,27 +211,11 @@ button.rar{border-color:#1b4aa8;color:#1b4aa8}
     <h3>โน้ตที่โพสต์แล้ว</h3><div id="noteList"></div>
   </section>
 
-  <section id="t-users" class="box" hidden>
-    <h2>ผู้ใช้</h2>
-    <p class="mut">ผู้ใช้ทั้งหมดที่สมัครผ่านหน้าเว็บ · ทุกคนเริ่มเป็น <b>ผู้เล่น</b> — ปรับเหรียญหรือตั้งเป็นแอดมินได้ที่นี่ (กดบันทึกท้ายแถว)</p>
-    <div class="tools"><input id="userQ" type="search" placeholder="ค้นหาชื่อผู้ใช้ / อีเมล"><span id="userCnt" class="mut"></span></div>
-    <div id="userMsg" class="msg" hidden></div>
-    <table class="tbl"><thead><tr><th>ชื่อผู้ใช้</th><th>อีเมล</th><th>สิทธิ์</th><th>เหรียญ</th><th>สมัครเมื่อ</th><th></th></tr></thead><tbody id="userRows"></tbody></table>
-  </section>
-
-  <section id="t-shop" class="box" hidden>
-    <h2>ร้านค้า</h2>
-    <p class="mut">สินค้าถูกสร้างให้อัตโนมัติเมื่อมีชุดใหม่ (BT… = ซองการ์ด · SD… = Starter Deck) · แก้ราคา / ปิดขายได้ที่นี่ มีผลทันที</p>
-    <div id="shopMsg" class="msg" hidden></div>
-    <table class="tbl"><thead><tr><th>สินค้า</th><th>ประเภท</th><th>ราคา (เหรียญ)</th><th>วางขาย</th><th></th></tr></thead><tbody id="shopRows"></tbody></table>
-  </section>
-
   <section id="t-backups" class="box" hidden>
     <h2>สำรอง / กู้คืน</h2>
     <p class="mut">ระบบสำรองอัตโนมัติก่อนการแก้ไขทุกครั้ง (เก็บ 30 ครั้งล่าสุด) · กู้คืนจะสำรองสถานะปัจจุบันไว้ให้ด้วย</p>
     <table class="tbl"><thead><tr><th>เวลา</th><th>สาเหตุ</th><th>การ์ด</th><th>เด็ค</th><th></th></tr></thead><tbody id="bakRows"></tbody></table>
   </section>
-  </div>
 </div>
 
 <dialog id="rarDlg">
@@ -272,6 +230,7 @@ button.rar{border-color:#1b4aa8;color:#1b4aa8}
 <script src="/admin/clip.js"></script>
 <script>
 const $=id=>document.getElementById(id);
+const TABS=["import","single","cards","decks","images","shop","online","logs","notes","backups"];
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const show=(el,on=true)=>el.hidden=!on;
 async function api(path,opts={}){
@@ -286,31 +245,25 @@ const jpost=(p,b)=>api(p,{method:"POST",headers:{"Content-Type":"application/jso
 
 /* ---------- login ---------- */
 async function start(){
-  const me=await fetch("/admin/api/me",{credentials:"same-origin"}).then(r=>r.json()).catch(()=>({}));
-  if(me.authed){show($("login"),false);show($("app"));$("whoami").textContent=me.user?me.user.username:"";loadAll();loadDash();return}
-  showLogin(!me.enabled?"⚠ เซิร์ฟเวอร์ยังไม่ได้ตั้งค่า Supabase จึงยังเข้าใช้งานไม่ได้":me.user?"บัญชี "+me.user.username+" ไม่มีสิทธิ์แอดมิน":"กรุณาเข้าสู่ระบบด้วยบัญชีแอดมิน");
+  const me=await fetch("/admin/api/me").then(r=>r.json());
+  if(me.authed){show($("login"),false);show($("app"));loadAll();return}
+  showLogin(me.enabled?"":"⚠ เซิร์ฟเวอร์ยังไม่ได้ตั้งค่า ADMIN_PASSWORD จึงยังเข้าใช้งานไม่ได้");
 }
-function showLogin(info){show($("app"),false);show($("login"));$("loginInfo").textContent=info||"กรุณาเข้าสู่ระบบ"}
-$("logout").onclick=async()=>{await fetch("/api/auth/logout",{method:"POST",credentials:"same-origin"});location.href="/"};
+function showLogin(info){show($("app"),false);show($("login"));$("loginInfo").textContent=info||"กรุณาเข้าสู่ระบบ";$("pw").focus()}
+async function doLogin(){
+  show($("loginErr"),false);
+  try{await jpost("/login",{password:$("pw").value});$("pw").value="";start()}
+  catch(e){$("loginErr").textContent=e.message;show($("loginErr"))}
+}
+$("loginBtn").onclick=doLogin;$("pw").onkeydown=e=>{if(e.key==="Enter")doLogin()};
+$("logout").onclick=async()=>{await jpost("/logout",{});start()};
 
 /* ---------- tabs ---------- */
-const TABS=["dash","import","single","cards","decks","images","notes","users","shop","backups"];
-function openTab(t){
-  [...$("tabs").querySelectorAll("button")].forEach(x=>x.classList.toggle("on",x.dataset.t===t));
-  TABS.forEach(x=>show($("t-"+x),x===t));
-  if(t==="backups")loadBackups();else if(t==="notes")loadNotes();else if(t==="users")loadUsers();else if(t==="shop")loadShop();else if(t==="dash")loadDash();else if(t!=="import")loadAll();
-  scrollTo(0,0);
-}
-$("tabs").onclick=e=>{const b=e.target.closest("button");if(b)openTab(b.dataset.t)};
-document.addEventListener("click",e=>{const g=e.target.closest("[data-go]");if(g)openTab(g.dataset.go)});
-async function loadDash(){
-  try{
-    const j=await api("/stats"),n=v=>Number(v).toLocaleString("th-TH");
-    $("dashStats").innerHTML=[["ผู้ใช้ทั้งหมด",n(j.users),`แอดมิน ${j.admins} · สมัครใหม่ 7 วัน ${j.newUsers7d}`],["การ์ดในระบบ",n(j.cards),`${j.sets} ซีรีส์/เด็ค`],["ยังไม่มีรูป",n(j.noImage),j.noImage?"ไปแท็บรูปภาพเพื่ออัปโหลด":"ครบทุกใบ 🎉",j.noImage?"warnc":""],["สินค้าวางขาย",`${j.shopActive}/${j.shopTotal}`,"ซองการ์ด · Starter Deck"],["ยอดซื้อทั้งหมด",n(j.purchases),`ใช้เหรียญไปแล้ว ${n(j.spent)}`],["เหรียญในระบบ",n(j.coinsTotal),"รวมของผู้เล่นทุกคน"]]
-      .map(([t,v,sub,c])=>`<div class="stat ${c||""}"><span>${esc(t)}</span><b>${esc(v)}</b><span>${esc(sub)}</span></div>`).join("");
-    $("dashUsers").innerHTML=j.recentUsers.length?`<table class="tbl"><tbody>${j.recentUsers.map(u=>`<tr><td><b>${esc(u.username)}</b></td><td><span class="badge ${u.role==="admin"?"admin":""}">${u.role==="admin"?"แอดมิน":"ผู้เล่น"}</span></td><td class="mut">${esc(new Date(u.created_at).toLocaleDateString("th-TH"))}</td></tr>`).join("")}</tbody></table>`:"ยังไม่มีผู้ใช้";
-  }catch(e){$("dashStats").innerHTML=`<div class="msg bad">${esc(e.message)}</div>`}
-}
+$("tabs").onclick=e=>{const b=e.target.closest("button");if(!b)return;
+  [...$("tabs").children].forEach(x=>x.classList.toggle("on",x===b));
+  TABS.forEach(t=>show($("t-"+t),t===b.dataset.t));
+  const t=b.dataset.t;clearInterval(onTimer);
+  if(t==="backups")loadBackups();else if(t==="notes")loadNotes();else if(t==="shop")loadShop();else if(t==="online"){loadOnline();onTimer=setInterval(loadOnline,10000)}else if(t==="logs")loadLogs();else if(t!=="import")loadAll()};
 
 /* ---------- import ---------- */
 let info=null;
@@ -337,51 +290,18 @@ function saveMap(sh){
 const curMap=()=>Object.fromEntries([...$("map").querySelectorAll("select")].map(s=>[s.dataset.k,+s.value]));
 $("sheet").onchange=()=>{renderMap();$("commit").disabled=true};
 $("importImgs").onchange=()=>{const fs=[...$("importImgs").files];$("chosenImgs").innerHTML=fs.length?`<p>เลือกรูปแล้ว ${fs.length} ไฟล์ (ตัวอย่าง 12 ไฟล์แรก):</p><div class="row">${fs.slice(0,12).map(f=>`<div style="width:100px;text-align:center"><img class="thumb" style="width:72px;height:100px;object-fit:contain" src="${URL.createObjectURL(f)}" alt=""><div style="font-size:11px;overflow-wrap:anywhere">${esc(f.name)}</div></div>`).join("")}</div>`:"ยังไม่ได้เลือกรูป (สามารถนำเข้า Excel อย่างเดียวได้)";$("commit").disabled=true};
-let pasted=null;                                   // CSV ที่วางในช่อง → แปลงเป็นไฟล์ pasted.csv แล้วเข้าขั้นตอนเดียวกับการอัปโหลดไฟล์
-const curFile=()=>pasted||$("file").files[0]||null;
-function resetImp(){show($("imp-err"),false);show($("imp-body"),false);$("imp-res").innerHTML="";$("commit").disabled=true}
-async function inspectFile(f){
+$("file").onchange=async()=>{
+  show($("imp-err"),false);show($("imp-body"),false);$("imp-res").innerHTML="";$("commit").disabled=true;
+  const f=$("file").files[0];if(!f)return;
   const fd=new FormData();fd.append("file",f);
   try{
     info=await api("/import/inspect",{method:"POST",body:fd});
     $("sheet").innerHTML=info.sheets.map(s=>`<option>${esc(s.name)}</option>`).join("");
     $("sheet").value=info.defaultSheet;renderMap();show($("imp-body"));
   }catch(e){$("imp-err").textContent=e.message;show($("imp-err"))}
-}
-$("file").onchange=()=>{
-  pasted=null;$("csvText").value="";$("csvInfo").textContent="";resetImp();
-  const f=$("file").files[0];if(f)inspectFile(f);
-};
-// คัดลอกจาก Excel/Sheets จะได้ข้อความคั่นด้วย Tab → แปลงเป็น CSV (รองรับ " ครอบข้อความและขึ้นบรรทัดใหม่ในช่อง)
-function tsvToCsv(t){
-  const rows=[];let row=[],cur="",q=false;
-  for(let i=0;i<t.length;i++){const c=t[i];
-    if(q){if(c==='"'){if(t[i+1]==='"'){cur+='"';i++}else q=false}else cur+=c}
-    else if(c==='"'&&cur==="")q=true;
-    else if(c==="\t"){row.push(cur);cur=""}
-    else if(c==="\n"||c==="\r"){if(c==="\r"&&t[i+1]==="\n")i++;row.push(cur);cur="";rows.push(row);row=[]}
-    else cur+=c;
-  }
-  if(cur!==""||row.length){row.push(cur);rows.push(row)}
-  return rows.map(r=>r.map(v=>/[",\n\r]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v).join(",")).join("\n");
-}
-$("csvUse").onclick=()=>{
-  let t=$("csvText").value.replace(/^\uFEFF/,"");
-  if(!t.trim()){$("csvInfo").textContent="ยังไม่ได้วางข้อมูล";return}
-  if((t.split(/\r?\n/,1)[0]||"").includes("\t"))t=tsvToCsv(t);
-  pasted=new File([t],"pasted.csv",{type:"text/csv"});
-  $("file").value="";$("csvInfo").textContent="";resetImp();inspectFile(pasted);
-};
-$("csvText").oninput=()=>{if(pasted){pasted=null;resetImp()}};
-$("csvClear").onclick=()=>{pasted=null;$("csvText").value="";$("csvInfo").textContent="";resetImp()};
-$("csvSample").onclick=()=>{
-  $("csvText").value=["deck,no,variant,name,type,element,cost,atk,def,effect1_keyword,effect1_text",
-    "SD01,101,,ตัวอย่างยูนิต,Unit,ไฟ,2,3,2,,เมื่อลงสนาม จั่วการ์ด 1 ใบ",
-    'SD01,102,,ตัวอย่างสเปล,Spell,ไฟ,1,,,,"ทำดาเมจ 2 ให้ยูนิตศัตรู 1 ใบ, แล้วจั่ว 1 ใบ"'].join("\n");
-  $("csvInfo").textContent="แก้รหัสเด็ค/เลขการ์ดให้ตรงของจริง แล้วกด \"ใช้ข้อมูลที่วาง\"";
 };
 async function run(dry){
-  const f=curFile();if(!f)return;
+  const f=$("file").files[0];if(!f)return;
   const mode=document.querySelector("input[name=mode]:checked").value;
   if(!dry&&mode==="replace"&&!confirm("โหมดแทนที่ทั้งหมด: การ์ดที่ไม่อยู่ในไฟล์จะถูกลบ (มีสำรองให้กู้คืนได้) ต้องการดำเนินการต่อ?"))return;
   const fd=new FormData();fd.append("file",f);[...$("importImgs").files].forEach(img=>fd.append("images",img));fd.append("sheet",$("sheet").value);fd.append("mapping",JSON.stringify(curMap()));fd.append("mode",mode);fd.append("dry",dry?"1":"0");
@@ -402,7 +322,7 @@ function renderRes(r){
   }
   if(r.warns?.length)h+=`<div class="msg warn"><b>คำเตือน ${r.warns.length} รายการ (ไม่บล็อกการนำเข้า)</b><ul class="l">${r.warns.slice(0,60).map(w=>`<li>${esc(w)}</li>`).join("")}</ul></div>`;
   $("imp-res").innerHTML=h;
-  if(r.ok&&!r.dry){$("file").value="";pasted=null;$("csvText").value="";$("importImgs").value="";$("chosenImgs").textContent="";show($("imp-body"),false);loadAll()}
+  if(r.ok&&!r.dry){$("file").value="";$("importImgs").value="";$("chosenImgs").textContent="";show($("imp-body"),false);loadAll()}
 }
 $("preview").onclick=()=>run(true);$("commit").onclick=()=>run(false);
 
@@ -422,7 +342,7 @@ function startEdit(id){
   $("editBanner").innerHTML=`<div class="row">${c.image?`<img class="thumb" style="width:72px;height:100px" src="${esc(c.image)}">`:""}<div><b>กำลังแก้ไข ${esc(c.id)} – ${esc(c.name)}</b><br>รหัส เด็ค และเลขการ์ดเปลี่ยนไม่ได้ · อยากเปลี่ยนรูป ให้เลือกไฟล์ในช่อง "รูปการ์ด" (ไม่เลือก = ใช้รูปเดิม) · แก้เสร็จกด ตรวจสอบข้อมูล แล้วกดยืนยัน</div></div>`;
   show($("editBanner"));$("singleForm").querySelector("button[type=reset]").textContent="ยกเลิกการแก้ไข";
   invalidateSingle();$("singlePreviewBox").innerHTML="";
-  [...$("tabs").querySelectorAll("button")].forEach(x=>x.classList.toggle("on",x.dataset.t==="single"));
+  [...$("tabs").children].forEach(x=>x.classList.toggle("on",x.dataset.t==="single"));
   TABS.forEach(t=>show($("t-"+t),t==="single"));scrollTo(0,0);
 }
 let singleChecked=false;
@@ -487,7 +407,7 @@ $("rarOk").onclick=()=>{
   $("singleTitle").textContent="เพิ่มความหายาก "+r+" ให้ "+c.id;
   $("editBanner").innerHTML=`<b>คัดลอกจาก ${esc(c.id)} – ${esc(c.name)}</b> → สร้างใบใหม่รหัส <b>${esc(rarId(c,r))}</b> (ความหายาก ${esc(r)})<br>ข้อมูลเหมือนใบเดิมทุกอย่าง แก้ไขเพิ่มได้ · ใบใหม่ใช้รูปของตัวเองจึงต้องเลือกรูปในช่อง “รูปการ์ด” (ไม่ใส่ก็ได้ อัปโหลดทีหลังได้) · เสร็จแล้วกด ตรวจสอบข้อมูล แล้วกดยืนยัน<br>เมื่อบันทึก การ์ดใบนี้จะเข้าซองของชุด ${esc(c.deck)} ให้เองตามความหายาก`;
   show($("editBanner"));invalidateSingle();$("singlePreviewBox").innerHTML="";
-  [...$("tabs").querySelectorAll("button")].forEach(x=>x.classList.toggle("on",x.dataset.t==="single"));
+  [...$("tabs").children].forEach(x=>x.classList.toggle("on",x.dataset.t==="single"));
   TABS.forEach(t=>show($("t-"+t),t==="single"));scrollTo(0,0);
 };
 
@@ -578,6 +498,46 @@ $("bakRows").onclick=async e=>{const b=e.target.closest("button");if(!b)return;
   if(!confirm("กู้คืนข้อมูลชุดนี้? (สถานะปัจจุบันจะถูกสำรองไว้ก่อน)"))return;
   try{await jpost("/backups/restore",{name:b.dataset.n});alert("กู้คืนแล้ว");loadAll();loadBackups()}catch(err){alert(err.message)}};
 
+/* ---------- ร้านค้า ---------- */
+let SHOP=[];
+async function loadShop(){const j=await api("/shop");SHOP=j.data;renderShop()}
+function renderShop(){
+  $("shopRows").innerHTML=SHOP.map(p=>`<tr data-sku="${esc(p.sku)}"><td class="c-prod"><div class="pname">${esc(p.title)}</div><div class="psku">${esc(p.sku)}</div></td><td class="c-kind">${esc(p.kindLabel)}</td><td class="c-price"><input type="number" min="0" step="1" inputmode="numeric" value="${p.price}" aria-label="ราคา ${esc(p.title)}"></td><td class="c-sale"><input type="checkbox" ${p.onSale?"checked":""} aria-label="วางขาย ${esc(p.title)}"></td><td class="c-act"><button class="pri" data-act="save">บันทึก</button></td></tr>`).join("")||'<tr><td colspan="5" class="mut">ยังไม่มีเด็ค/ซีรีส์ในระบบ</td></tr>';
+}
+$("shopRows").addEventListener("input",e=>e.target.closest("tr")?.classList.add("dirty"));
+$("shopRows").onclick=async e=>{
+  const b=e.target.closest("button");if(!b)return;const tr=b.closest("tr"),sku=tr.dataset.sku;
+  const price=tr.querySelector("input[type=number]").value,onSale=tr.querySelector("input[type=checkbox]").checked;
+  b.disabled=true;
+  try{await api("/shop/"+encodeURIComponent(sku),{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({price:Number(price),onSale})});
+    tr.classList.remove("dirty");$("shopMsg").innerHTML=`<div class="msg ok">บันทึก ${esc(sku)} แล้ว (ราคา ${esc(price)} · ${onSale?"วางขาย":"ปิดขาย"})</div>`}
+  catch(err){$("shopMsg").innerHTML=`<div class="msg bad">${esc(err.message)}</div>`}
+  b.disabled=false;
+};
+
+/* ---------- ผู้ใช้ออนไลน์ ---------- */
+let onTimer=null;
+const dur=s=>s<60?s+" วิ":s<3600?Math.floor(s/60)+" นาที":Math.floor(s/3600)+" ชม. "+Math.floor(s%3600/60)+" นาที";
+async function loadOnline(){
+  try{
+    const j=await api("/presence");$("onBadge").textContent="("+j.online+")";
+    const r=j.rooms||{};
+    $("onStat").innerHTML=`<div><b>${j.online}</b>กำลังออนไลน์</div><div><b>${j.uniqueVisitors}</b>จำนวนอุปกรณ์/IP ไม่ซ้ำ</div><div><b>${r.playing??0}</b>ห้องที่กำลังเล่น (${r.rooms??0} ห้อง)</div><div><b>${j.peak?.n??0}</b>สูงสุดตั้งแต่เปิดเซิร์ฟเวอร์${j.peak?.at?`<small class="mut"> · ${esc(new Date(j.peak.at).toLocaleTimeString("th-TH"))}</small>`:""}</div>`;
+    $("onRows").innerHTML=j.list.map(u=>`<tr><td>#${esc(u.id)}</td><td>${esc(u.page)}</td><td>${esc(u.device)}</td><td>${dur(u.secs)}</td><td>${Math.max(0,Math.round((Date.now()-u.lastSeen)/1000))} วิ ที่แล้ว</td></tr>`).join("")||'<tr><td colspan="5" class="mut">ตอนนี้ไม่มีใครออนไลน์</td></tr>';
+  }catch(e){clearInterval(onTimer)}
+}
+
+/* ---------- Log ---------- */
+async function loadLogs(){
+  const q=new URLSearchParams({level:$("lgLevel").value,type:$("lgType").value,limit:200});
+  const j=await api("/logs?"+q);
+  $("lgFiles").innerHTML=j.files.length?" ดาวน์โหลด: "+j.files.slice(0,7).map(f=>`<a href="/admin/api/logs/file/${esc(f)}">${esc(f.slice(4,14))}</a>`).join(" · "):"";
+  $("lgRows").innerHTML=j.data.map(r=>{const {t,level,msg,type,...rest}=r;
+    return `<tr><td style="white-space:nowrap">${esc(new Date(t).toLocaleString("th-TH"))}</td><td class="lv ${esc(level)}">${esc(level)}</td><td><b>${esc(msg)}</b> <span class="mut">${esc(Object.entries(rest).map(([k,v])=>k+"="+(typeof v==="object"?JSON.stringify(v):v)).join(" "))}</span></td></tr>`}).join("")||'<tr><td colspan="3" class="mut">ยังไม่มี log ตามเงื่อนไขนี้</td></tr>';
+}
+$("lgReload").onclick=loadLogs;$("lgLevel").onchange=loadLogs;$("lgType").onchange=loadLogs;
+setInterval(()=>{if($("app").hidden||$("t-online").hidden===false)return;fetch("/admin/api/presence",{credentials:"same-origin",headers:{"X-Admin":"1"}}).then(r=>r.ok?r.json():null).then(j=>{if(j)$("onBadge").textContent="("+j.online+")"}).catch(()=>{})},30000);
+
 /* ---------- Update Note ---------- */
 let NOTES=[],editingNote=null;
 const todayStr=()=>{const d=new Date();return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10)};
@@ -602,36 +562,6 @@ $("noteList").onclick=async e=>{
     try{await api("/updates/"+encodeURIComponent(n.id),{method:"DELETE"});if(editingNote===n.id)resetNoteForm();$("noteMsg").innerHTML="";loadNotes()}catch(err){alert(err.message)}}
 };
 resetNoteForm();
-
-
-/* ---------- ผู้ใช้ / ร้านค้า ---------- */
-const flash=(id,msg,bad)=>{const el=$(id);el.textContent=msg;el.className="msg "+(bad?"bad":"ok");show(el);setTimeout(()=>show(el,false),3500)};
-let USERS=[];
-async function loadUsers(){
-  const j=await api("/users");USERS=j.data;drawUsers()}
-function drawUsers(){
-  const q=($("userQ").value||"").trim().toLowerCase(),j={data:USERS.filter(u=>!q||(u.username+" "+u.email).toLowerCase().includes(q))};
-  $("userCnt").textContent=`${j.data.length}/${USERS.length} คน`;
-  $("userRows").innerHTML=j.data.map(u=>`<tr data-id="${esc(u.id)}"><td><b>${esc(u.username)}</b></td><td>${esc(u.email)}</td>
-    <td><select class="u-role"><option value="user"${u.role==="user"?" selected":""}>ผู้เล่น (user)</option><option value="admin"${u.role==="admin"?" selected":""}>แอดมิน (admin)</option></select></td>
-    <td><input class="u-coins" type="number" min="0" step="10" value="${u.coins|0}" style="width:110px"></td>
-    <td class="mut">${esc(new Date(u.created_at).toLocaleDateString("th-TH"))}</td><td><button class="u-save">บันทึก</button></td></tr>`).join("")||'<tr><td colspan="6" class="mut">ยังไม่มีผู้ใช้</td></tr>';
-}
-$("userQ").oninput=drawUsers;
-$("userRows").onclick=async e=>{const b=e.target.closest(".u-save");if(!b)return;const tr=b.closest("tr");
-  const was=(USERS.find(u=>u.id===tr.dataset.id)||{}).role;
-  if(was!=="admin"&&tr.querySelector(".u-role").value==="admin"&&!confirm("ตั้งผู้ใช้นี้เป็นแอดมิน? เขาจะแก้การ์ด ราคา และผู้ใช้อื่นได้ทั้งหมด"))return;
-  try{await api("/users/"+tr.dataset.id,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({role:tr.querySelector(".u-role").value,coins:tr.querySelector(".u-coins").value})});flash("userMsg","บันทึกแล้ว");const u=USERS.find(x=>x.id===tr.dataset.id);if(u){u.role=tr.querySelector(".u-role").value;u.coins=+tr.querySelector(".u-coins").value}}
-  catch(err){flash("userMsg",err.message,true)}};
-async function loadShop(){
-  const j=await api("/shop");
-  $("shopRows").innerHTML=j.data.map(i=>`<tr data-id="${esc(i.id)}"><td><b>${esc(i.name)}</b><div class="mut">${esc(i.id)}</div></td><td>${i.kind==="pack"?"ซองการ์ด":"Starter Deck"}</td>
-    <td><input class="s-price" type="number" min="0" step="10" value="${i.price|0}" style="width:110px"></td>
-    <td><label><input class="s-active" type="checkbox"${i.active?" checked":""}> วางขาย</label></td><td><button class="s-save">บันทึก</button></td></tr>`).join("")||'<tr><td colspan="5" class="mut">ยังไม่มีสินค้า (จะสร้างให้อัตโนมัติจากชุดการ์ด BT…/SD…)</td></tr>';
-}
-$("shopRows").onclick=async e=>{const b=e.target.closest(".s-save");if(!b)return;const tr=b.closest("tr");
-  try{await api("/shop/"+tr.dataset.id,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({price:tr.querySelector(".s-price").value,active:tr.querySelector(".s-active").checked})});flash("shopMsg","บันทึกแล้ว")}
-  catch(err){flash("shopMsg",err.message,true)}};
 
 start();
 </script></main></body></html>

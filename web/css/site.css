@@ -1,103 +1,50 @@
-/* แถบเมนูเดียวของทั้งเว็บ (ล็อบบี้เกม): Home · Play · Decks · Cards · Shop — แถบบนสีเข้ม ตัวอักษรเอียงตัวพิมพ์ใหญ่ ขีดทองใต้แท็บที่เลือก
-   ชิปเหรียญ/การ์ดอยู่มุมขวา · เมนูบัญชี (แผงแอดมินสำหรับแอดมิน · วิธีเล่น · Update Note · ออกจากระบบ)
-   การสลับหน้าใช้เอฟเฟกต์เดียวกันทุกหน้า: เลื่อนเข้าจากทิศทางตามลำดับแท็บ + จางเข้า (0.26 วินาที) */
-:root{--bar:#0f1c27;--bar2:#16293a;--bar-ink:#fff;--bar-mut:#9fb4c4;--f-lobby:'Barlow Condensed','Mali','Noto Sans Thai',Tahoma,sans-serif}
-body.shell{padding:0}
-.site-bar{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:20px;min-height:58px;padding:0 max(16px,env(safe-area-inset-right)) 0 max(16px,env(safe-area-inset-left));background:var(--bar);color:var(--bar-ink);border-bottom:3px solid #000;box-shadow:0 2px 0 rgba(255,194,14,.9)}
-.site-brand{display:flex;align-items:center;gap:10px;flex:none;color:var(--bar-ink);text-decoration:none;font:800 21px/1 var(--f-lobby);font-style:italic;letter-spacing:.02em;text-transform:uppercase;white-space:nowrap}
-.site-brand .lg{display:block;width:44px;height:44px;flex:none;object-fit:contain;filter:drop-shadow(0 2px 0 rgba(0,0,0,.5)) drop-shadow(0 0 8px rgba(255,194,14,.25))}
-.site-brand em{font:800 10px/1 var(--f-lobby);font-style:normal;letter-spacing:.08em;border:2px solid var(--gold);border-radius:6px;padding:3px 6px;color:var(--gold)}
-
-/* แท็บหลัก */
-.site-sw{position:relative;display:flex;align-self:stretch;margin-right:auto}
-.site-sw button{position:relative;z-index:1;border:0;background:none;color:var(--bar-mut);padding:0 20px;font:800 19px/1 var(--f-lobby);font-style:italic;letter-spacing:.04em;text-transform:uppercase;cursor:pointer;transition:color .2s}
-.site-sw button:hover{color:#fff}
-.site-sw button[aria-selected="true"]{color:var(--gold)}
-.site-sw button:focus-visible{outline:3px solid var(--gold);outline-offset:-6px;border-radius:8px}
-.site-sw .ind{position:absolute;left:0;bottom:-3px;height:5px;width:var(--pw,0);transform:translateX(var(--px,0));background:var(--gold);border-radius:3px 3px 0 0;opacity:0}
-.site-sw.ready .ind{opacity:1;transition:transform .32s cubic-bezier(.65,.05,.25,1),width .32s cubic-bezier(.65,.05,.25,1)}
-
-/* ชิปเหรียญ / การ์ด */
-.site-user{position:relative;display:flex;align-items:center;gap:10px;flex:none}
-.site-chip{display:inline-flex;align-items:center;gap:8px;min-width:112px;justify-content:flex-start;border:0;border-radius:6px;background:rgba(0,0,0,.38);color:#fff;padding:4px 14px 4px 6px;font:800 17px/1.2 var(--f-lobby);letter-spacing:.03em;cursor:pointer;box-shadow:inset 0 0 0 1px rgba(255,255,255,.12);transition:background .15s}
-.site-chip:hover{background:rgba(255,194,14,.22)}
-.site-chip b{margin-left:auto;font-weight:800}
-.site-chip .ic{flex:none;width:26px;height:26px;border-radius:50%}
-.site-chip.coin .ic{background:radial-gradient(circle at 35% 30%,#fff3b0 0 18%,#ffc20e 19% 62%,#c78f00 63%);box-shadow:0 0 0 2px #7a5600 inset}
-.site-chip.cards .ic{border-radius:5px;width:20px;height:26px;margin:0 3px;background:linear-gradient(135deg,#1b6fd8,#7b3fc4);box-shadow:0 0 0 2px #fff inset}
-.site-chip.bump{animation:bump .5s}
-@keyframes bump{40%{transform:scale(1.12)}}
-.site-me{position:relative;display:inline-flex;align-items:center;gap:8px;border:0;border-radius:99px;background:rgba(0,0,0,.38);color:#fff;padding:3px 12px 3px 3px;font:700 14px/1.2 var(--f-body);cursor:pointer;max-width:190px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)}
-.site-me:hover,.site-me[aria-expanded="true"]{background:rgba(255,194,14,.25)}
-.site-me .av{display:grid;place-items:center;flex:none;width:30px;height:30px;border-radius:50%;background:var(--gold);color:#111;font:800 15px/1 var(--f-lobby)}
-.site-me .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.site-me .chev{flex:none;transition:transform .15s}
-.site-me[aria-expanded="true"] .chev{transform:rotate(180deg)}
-.site-menu{position:absolute;right:0;top:calc(100% + 12px);min-width:230px;padding:6px;border:3px solid var(--line);border-radius:14px;background:var(--panel);color:var(--ink);box-shadow:var(--sh);z-index:40}
-.site-menu[hidden]{display:none}
-.site-menu .who{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 12px 10px;border-bottom:2px solid var(--soft);margin-bottom:4px}
-.site-menu .who b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.site-menu .role{flex:none;border:2px solid var(--line);border-radius:99px;padding:0 10px;font-size:.74rem;font-weight:700;background:var(--soft)}
-.site-menu .role.admin{background:var(--gold);color:#111}
-.site-menu button,.site-menu a{position:relative;display:flex;align-items:center;gap:8px;width:100%;text-align:left;border:0;border-radius:9px;background:none;color:var(--ink);padding:8px 12px;font:600 15px/1.2 var(--f-body);cursor:pointer;text-decoration:none}
-.site-menu button:hover,.site-menu a:hover,.site-menu button:focus-visible,.site-menu a:focus-visible{background:var(--gold);color:#111;outline:none}
-.site-menu button.out:hover{background:var(--coral,#e5484d);color:#fff}
-.site-menu hr{border:0;border-top:2px solid var(--soft);margin:4px 6px}
-.site-bar .dot{width:11px;height:11px;border-radius:50%;background:var(--coral,#e5484d);border:2px solid var(--bar)}
-.site-me .dot{position:absolute;top:-3px;right:-2px}
-.site-menu .dot{margin-left:auto;position:static;border-color:var(--panel)}
-.site-bar .dot[hidden]{display:none}
-
-/* พื้นที่แสดงหน้า: ทุกหน้าใช้เอฟเฟกต์เข้าแบบเดียวกัน */
-.site-view{position:relative}
-.site-pane{display:none;min-width:0}
-.site-pane.on{display:block;animation:paneIn .26s cubic-bezier(.2,.7,.2,1) both}
-@keyframes paneIn{from{opacity:0;transform:translateX(var(--dx,0))}to{opacity:1;transform:none}}
-.site-view[data-dir="-1"]{--dx:-22px}.site-view[data-dir="1"]{--dx:22px}.site-view[data-dir="0"]{--dx:0px}
-#cardsFrame,#hubFrame{display:block;width:100%;height:calc(100vh - var(--bar-h,58px));height:calc(100dvh - var(--bar-h,58px));border:0;background:var(--paper)}
-/* ห้ามมี transform ค้างหลังเอฟเฟกต์จบ: ไม่งั้นหน้าต่างป๊อปอัปของเกม (position:fixed) จะอ้างอิงผิดกรอบ — animation ไม่ใส่ fill-mode forwards จึงปลอดภัย */
-#panePlay{padding:12px 16px 40px}
+/* แถบเมนูเดียวของทั้งเว็บ: Playtest · Card List · Deckbuilder  (web/js/site.js)
+   สไตล์เดียวกับแถบ .sitetabs ของหน้า Card List (ขอบหนา 3px + เงาออฟเซ็ต + ป้ายสีหมึกเลื่อนตามแท็บ) */
+.site-bar{margin:0 -16px;position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px max(16px,env(safe-area-inset-right)) 10px max(16px,env(safe-area-inset-left));background:var(--paper);border-bottom:3px solid var(--line)}
+.site-brand{display:flex;align-items:center;gap:10px;font:700 20px/1.1 var(--f-disp);color:var(--ink);text-decoration:none;min-width:0;white-space:nowrap}
+.site-brand i{display:inline-grid;place-items:center;width:34px;height:34px;flex:none;border:3px solid var(--line);border-radius:10px;background:var(--gold);color:#111;font-style:normal;box-shadow:2px 2px 0 var(--line)}
+.site-brand em{font:700 10px/1 var(--f-body);font-style:normal;letter-spacing:.06em;border:2px solid var(--line);border-radius:6px;padding:3px 6px;background:var(--gold);color:#111}
+.site-sw{position:relative;display:grid;grid-template-columns:repeat(3,1fr);padding:0;border:3px solid var(--line);border-radius:14px;overflow:hidden;background:var(--panel);box-shadow:3px 3px 0 var(--line)}
+.site-sw .pill{position:absolute;top:0;bottom:0;left:0;width:33.3333%;border-radius:0;background:var(--ink);border:0;padding:0;transition:transform .38s cubic-bezier(.65,.05,.25,1),width .38s cubic-bezier(.65,.05,.25,1)}
+.site-sw[data-tab="cards"] .pill{transform:translateX(100%)}
+.site-sw[data-tab="deck"] .pill{transform:translateX(200%)}
+.site-sw button{position:relative;z-index:1;border:0;background:none;font:inherit;font-weight:700;padding:6px 20px;border-radius:0;color:var(--ink);cursor:pointer;transition:color .3s;white-space:nowrap}
+.site-sw button+button{border-left:3px solid var(--line)}
+.site-sw button[aria-selected="true"]{color:var(--paper)}
+.site-sw button:focus-visible{outline:3px solid var(--teal);outline-offset:-5px}
+.site-view{overflow-x:clip}
+.site-track{display:flex;width:200%;transition:transform .38s cubic-bezier(.65,.05,.25,1)}
+/* ห้ามมี transform/will-change ค้างตอนอยู่แท็บ Playtest: ไม่งั้นหน้าต่างป๊อปอัป (position:fixed) จะอ้างอิงแทร็กกว้าง 200% แล้วเลื่อนหลุดไปทางขวา */
+.site-view[data-tab="play"] .site-track{transform:none}
+.site-view[data-tab="cards"] .site-track,.site-view[data-tab="deck"] .site-track{transform:translateX(-50%)}
+.site-pane{width:50%;flex:none;min-width:0}
+.site-pane.off{height:0;overflow:hidden;visibility:hidden}
+#cardsFrame{display:block;width:100%;height:calc(100vh - var(--bar-h,56px));height:calc(100dvh - var(--bar-h,56px));border:0;background:var(--paper)}
+/* ทางลัดบนแถบเมนู: วิธีเล่น · กระดิ่ง Update Note */
+.site-tools{display:flex;align-items:center;gap:8px;margin-left:auto}
+.site-tool{position:relative;display:inline-flex;align-items:center;gap:6px;border:2px solid var(--line);border-radius:99px;background:var(--panel);color:var(--ink);padding:4px 14px;font:700 14px/1.2 inherit;font-family:inherit;cursor:pointer;white-space:nowrap}
+.site-tool:hover{background:var(--gold);color:#111}
+.site-tool:focus-visible{outline:3px solid var(--teal);outline-offset:2px}
+.site-tool .dot{position:absolute;top:-4px;right:-3px;width:11px;height:11px;border-radius:50%;background:var(--coral,#e5484d);border:2px solid var(--paper)}
+.site-tool .bell{flex:none}
+.site-tool:hover .bell,.site-tool:focus-visible .bell{animation:bellring .6s ease-in-out}
+@keyframes bellring{0%,100%{transform:rotate(0)}20%{transform:rotate(16deg)}40%{transform:rotate(-14deg)}60%{transform:rotate(9deg)}80%{transform:rotate(-5deg)}}
 .curdeck .dk{max-width:230px}
-@media (prefers-reduced-motion:reduce){.site-pane.on{animation:none}.site-sw.ready .ind{transition:none}.site-chip.bump{animation:none}}
-
-@media (max-width:900px){.site-brand em{display:none}.site-chip{min-width:0}.site-sw button{padding:0 14px}}
-@media (max-width:760px){
-  .site-bar{flex-wrap:wrap;gap:0 8px;padding-top:6px;padding-bottom:0}
+@media (prefers-reduced-motion:reduce){.site-tool:hover .bell{animation:none}}
+@media (max-width:560px){
+  .site-bar{padding-block:8px;gap:8px;flex-wrap:wrap}
   .site-brand span,.site-brand em{display:none}
-  .site-brand{margin-right:auto}
-  .site-user{gap:6px}
-  .site-chip{padding:3px 10px 3px 5px;font-size:15px}
-  .site-me .nm,.site-me .chev{display:none}.site-me{padding:3px}
-  .site-sw{order:3;flex:1 1 100%;margin:4px -16px 0;padding:0 8px;overflow-x:auto;justify-content:space-between;min-height:44px;scrollbar-width:none}
-  .site-sw::-webkit-scrollbar{display:none}
-  .site-sw button{flex:1 0 auto;padding:0 10px;font-size:17px}
-  .site-menu{right:0}
+  .site-tools{order:1;flex:1;justify-content:flex-end}
+  .site-tool{padding:3px 12px;font-size:13px}
+  .site-sw{order:2;flex:1 1 100%;grid-template-columns:repeat(3,1fr)}
+  .site-sw button{padding:6px 4px;font-size:13.5px}
 }
+@media (prefers-reduced-motion:reduce){.site-sw .pill,.site-track{transition:none}}
 
-/* ปุ่มกลับเข้าเกมที่ค้างอยู่ (แสดงเมื่อมีเกมกำลังเล่นแต่ผู้เล่นออกมาดูหน้าอื่น) */
-.site-game{border:0;border-radius:99px;background:var(--gold);color:#111;padding:5px 16px;font:800 15px/1.2 var(--f-lobby);font-style:italic;letter-spacing:.03em;cursor:pointer;box-shadow:0 0 0 3px #02060a;animation:gamePulse 1.8s ease-in-out infinite}
-.site-game:hover{background:#fff}
-.site-game[hidden]{display:none}
-@keyframes gamePulse{50%{box-shadow:0 0 0 3px #02060a,0 0 16px 4px rgba(255,194,14,.7)}}
-@media (max-width:760px){.site-game{padding:4px 10px;font-size:13px}}
-@media (prefers-reduced-motion:reduce){.site-game{animation:none}}
-
-/* หน้าต่างแจ้งเตือน (Update Note) · ข้อเสนอแนะ — ซ้อนทับหน้าที่เปิดอยู่ ไม่ย้ายแท็บ (js/site.js) */
-.af-ov{position:fixed;inset:0;z-index:80;display:grid;place-items:center;padding:max(12px,env(safe-area-inset-top)) 12px max(12px,env(safe-area-inset-bottom));background:rgba(0,0,0,.78);overflow:auto}
-.af-dlg{position:relative;width:min(560px,100%);max-height:100%;overflow:auto;padding:20px;border:3px solid var(--line);border-radius:18px;background:var(--panel);color:var(--ink);box-shadow:var(--sh)}
-.af-dlg h2{margin:0 40px 10px 0;font-size:1.25rem}
-.af-x{position:absolute;top:10px;right:12px;width:34px;height:34px;border:2px solid var(--line);border-radius:50%;background:var(--panel);color:var(--ink);cursor:pointer;font-weight:700}
-.af-x:hover{background:var(--gold);color:#111}
-.af-mut{color:var(--ink2);margin:0 0 10px}
-.af-err{margin:8px 0;padding:8px 12px;border:2px solid var(--bad);border-radius:10px;color:var(--bad);font-weight:700}
-.af-note{margin:0 0 10px;padding:10px 14px;border:2px solid var(--line);border-radius:12px;background:var(--soft)}
-.af-note ul{margin:6px 0 0;padding-left:20px}
-.af-fl{display:block;margin:0 0 10px;font-weight:700;font-size:.9rem}
-.af-fl select,.af-fl textarea,.af-fl input{display:block;width:100%;margin-top:4px;padding:8px 10px;border:2px solid var(--line);border-radius:10px;background:var(--paper);color:var(--ink);font:inherit;font-weight:400}
-.af-fl textarea{resize:vertical;min-height:110px}
-.af-fl select:focus,.af-fl textarea:focus,.af-fl input:focus{outline:3px solid var(--gold);outline-offset:1px}
-.af-acts{display:flex;justify-content:flex-end;gap:8px;margin-top:12px}
-.af-btn{padding:6px 18px;border:2px solid var(--line);border-radius:99px;background:var(--panel);color:var(--ink);font:700 .95rem/1.3 inherit;cursor:pointer}
-.af-btn:hover{background:var(--gold);color:#111}
-.af-btn.pri{background:var(--gold);color:#111;box-shadow:3px 3px 0 var(--line)}
-.af-btn[disabled]{opacity:.55;cursor:not-allowed}
+/* หน้าต่างเปิดซอง (BT01) */
+.pk-ov{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.7);display:grid;place-items:center;padding:max(12px,env(safe-area-inset-top)) 12px max(12px,env(safe-area-inset-bottom))}
+.pk-ov[hidden]{display:none}
+.pk-ov-box{position:relative;width:min(1100px,100%);height:100%;max-height:900px;border:3px solid var(--line);border-radius:18px;overflow:hidden;background:var(--paper);box-shadow:var(--sh)}
+.pk-ov-box iframe{display:block;width:100%;height:100%;border:0;background:var(--paper)}
+.pk-ov-x{position:absolute;top:10px;right:12px;z-index:2;width:34px;height:34px;border:2px solid var(--line);border-radius:50%;background:var(--panel);color:var(--ink);font:700 15px/1 inherit;font-family:inherit;cursor:pointer}
+.pk-ov-x:hover{background:var(--gold);color:#111}

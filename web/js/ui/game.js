@@ -13,7 +13,7 @@ function startGame(){
   const io=[0,1].map(p=>c.mode==='hot'||(c.mode==='bot'&&p===humanIdx)?mkHuman(p):AF.makeBot({delay}));
   const names=c.mode==='bot'?['คุณ','บอท']:c.mode==='hot'?['ผู้เล่น 1','ผู้เล่น 2']:['บอท A','บอท B'];
   const G=AF.createGame({decks:[deckOf(0),deckOf(1)],io,names,first:c.first==='random'?undefined:+c.first,refresh:scheduleRender});
-  Object.assign(ui,{G,screen:'game',pending:null,viewer:humanIdx??0,inspect:null,sel:null,menu:null,modal:null,cover:null,seen:0,over:null,tab:'card',peek:false,toast:'',gmenu:false,showPanel:false});
+  Object.assign(ui,{G,screen:'game',pending:null,viewer:humanIdx??0,inspect:null,sel:null,menu:null,modal:null,cover:null,seen:0,over:null,tab:'card',peek:false,toast:''});
   render();
   AF.runGame(G,120).then(r=>{if(ui.token===token){ui.over=r;ui.pending=null;render()}}).catch(e=>{console.error(e);if(ui.token===token){ui.err='เกิดข้อผิดพลาดในระบบ: '+e.message;ui.over={winner:null,reason:ui.err};render()}});
 }
@@ -117,12 +117,12 @@ function barHTML(){
   if(pd.kind==='act'){
     const ph=pd.spec.phase;
     const nxt=ph==='main'?'ไป Attack Phase':'จบ Ultimate Phase';
-    const hint=ph==='main'?'ลากการ์ดจากมือไปวางบนสนามของคุณ (หรือแตะการ์ดเพื่อเลือกคำสั่ง) · แตะ Avatar/Unit เพื่อใช้ความสามารถ':'Ultimate Phase: ลาก Ultimate จากมือไปวางบนสนาม (หรือแตะเพื่อใช้)';
+    const hint=ph==='main'?'คลิกการ์ดบนมือเพื่อเล่น คลิก Avatar หรือ Unit เพื่อใช้ความสามารถ':'Ultimate Phase: คลิก Ultimate บนมือเพื่อใช้';
     return `<div class="bar you"><span class="msg"><b>${nm}</b> · ${ph==='main'?'Main Phase':'Ultimate Phase'}<br><span class="muted">${hint}</span></span><button class="btn pri" data-act="pass">${nxt}</button></div>`;
   }
   if(pd.kind==='attack'){
     const sel=ui.sel!=null?ui.G&&cardMap()[ui.sel]:null;
-    return `<div class="bar you"><span class="msg"><b>${nm}</b> · Attack Phase<br><span class="muted">${sel?`เลือก ${esc(sel.def.name)} แล้ว: คลิกเป้าหมายสีแดง (Unit ฝ่ายตรงข้าม${pd.spec.options.find(o=>o.attacker.uid===ui.sel)?.avatar?' หรือ Avatar':''})`:'ลาก Unit ที่เรืองแสงไปวางบนเป้าหมาย (หรือแตะ Unit แล้วแตะเป้าหมาย)'}</span></span>${sel?'<button class="btn" data-act="unsel">ยกเลิกการเลือก</button>':''}<button class="btn pri" data-act="endatk">จบ Attack Phase</button></div>`;
+    return `<div class="bar you"><span class="msg"><b>${nm}</b> · Attack Phase<br><span class="muted">${sel?`เลือก ${esc(sel.def.name)} แล้ว: คลิกเป้าหมายสีแดง (Unit ฝ่ายตรงข้าม${pd.spec.options.find(o=>o.attacker.uid===ui.sel)?.avatar?' หรือ Avatar':''})`:'คลิก Unit ของคุณที่เรืองแสงเพื่อโจมตี'}</span></span>${sel?'<button class="btn" data-act="unsel">ยกเลิกการเลือก</button>':''}<button class="btn pri" data-act="endatk">จบ Attack Phase</button></div>`;
   }
   if(pd.kind==='pick'&&(pd.spec.kind==='units'||pd.spec.kind==='attackTarget')){
     return `<div class="bar you"><span class="msg"><b>${nm}</b> · ${esc(pd.spec.title)}<br><span class="muted">คลิกเป้าหมายสีแดงบนสนาม</span></span>${pd.spec.optional?'<button class="btn" data-act="skip">ข้าม</button>':''}</div>`;
@@ -151,16 +151,14 @@ function panelHTML(){
   if(ui.tab==='card')body=inspectorHTML(ui.inspect&&cardMap()[ui.inspect.uid]);
   else if(ui.tab==='log')body=`<div style="display:flex;justify-content:flex-end;margin-bottom:8px"><button class="btn sm" data-act="dllog">⬇ ดาวน์โหลด Log Battle</button></div><div class="log">${G.log.map(l=>`<div class="${l.extra&&l.extra.divider?'div':'p'+(l.p===null?'':l.p)}">${esc(l.text)}</div>`).join('')}</div>`;
   else body=rulesHTML(true);
-  return `<aside class="panel ${ui.showPanel?'show':''}"><button class="btn sm pclose" data-act="panel">✕ ปิด</button><div class="tabs">${tabs.map(([k,l])=>`<button class="${ui.tab===k?'on':''}" data-act="tab" data-v="${k}">${l}</button>`).join('')}</div><div class="pbody">${body}</div></aside>`;
+  return `<aside class="panel"><div class="tabs">${tabs.map(([k,l])=>`<button class="${ui.tab===k?'on':''}" data-act="tab" data-v="${k}">${l}</button>`).join('')}</div><div class="pbody">${body}</div></aside>`;
 }
 function gameHTML(){
   const G=ui.G;const fresh=freshLog();const v=ui.viewer;
   if(ui.cover!==null)return `<div class="cover"><div style="display:grid;gap:14px;justify-items:center"><h1>ส่งอุปกรณ์ให้ ${esc(G.players[ui.cover].name)}</h1><p>ให้ผู้เล่นอีกฝั่งหันหน้าหนี แล้วกดเมื่อพร้อม</p><button class="btn" data-act="ready">พร้อมแล้ว</button></div></div>`;
   const opp=1-v;
-  const btns=`<button class="btn sm" data-act="settings">⚙ ตั้งค่า</button><button class="btn sm" data-act="help">กติกา</button>${ui.cfg.mode==="online"?"":`<button class="btn sm" data-act="restart">เริ่มใหม่</button>`}<button class="btn sm" data-act="surrender">ยอมแพ้</button>`;
-  return `<div class="top"><button class="btn sm home" data-act="gohome" title="ไปหน้า Home (เกมยังค้างอยู่ กลับมาเล่นต่อได้)">⌂ Home</button><span class="pill">เทิร์น ${G.turn}</span>${phaseBar()}<span class="spacer"></span><button class="btn sm narrowonly" data-act="panel">📋 การ์ด/บันทึก</button><span class="tbtns">${btns}</span><button class="btn sm onlym" data-act="gmenu" aria-label="เมนู">☰ เมนู</button></div>
-  ${ui.gmenu?`<div class="gmenu"><button class="btn" data-act="panel">📋 การ์ด · บันทึก · กติกา</button><button class="btn" data-act="settings">⚙ ตั้งค่า</button><button class="btn" data-act="help">📖 กติกาโดยย่อ</button>${ui.cfg.mode==="online"?"":`<button class="btn" data-act="restart">↻ เริ่มใหม่</button>`}<button class="btn" data-act="surrender">🏳 ยอมแพ้</button><button class="btn" data-act="gohome">⌂ ไปหน้า Home</button></div>`:''}
-  <div class="game" data-ph="${pdOf()&&pdOf().kind||''}"><main style="min-width:0">${sideHTML(opp,true,fresh)}${chainHTML()}${barHTML()}${sideHTML(v,false,fresh)}${handHTML()}</main>${panelHTML()}</div>
+  return `<div class="top"><span class="pill">เทิร์น ${G.turn}</span>${phaseBar()}<span class="spacer"></span><button class="btn sm" data-act="settings">⚙ ตั้งค่า</button><button class="btn sm" data-act="help">กติกา</button>${ui.cfg.mode==="online"?"":`<button class="btn sm" data-act="restart">เริ่มใหม่</button>`}<button class="btn sm" data-act="surrender">ยอมแพ้</button></div>
+  <div class="game"><main style="min-width:0">${sideHTML(opp,true,fresh)}${chainHTML()}${barHTML()}${sideHTML(v,false,fresh)}${handHTML()}</main>${panelHTML()}</div>
   ${ui.menu?menuHTML():''}${ui.over?overHTML():''}${pendingModalHTML()}${ui.modal?modalHTML():''}${ui.settings?settingsHTML():''}`;
 }
 function overHTML(){
@@ -177,27 +175,13 @@ function applyScale(v,save){
   if(save!==false){try{localStorage.setItem(SCALE_KEY,v)}catch(e){}}
   if(ui.screen==='game'&&typeof fitLayout==='function')fitLayout();
 }
-/* ค่ากำหนดส่วนตัวของหน้าเกม (จำไว้ในเบราว์เซอร์): hover = แสดงการ์ดเมื่อเอาเมาส์ชี้ · motion = ลดแอนิเมชัน · log = แสดงบันทึกอัตโนมัติ */
-const PREF_KEY='af-prefs';
-const prefs=Object.assign({hover:true,motion:false},(()=>{try{return JSON.parse(localStorage.getItem(PREF_KEY)||'{}')}catch(e){return {}}})());
-function applyPrefs(){document.documentElement.classList.toggle('rm',!!prefs.motion);try{localStorage.setItem(PREF_KEY,JSON.stringify(prefs))}catch(e){}}
-applyPrefs();
 function settingsHTML(){
-  const v=ui.scale||100,bot=ui.cfg.mode==='bot'||ui.cfg.mode==='spec',sp=ui.cfg.speed;
-  const seg=(k,val,on,label)=>`<button class="btn sm ${on?'pri':''}" data-act="pref" data-k="${k}" data-v="${val}">${label}</button>`;
+  const v=ui.scale||100;
   return `<div class="ov"><div class="dlg narrow"><h2>ตั้งค่า</h2>
-    <h3 class="sh">หน้าจอ</h3>
     <label class="fl">ขนาดหน้าจอ <b id="scaleval">${v}%</b>
       <input id="scalerange" type="range" min="${SCALE_MIN}" max="${SCALE_MAX}" step="5" value="${v}" style="width:100%"></label>
     <div style="display:flex;gap:6px;flex-wrap:wrap">${[80,90,100,110,120].map(n=>`<button class="btn sm ${n===v?'pri':''}" data-act="setscale" data-v="${n}">${n}%</button>`).join('')}</div>
-    <p class="muted">ปรับขนาดการ์ดและตัวอักษรทั้งหน้า</p>
-    <h3 class="sh">การเล่น</h3>
-    ${bot?`<div class="srow"><span>ความเร็วบอท</span><span class="sseg">${[[0,'ทันที'],[250,'เร็ว'],[550,'ปกติ'],[1000,'ช้า']].map(([n,l])=>`<button class="btn sm ${sp===n?'pri':''}" data-act="pref" data-k="speed" data-v="${n}">${l}</button>`).join('')}</span></div>`:''}
-    <div class="srow"><span>แสดงการ์ดเมื่อเอาเมาส์ชี้</span><span class="sseg">${seg('hover','1',prefs.hover,'เปิด')}${seg('hover','0',!prefs.hover,'ปิด')}</span></div>
-    <div class="srow"><span>แอนิเมชัน</span><span class="sseg">${seg('motion','0',!prefs.motion,'ปกติ')}${seg('motion','1',prefs.motion,'ลดลง')}</span></div>
-    <p class="muted">ค่าทั้งหมดถูกจำไว้ในเบราว์เซอร์นี้</p>
-    <h3 class="sh">เมนูลัด</h3>
-    <div style="display:flex;gap:6px;flex-wrap:wrap"><button class="btn sm" data-act="help">กติกาโดยย่อ</button>${ui.G?`<button class="btn sm" data-act="dllog">⬇ บันทึกเกม (Battle Log)</button>`:''}</div>
-    <div class="acts"><button class="btn" data-act="setscale" data-v="100">รีเซ็ตขนาด</button><button class="btn pri" data-act="closesettings">ปิด</button></div></div></div>`;
+    <p class="muted">ปรับขนาดการ์ดและตัวอักษรทั้งหน้า ค่าที่เลือกจะถูกจำไว้ในเบราว์เซอร์นี้</p>
+    <div class="acts"><button class="btn" data-act="setscale" data-v="100">รีเซ็ต 100%</button><button class="btn pri" data-act="closesettings">ปิด</button></div></div></div>`;
 }
 applyScale(loadScale(),false);

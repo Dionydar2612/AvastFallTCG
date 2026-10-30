@@ -1,10 +1,8 @@
 <!DOCTYPE html>
 <html lang="th"><head><meta charset="utf-8">
-<link rel="icon" href="/favicon.ico" sizes="any"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png"><link rel="icon" type="image/png" sizes="192x192" href="/assets/icon-192.png"><link rel="apple-touch-icon" href="/assets/apple-touch-icon.png"><meta name="theme-color" content="#0a2233">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>การ์ดทั้งหมด – Card Battle</title>
 <link href="https://fonts.googleapis.com/css2?family=Mali:wght@400;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/css/lobby.css?v=1">
 <script>if(/[?&]embed=1/.test(location.search))document.documentElement.classList.add("embed")</script>
 <style>.embed .sitetabs{display:none}.embed main{padding-top:16px}</style>
 <style>
@@ -54,29 +52,6 @@ h3{color:var(--mut);margin:10px 0 6px}
 .fl{font-style:italic;color:var(--mut);margin-top:12px}
 @media(max-width:720px){.dlg{grid-template-columns:1fr;padding:16px}.big{max-width:300px;margin:0 auto}h1{font-size:1.5rem}}
 
-.modes{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px}
-.modes .sp{flex:1}.modes label{display:flex;gap:6px;align-items:center;font-weight:700}.modes input[type=range]{width:110px;padding:0;border:0;accent-color:var(--ink)}
-.modes select{width:auto;padding:4px 12px;border-width:2px;border-radius:99px}
-.grid{grid-template-columns:repeat(auto-fill,minmax(var(--gw,150px),1fr))}
-.grid.list{display:flex;flex-direction:column;gap:8px}
-.grid .tile{position:relative;display:block}
-.grid .tile.miss img{filter:grayscale(1) brightness(.6);opacity:.75}
-.own{position:absolute;top:5px;right:5px;min-width:26px;height:26px;border-radius:99px;background:var(--gold);color:#111;border:2px solid #111;font-weight:700;font-size:.85rem;display:flex;align-items:center;justify-content:center}
-.cap{display:block;font-size:.78rem;font-weight:700;margin-top:3px;text-align:center;line-height:1.2}
-.row-i{display:flex!important;gap:12px;align-items:flex-start;text-align:left;width:100%;padding:8px!important;border:2px solid var(--ink)!important;border-radius:12px!important;background:var(--card)!important;color:var(--ink);font:inherit;box-shadow:3px 3px 0 var(--ink)}
-.row-i:hover{transform:none!important;background:var(--pap)!important}
-.row-i img{width:72px;flex:none}.row-i .ri{flex:1;min-width:0}.row-i b{font-size:1.02rem}.row-i .mt{font-size:.8rem;color:var(--mut)}
-.row-i .ef{font-size:.85rem;margin-top:4px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
-.row-i.miss img{filter:grayscale(1) brightness(.6)}
-.tbl-w{overflow-x:auto;border:3px solid var(--ink);border-radius:14px;background:var(--card);box-shadow:4px 4px 0 var(--ink)}
-table.ct{border-collapse:collapse;width:100%;min-width:640px}
-.ct th,.ct td{padding:6px 10px;text-align:left;border-bottom:1px solid var(--mut);white-space:nowrap}
-.ct th{position:sticky;top:0;background:var(--ink);color:var(--bg)}
-.ct tr[data-n]{cursor:pointer}.ct tr[data-n]:hover td{background:var(--pap)}
-.ct td img{width:30px;border-radius:4px;border:1px solid var(--ink);vertical-align:middle}
-.ct td.num{text-align:center}.ct tr.miss td{opacity:.55}
-.gh{grid-column:1/-1;margin:14px 0 2px;font-size:1.2rem;font-weight:700;border-bottom:3px solid var(--ink);padding-bottom:2px;display:flex;justify-content:space-between}
-.gh small{color:var(--mut);font-weight:400}
 [hidden]{display:none!important}
 .db-sub{margin:-4px 0 14px;color:var(--mut)}
 .db-wrap{display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:16px;align-items:start}
@@ -117,16 +92,13 @@ table.ct{border-collapse:collapse;width:100%;min-width:640px}
 .db-add{flex-direction:column;align-items:center;justify-content:center;min-height:150px;font:inherit;font-weight:700;font-size:1.1rem;color:var(--ink);border-style:dashed;cursor:pointer;gap:4px}.db-add span{font-size:2.4rem;line-height:1}.db-add:hover{background:var(--gold);color:#111}
 .chip.danger{background:#c0121f;color:#fff;border-color:#c0121f}
 @media(max-width:900px){.db-wrap{grid-template-columns:1fr}.db-side{position:static;max-height:none}}
-.db-own{position:absolute;left:4px;bottom:4px;border:2px solid #111;border-radius:99px;background:var(--gold);color:#111;font-size:.7rem;font-weight:700;padding:0 8px}.db-own.none{background:#ddd;color:#555}.db-avc.lock img{filter:grayscale(1) brightness(.6)}.db-avc.lock{opacity:.8}.db-t.off .db-img img{filter:grayscale(.8)}.gh .bar{flex:1;max-width:220px;height:8px;border:2px solid var(--ink);border-radius:99px;margin:6px 10px 0}.gh .bar i{display:block;height:100%;background:var(--gold)}.noimg{aspect-ratio:170/241;display:flex;align-items:center;justify-content:center;text-align:center;padding:8px;border:2px solid var(--ink);border-radius:10px;background:var(--pap)}.meta{margin-top:14px;padding-top:10px;border-top:1px dashed var(--mut);font-size:.85rem;color:var(--mut)}</style></head><body><main>
-<nav class="sitetabs" aria-label="เมนูเว็บ"><a class="on" href="/cards/" data-v="cards" aria-current="page">Card List</a><a href="#deckbuilder" data-v="deck">Deckbuilder</a><a href="/" target="_blank" rel="noopener">Home ↗</a></nav>
+.noimg{aspect-ratio:170/241;display:flex;align-items:center;justify-content:center;text-align:center;padding:8px;border:2px solid var(--ink);border-radius:10px;background:var(--pap)}.meta{margin-top:14px;padding-top:10px;border-top:1px dashed var(--mut);font-size:.85rem;color:var(--mut)}</style></head><body><main>
+<nav class="sitetabs" aria-label="เมนูเว็บ"><a class="on" href="/cards/" data-v="cards" aria-current="page">Card List</a><a href="#deckbuilder" data-v="deck">Deckbuilder</a><a href="/" target="_blank" rel="noopener">Playtest ↗</a></nav>
 <div id="v-cards">
 <h1>การ์ดทั้งหมด</h1>
 <p style="margin:-4px 0 12px"><a href="/api/docs" target="_blank" rel="noopener" style="color:var(--ink)">📘 API สำหรับนักพัฒนา</a></p>
 <input id="q" class="search" placeholder="ค้นหาการ์ดด้วยชื่อ เลขการ์ด หรือข้อความในเอฟเฟกต์...">
 <div class="row"><span>เรียงตาม:</span><span id="sorts"></span></div>
-<div class="modes" id="modes"><span>มุมมอง:</span><span id="modeBtns"></span><span class="sp"></span>
-<label id="szw">ขนาด <input id="sz" type="range" min="90" max="300" step="10" value="150"></label>
-<select id="own" aria-label="กรองตามคอลเลกชัน"><option value="">การ์ดทั้งหมด</option><option value="own">เฉพาะที่ฉันมี</option><option value="miss">เฉพาะที่ยังไม่มี</option></select></div>
 <div class="box filters"><div><label>เด็ค/ซีรีส์</label><select id="fd"><option value="">ทั้งหมด</option></select></div><div><label>Rotation</label><select id="fo"><option value="">ทั้งหมด</option></select></div><div><label>ประเภทการ์ด</label><select id="ft"><option value="">ทั้งหมด</option></select></div><div><label>ธาตุ</label><select id="fe"><option value="">ทั้งหมด</option></select></div><div><label>ความหายาก</label><select id="fr"><option value="">ทั้งหมด</option></select></div><div><label>Keyword</label><select id="fk"><option value="">ทั้งหมด</option></select></div>
 <div><label>Cost สูงสุด: <span id="cv">0</span></label><input id="fc" type="range" min="0" max="10" value="10"></div>
 </div>
@@ -140,11 +112,7 @@ table.ct{border-collapse:collapse;width:100%;min-width:640px}
 const $=id=>document.getElementById(id);
 const FIL={fd:"deck",fo:"rot",ft:"type",fe:"el",fr:"rar"};
 const SORTS={no:"ซีรีส์",name:"ชื่อ",type:"ประเภท",cost:"Cost"};
-let ALL=[],list=[],cur=0,sort="no",OWN={};
-const MODES={gallery:"🖼 แกลเลอรี",list:"📃 รายการ",table:"📊 ตาราง",series:"📚 แยกตามซีรีส์"};
-let mode="gallery",gw=150;
-try{mode=localStorage.getItem("cl-mode")||"gallery";gw=+localStorage.getItem("cl-gw")||150}catch(e){}
-if(!MODES[mode])mode="gallery";
+let ALL=[],list=[],cur=0,sort="no";
 const costOf=c=>c.cost??c.sc??0;
 const uniq=a=>[...new Set(a.filter(Boolean))];
 const ico=(n,s=18)=>{const e=ELEMENTS[n];return e?`<svg width="${s}" height="${s}" viewBox="0 0 18 18" style="vertical-align:-3px"><circle cx="9" cy="9" r="8" fill="#fff" stroke="${e.c}" stroke-width="2"/><path d="${e.p}" fill="${e.c}"/></svg>`:""};
@@ -156,11 +124,7 @@ function init(){
  uniq(ALL.flatMap(c=>c.fx.map(e=>e[0].split(" ")[0]))).filter(k=>k!=="COST").forEach(k=>$("fk").insertAdjacentHTML("beforeend",`<option>${k}</option>`));
  const mx=Math.max(0,...ALL.map(costOf));$("fc").max=mx;$("fc").value=mx;
  $("sorts").innerHTML=Object.entries(SORTS).map(([k,v])=>`<button class="chip" data-s="${k}">${v}</button>`).join(" ");
- $("grid").onclick=e=>{const b=e.target.closest("[data-n]");if(b)show(+b.dataset.n)};
- $("modeBtns").innerHTML=Object.entries(MODES).map(([k,v])=>`<button class="chip" data-m="${k}">${v}</button>`).join(" ");
- $("modeBtns").onclick=e=>{const k=e.target.dataset.m;if(k){mode=k;try{localStorage.setItem("cl-mode",k)}catch(_){}render()}};
- $("sz").value=gw;$("sz").oninput=()=>{gw=+$("sz").value;try{localStorage.setItem("cl-gw",gw)}catch(_){}$("grid").style.setProperty("--gw",gw+"px")};
- $("own").addEventListener("input",render);
+ $("grid").onclick=e=>{const b=e.target.closest("button");if(b)show(+b.dataset.n)};
  $("sorts").onclick=e=>{if(e.target.dataset.s){sort=e.target.dataset.s;render()}};
  ["q","fk","fc",...Object.keys(FIL)].forEach(i=>$(i).addEventListener("input",render));
  $("prev").onclick=()=>show(cur-1);$("next").onclick=()=>show(cur+1);
@@ -171,21 +135,11 @@ function init(){
 function render(){
  const q=$("q").value.trim().toLowerCase(),k=$("fk").value,mx=+$("fc").value,v=id=>$(id).value;
  $("cv").textContent=mx;
- list=ALL.filter(c=>Object.entries(FIL).every(([id,f])=>!v(id)||c[f]===v(id))&&costOf(c)<=mx&&(!$("own").value||($("own").value==="own")===!!OWN[c.key||c.deck+"-"+c.no])&&(!k||c.fx.some(e=>e[0].startsWith(k)))&&(!q||[c.no,c.name,c.code,c.tribe,...c.fx.map(e=>e[1])].join(" ").toLowerCase().includes(q)));
+ list=ALL.filter(c=>Object.entries(FIL).every(([id,f])=>!v(id)||c[f]===v(id))&&costOf(c)<=mx&&(!k||c.fx.some(e=>e[0].startsWith(k)))&&(!q||[c.no,c.name,c.code,c.tribe,...c.fx.map(e=>e[1])].join(" ").toLowerCase().includes(q)));
  list.sort({no:(a,b)=>a.i-b.i,name:(a,b)=>a.name.localeCompare(b.name,"th"),type:(a,b)=>a.type.localeCompare(b.type)||a.i-b.i,cost:(a,b)=>costOf(a)-costOf(b)||a.i-b.i}[sort]);
  document.querySelectorAll("#sorts .chip").forEach(b=>b.classList.toggle("on",b.dataset.s===sort));
  $("cnt").innerHTML=`แสดง <b>${list.length}</b> จาก <b>${ALL.length}</b> การ์ด`;
- document.querySelectorAll("#modeBtns .chip").forEach(b=>b.classList.toggle("on",b.dataset.m===mode));
- $("szw").hidden=!(mode==="gallery"||mode==="series");
- const g=$("grid");g.className="grid"+(mode==="list"?" list":"");g.style.setProperty("--gw",gw+"px");
- const own=c=>OWN[c.key||c.deck+"-"+c.no]||0,hasOwn=Object.keys(OWN).length>0;
- const tile=(c,n)=>{const o=own(c);return `<button class="tile${hasOwn&&!o?" miss":""}" data-n="${n}" aria-label="${c.name}">${pic(c)}${o?`<span class="own">×${o}</span>`:""}${mode!=="gallery"||gw>=130?`<span class="cap">${c.name}</span>`:""}</button>`};
- const ef=c=>c.fx.map(e=>(e[0]?e[0]+" ":"")+e[1]).join(" · ");
- if(!list.length)g.innerHTML='<div class="empty">ไม่พบการ์ดที่ตรงกับเงื่อนไข</div>';
- else if(mode==="list")g.innerHTML=list.map((c,n)=>{const o=own(c);return `<button class="row-i${hasOwn&&!o?" miss":""}" data-n="${n}">${pic(c)}<span class="ri"><b>${c.name}</b> <span class="mt">${c.deck}-${c.no} · ${c.type}${c.el?" · ธาตุ"+c.el:""}${c.rar?" · "+c.rar:""}${c.type==="Unit"?` · Cost ${c.cost} / ATK ${c.atk} / DEF ${c.def??"-"}`:""}${hasOwn?` · มี ${o} ใบ`:""}</span><span class="ef">${ef(c)||"ไม่มีเอฟเฟกต์"}</span></span></button>`}).join("");
- else if(mode==="table")g.innerHTML=`<div class="tbl-w"><table class="ct"><thead><tr><th></th><th>รหัส</th><th>ชื่อ</th><th>ประเภท</th><th>ธาตุ</th><th>Rarity</th><th>Cost</th><th>CRI</th><th>ATK</th><th>DEF</th>${hasOwn?"<th>มี</th>":""}</tr></thead><tbody>${list.map((c,n)=>`<tr data-n="${n}"${hasOwn&&!own(c)?' class="miss"':""}><td>${c.img?`<img loading="lazy" src="${c.img}" alt="">`:""}</td><td>${c.deck}-${c.no}</td><td><b>${c.name}</b></td><td>${c.type}</td><td>${(c.els&&c.els.length?c.els:c.el?[c.el]:[]).join("/")}</td><td class="num">${c.rar||""}</td><td class="num">${c.cost??c.sc??""}</td><td class="num">${c.cri??""}</td><td class="num">${c.atk??""}</td><td class="num">${c.def??""}</td>${hasOwn?`<td class="num">${own(c)||""}</td>`:""}</tr>`).join("")}</tbody></table></div>`;
- else if(mode==="series"){let h="",last="";list.forEach((c,n)=>{if(c.deck!==last){last=c.deck;const d=DECKS[c.deck]||{},t=list.filter(x=>x.deck===c.deck),o=t.filter(x=>own(x)).length;h+=`<div class="gh"><span>${c.deck} ${d.name||""}</span><span class="bar"><i style="width:${Math.round(o/t.length*100)}%"></i></span><small>${hasOwn?`สะสมแล้ว ${o}/${t.length}`:t.length+" ใบ"}</small></div>`}h+=tile(c,n)});g.innerHTML=h}
- else g.innerHTML=list.map(tile).join("");
+ $("grid").innerHTML=list.length?list.map((c,n)=>`<button data-n="${n}" aria-label="${c.name}">${pic(c)}</button>`).join(""):'<div class="empty">ไม่พบการ์ดที่ตรงกับเงื่อนไข</div>';
 }
 function show(n){
  cur=(n+list.length)%list.length;const c=list[cur],d=DECKS[c.deck]||{};
@@ -204,7 +158,6 @@ async function boot(){
   window.DECKS=Object.fromEntries(ds.data.map(d=>[d.id,{name:d.name,total:d.total,rot:d.rotation,el:d.element,rar:d.rarity,art:d.artist}]));
   window.CARDS=cs.data.map(c=>({deck:c.deck,no:c.no,key:c.id,name:c.name,type:c.type,sub:c.sub,cost:c.cost,cri:c.cri,atk:c.atk,def:c.def,sc:c.sc,tribe:c.tribe,
     fx:(c.effects||[]).map(e=>[e.keyword,e.text]),fl:c.flavor,el:c.element,els:c.elements,rar:c.rarity,rot:c.rotation,art:c.artist,img:c.image}));
-  try{let o={owned:{}};for(let i=0;i<4;i++){try{const r=await fetch("/api/me/collection",{credentials:"same-origin",cache:"no-store"});if(r.ok){o=await r.json();break}}catch(_){}await new Promise(k=>setTimeout(k,600*(i+1)))}OWN=o.owned||{};window.__AF=window.__AF||{};window.__AF.owned=o.base||o.owned||{}}catch(e){}
   init();window.DB&&DB.init();
  }catch(err){document.getElementById("cnt").textContent="โหลดข้อมูลจาก API ไม่สำเร็จ: "+err.message}
 }
@@ -212,9 +165,9 @@ addEventListener("DOMContentLoaded",boot);
 /* ฝังอยู่ในหน้าเกม: แถบเมนูบนสุดของหน้าหลักเป็นตัวสลับ Card List ↔ Deckbuilder */
 addEventListener("message",e=>{if(e.origin!==location.origin||!e.data)return;
  if(e.data.afView)window.DB&&DB.show&&DB.show(e.data.afView==="deck"?"deck":"cards");
- if(e.data.afOwned){if(Object.keys(e.data.afOwned).length)window.DB&&DB.refreshOwned&&DB.refreshOwned(e.data.afOwned);fetch("/api/me/collection",{credentials:"same-origin",cache:"no-store"}).then(r=>r.json()).then(o=>{OWN=o.owned||{};if(o.base||o.owned)window.DB&&DB.refreshOwned&&DB.refreshOwned(o.base||o.owned);try{render()}catch(_){}}).catch(()=>{})}
  if(e.data.afDeck){if(window.DB&&DB.ready&&DB.ready())DB.openDeck(e.data.afDeck);else window.__afDeckQ=e.data.afDeck}});
 
 </script>
-<script src="/cards/deckbuilder.js?v=9"></script>
+<script src="/cards/deckbuilder.js?v=8"></script>
+<script src="/js/presence.js" defer></script>
 </body></html>

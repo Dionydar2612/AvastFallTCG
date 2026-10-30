@@ -2,7 +2,7 @@
 'use strict';
 /* ------------------------------------------------------------------ decks (presets + my decks) */
 function defaultCfg(){return {mode:'bot',sel:[null,null],first:'random',speed:550,api:DATA.DEFAULT_API}}
-function loadCfg(){let c=defaultCfg();try{const s=JSON.parse(localStorage.getItem('af-playtest')||'null');if(s){if(Array.isArray(s.sel))c.sel=s.sel;for(const k of ['mode','first','speed','api','picked0','picked1'])if(s[k]!==undefined)c[k]=s[k];if(String(c.api).replace(/\/+$/,'')===DATA.LEGACY_API)c.api=DATA.DEFAULT_API}}catch(e){}
+function loadCfg(){let c=defaultCfg();try{const s=JSON.parse(localStorage.getItem('af-playtest')||'null');if(s){if(Array.isArray(s.sel))c.sel=s.sel;for(const k of ['mode','first','speed','api'])if(s[k]!==undefined)c[k]=s[k];if(String(c.api).replace(/\/+$/,'')===DATA.LEGACY_API)c.api=DATA.DEFAULT_API}}catch(e){}
   try{const q=new URLSearchParams(location.search).get('api');if(q&&/^https?:\/\//.test(q))c.api=q}catch(e){}
   return c}
 function saveCfg(){try{localStorage.setItem('af-playtest',JSON.stringify(ui.cfg))}catch(e){}}
@@ -30,16 +30,7 @@ function presetDecks(){return DATA.series.map(s=>{const a=AF.autoDeck(s);return 
 function allDecks(){return [...presetDecks(),...ui.my.map(d=>({key:'my:'+d.id,name:d.name,series:(AF.defs[d.avatar]||{}).deck||'',avatar:d.avatar,counts:d.counts,edeck:d.edeck,preset:false,id:d.id}))]}
 function deckByKey(k){return allDecks().find(d=>d.key===k)||null}
 function fixSelections(){const ks=allDecks().map(d=>d.key);const pre=presetDecks().map(d=>d.key);for(const i of [0,1]){if(!ks.includes(ui.cfg.sel[i]))ui.cfg.sel[i]=pre[Math.min(i,pre.length-1)]||ks[0]||null}}
-/* เด็คของฉันต้องใช้การ์ดที่มีจริง (เด็คตัวอย่างใช้ทดลองได้ฟรี) — ข้อมูลการ์ดที่มีมาจากเซิร์ฟเวอร์ (window.__AF.owned) */
-function ownErrors(d){
-  const own=(window.__AF&&window.__AF.owned)||null;if(!own||d.preset)return [];
-  const miss=[];
-  for(const [id,n] of Object.entries(d.counts)){const have=own[id]||0;if(have<n)miss.push(((AF.defs[id]||{}).name||id)+' (มี '+have+' ต้องใช้ '+n+')')}
-  if(d.avatar&&!(own[d.avatar]>0))miss.push('Avatar '+((AF.defs[d.avatar]||{}).name||d.avatar)+' (ยังไม่มี)');
-  return miss.length?['การ์ดที่คุณมีไม่พอสำหรับเด็คนี้: '+miss.slice(0,3).join(', ')+(miss.length>3?' และอีก '+(miss.length-3)+' รายการ':'')+' — ซื้อเพิ่มที่ Shop หรือแก้เด็คที่ Decks']:[];
-}
-const deckErrors=k=>{const d=deckByKey(k);return d?[...AF.validateDeck({avatar:d.avatar,counts:d.counts,edeck:d.edeck}),...ownErrors(d)]:['ไม่พบเด็คที่เลือก']};
-addEventListener('af-owned',()=>{if(ui.screen==='setup'&&ui.cfg)render()});
+const deckErrors=k=>{const d=deckByKey(k);return d?AF.validateDeck({avatar:d.avatar,counts:d.counts,edeck:d.edeck}):['ไม่พบเด็คที่เลือก']};
 const deckOf=i=>{const d=deckByKey(ui.cfg.sel[i]);return {series:d.series,avatar:d.avatar,counts:d.counts,edeck:d.edeck,name:d.name}};
 function deckWarn(d){let n=0;for(const id of [d.avatar,...Object.keys(d.counts)]){const f=AF.defs[id];if(f&&(f.unscripted||f.stale))n++}return n}
 function edeckText(d){const e=AF.edeckOf(d);return Object.entries(e).filter(([,n])=>n>0).map(([k,n])=>elIcon(k,12)+esc(k)+' '+n).join(' · ')}
