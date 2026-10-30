@@ -1,49 +1,42 @@
-// หลังบ้าน /admin  (ต้องตั้งตัวแปร ADMIN_PASSWORD ไม่งั้นจะปิดการใช้งาน)
-const path = require("path"), crypto = require("crypto");
-const express = require("express"), multer = require("multer"), rateLimit = require("express-rate-limit");
-const log = require("../lib/logger"), shop = require("../lib/shop"), presence = require("../lib/presence"), playtest = require("../lib/playtest");
+// หลังบ้าน /admin — ต้องล็อกอินด้วยบัญชี Supabase ที่มี profiles.role = 'admin' (หรืออีเมลอยู่ใน ADMIN_EMAILS)
+// เพิ่ม/แก้/ลบการ์ด · นำเข้า Excel · เด็ค · สำรอง/กู้คืน → บันทึกลงฐานข้อมูล Supabase ทันที (lib/store.js) · จัดการผู้ใช้และราคาสินค้าในร้านด้วย
+const path = require("path");
+const express = require("express"), multer = require("multer");
 const updates = require("../lib/updates"), store = require("../lib/store"), imp = require("../lib/importer"), xl = require("../lib/xlsx");
-
-const PASS = process.env.ADMIN_PASSWORD || "";
-const SECRET = process.env.ADMIN_SECRET || crypto.createHash("sha256").update("cardapi:" + PASS).digest("hex");
-const sha = (s) => crypto.createHash("sha256").update(String(s)).digest();
-const sign = (s) => crypto.createHmac("sha256", SECRET).update(s).digest("hex");
-const mkToken = () => { const exp = Date.now() + 12 * 3600e3; return `${exp}.${sign(String(exp))}`; };
-const okToken = (t) => {
-  if (!t) return false; const [exp, sig] = t.split(".");
-  if (!exp || !sig || +exp < Date.now()) return false;
-  const a = Buffer.from(sig), b = Buffer.from(sign(exp));
-  return a.length === b.length && crypto.timingSafeEqual(a, b);
-};
-const cookies = (req) => Object.fromEntries((req.headers.cookie || "").split(";").map((s) => s.trim()).filter(Boolean)
-  .map((s) => { const i = s.indexOf("="); return [s.slice(0, i), decodeURIComponent(s.slice(i + 1))]; }));
+const auth = require("../lib/auth"), me = require("../lib/me"), supa = require("../lib/supa");
 const S = store.state;
 
 const router = express.Router();
 router.use((_req, res, next) => { res.set({ "X-Robots-Tag": "noindex, nofollow", "Cache-Control": "no-store" }); next(); });
-router.get("/", (_req, res) => res.sendFile(path.join(__dirname, "index.html")));
+// หน้าหลังบ้าน: ยังไม่ล็อกอิน → ไปหน้า login แล้วกลับมาที่นี่ · ล็อกอินแล้วแต่ไม่ใช่แอดมิน → แจ้งไม่มีสิทธิ์
+router.get("/", async (req, res, next) => {
+  try {
+    const sess = await auth.getSession(req, res);
+    if (!sess) return res.redirect(302, "/?next=/admin");
+    if (sess.profile.role !== "admin") return res.status(403).type("html").send(`<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ไม่มีสิทธิ์</title><body style="font-family:sans-serif;max-width:520px;margin:15vh auto;padding:0 16px"><h2>🔒 บัญชีนี้ไม่มีสิทธิ์เข้าหลังบ้าน</h2><p>ล็อกอินอยู่ในชื่อ <b>${String(sess.profile.username).replace(/[<&>]/g, "")}</b> (role: ${sess.profile.role}) — ให้ผู้ดูแลตั้ง role เป็น admin ให้ก่อน</p><p><a href="/">← กลับหน้าหลัก</a></p></body>`);
+    res.sendFile(path.join(__dirname, "index.html"));
+  } catch (e) { next(e); }
+});
 router.get("/clip.js", (_req, res) => res.type("application/javascript").sendFile(path.join(__dirname, "clip.js")));
 
 const api = express.Router();
 const up = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024, files: 101 } });
+const wrapA = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch((e) => res.status(400).json({ error: e.message }));
 
-api.get("/me", (req, res) => res.json({ enabled: !!PASS, authed: !!PASS && okToken(cookies(req).adm) }));
-api.post("/login", rateLimit({ windowMs: 15 * 60_000, limit: 10, message: { error: "ลองผิดบ่อยเกินไป รอ 15 นาที" } }), (req, res) => {
-  if (!PASS) return res.status(503).json({ error: "ยังไม่ได้ตั้งค่า ADMIN_PASSWORD บนเซิร์ฟเวอร์" });
-  if (!crypto.timingSafeEqual(sha(req.body?.password ?? ""), sha(PASS))) { log.warn("admin_login_failed", { type: "audit", action: "login_failed", ip: log.hashIp(log.ipOf(req)) }); return res.status(401).json({ error: "รหัสผ่านไม่ถูกต้อง" }); }
-  log.audit("login", req);
-  res.cookie("adm", mkToken(), { httpOnly: true, sameSite: "strict", secure: req.secure, path: "/admin", maxAge: 12 * 3600e3 });
-  res.json({ ok: true });
+// หน้าหลังบ้านเรียกตรวจก่อนว่าล็อกอินเป็นแอดมินอยู่ไหม
+api.get("/me", async (req, res) => {
+  try { const s = await auth.getSession(req, res); res.json({ enabled: supa.enabled, authed: !!s && s.profile.role === "admin", user: s ? auth.publicUser(s) : null }); }
+  catch { res.json({ enabled: supa.enabled, authed: false }); }
 });
-api.post("/logout", (_req, res) => { res.clearCookie("adm", { path: "/admin" }); res.json({ ok: true }); });
 
-// ---- ต้องล็อกอินตั้งแต่ตรงนี้ ----
+// ---- ต้องเป็นแอดมินตั้งแต่ตรงนี้ ----
+api.use(auth.requireAuth, auth.requireAdmin);
 api.use((req, res, next) => {
-  if (!PASS || !okToken(cookies(req).adm)) return res.status(401).json({ error: "unauthorized" });
   if (req.method !== "GET" && req.get("x-admin") !== "1") return res.status(403).json({ error: "bad_request" });
-  if (req.method !== "GET") res.on("finish", () => log.audit(`${req.method} ${req.path.replace(/\/[^/]+$/, (m) => (/^\/[A-Za-z0-9_-]+$/.test(m) ? "/:id" : m))}`, req, { status: res.statusCode }));
   next();
 });
+api.use(auth.sameOrigin);
+api.use(me.adminRouter);                          // /users · /shop
 
 api.get("/cards", (_req, res) => res.json({ data: S.cards, decks: S.decks, elements: Object.keys(S.elements) }));
 const CARD_TYPES = ["Avatar", "Unit", "Spell", "Ultimate"];
@@ -82,7 +75,7 @@ function readImage(file) {
 }
 
 // เพิ่ม/แก้ไขการ์ดทีละใบจากฟอร์ม โดยไม่ต้องใช้ Excel
-api.post("/cards", up.single("image"), (req, res) => {
+api.post("/cards", up.single("image"), async (req, res) => {
   try {
     const b = req.body || {};
     const deck = String(b.deck || "").trim();
@@ -105,14 +98,14 @@ api.post("/cards", up.single("image"), (req, res) => {
     const decks = S.decks.some((d) => d.id.toLowerCase() === deck.toLowerCase())
       ? undefined
       : [...S.decks, { id: deck, name: deck }].sort((a, b) => a.id.localeCompare(b.id));
-    store.save({ cards: merged.result, decks }, `manual add ${id}`);
+    await store.save({ cards: merged.result, decks }, `manual add ${id}`);
     if (image) store.saveImage(id, image.ext, image.buffer);
     res.json({ ok: true, card: S.byId.get(id.toLowerCase()), imageSaved: !!image });
   } catch (e) { res.status(400).json({ error: e.message }); }
 });
 
 // แก้ไขการ์ดที่มีอยู่แล้วทีละใบ (id/เด็ค/เลขการ์ดเปลี่ยนไม่ได้) + เปลี่ยนรูปการ์ดได้ถ้าแนบรูปมา
-api.put("/cards/:id", up.single("image"), (req, res) => {
+api.put("/cards/:id", up.single("image"), async (req, res) => {
   try {
     const old = S.raw.find((c) => c.id.toLowerCase() === req.params.id.toLowerCase());
     if (!old) return res.status(404).json({ error: "ไม่พบการ์ด" });
@@ -126,33 +119,33 @@ api.put("/cards/:id", up.single("image"), (req, res) => {
     const card = fillCard(base, b);
     const image = readImage(req.file);
     const merged = imp.mergeCards(S.raw, [card], false);
-    store.save({ cards: merged.result }, `manual edit ${old.id}`);
+    await store.save({ cards: merged.result }, `manual edit ${old.id}`);
     if (image) store.saveImage(old.id, image.ext, image.buffer);
     res.json({ ok: true, card: S.byId.get(old.id.toLowerCase()), imageSaved: !!image });
   } catch (e) { res.status(400).json({ error: e.message }); }
 });
 
-api.delete("/cards/:id", (req, res) => {
+api.delete("/cards/:id", wrapA(async (req, res) => {
   const id = req.params.id.toLowerCase();
   if (!S.raw.some((c) => c.id.toLowerCase() === id)) return res.status(404).json({ error: "ไม่พบการ์ด" });
-  store.save({ cards: S.raw.filter((c) => c.id.toLowerCase() !== id) }, `delete ${req.params.id}`);
+  await store.save({ cards: S.raw.filter((c) => c.id.toLowerCase() !== id) }, `delete ${req.params.id}`);
   res.json({ ok: true });
-});
+}));
 
-api.put("/decks/:id", (req, res) => {
+api.put("/decks/:id", wrapA(async (req, res) => {
   const b = req.body || {}, id = req.params.id;
   if (!/^[A-Za-z0-9_-]{1,20}$/.test(id)) return res.status(400).json({ error: "id เด็คใช้ได้เฉพาะ A-Z 0-9 _ -" });
   const d = { id, name: String(b.name || id).slice(0, 100) };
   if (b.total !== "" && b.total != null) { if (isNaN(Number(b.total))) return res.status(400).json({ error: "total ต้องเป็นตัวเลข" }); d.total = Number(b.total); }
   for (const k of ["rotation", "element", "rarity", "artist"]) if (b[k]) d[k] = String(b[k]).slice(0, 100);
-  store.save({ decks: [...S.decks.filter((x) => x.id !== id), d].sort((a, b) => a.id.localeCompare(b.id)) }, `deck ${id}`);
+  await store.save({ decks: [...S.decks.filter((x) => x.id !== id), d].sort((a, b) => a.id.localeCompare(b.id)) }, `deck ${id}`);
   res.json({ ok: true });
-});
-api.delete("/decks/:id", (req, res) => {
+}));
+api.delete("/decks/:id", wrapA(async (req, res) => {
   if (S.raw.some((c) => c.deck === req.params.id)) return res.status(409).json({ error: "ยังมีการ์ดในเด็คนี้ ลบการ์ดก่อน" });
-  store.save({ decks: S.decks.filter((x) => x.id !== req.params.id) }, `delete deck ${req.params.id}`);
+  await store.save({ decks: S.decks.filter((x) => x.id !== req.params.id) }, `delete deck ${req.params.id}`);
   res.json({ ok: true });
-});
+}));
 
 // ---- Excel ----
 api.get("/template.xlsx", async (_req, res) => {
@@ -222,7 +215,7 @@ api.post("/import/run", up.fields([{ name: "file", maxCount: 1 }, { name: "image
 
     const m = imp.mergeCards(S.raw, r.cards, replace);
     if (!dry) {
-      store.save({ cards: m.result, decks: dsheet ? decks : undefined }, `import ${excelFile.originalname}${replace ? " (replace)" : ""}`);
+      await store.save({ cards: m.result, decks: dsheet ? decks : undefined }, `import ${excelFile.originalname}${replace ? " (replace)" : ""}`);
       for (const im of matchedImages) store.saveImage(im.id, im.ext, im.buffer);
     }
     res.json({ ok: true, dry, stats: { added: m.added, updated: m.updated, same: m.same, removed: m.removed, total: m.result.length },
@@ -250,36 +243,22 @@ api.post("/images", up.array("files", 100), (req, res) => {
 
 // ---- Update Note (โน้ตแจ้งอัปเดตที่ผู้เล่นทุกคนเห็นในเกม) ----
 api.get("/updates", (_req, res) => res.json({ data: updates.list() }));
-api.post("/updates", (req, res) => {
-  try { res.json({ ok: true, note: updates.add(req.body) }); } catch (e) { res.status(400).json({ error: e.message }); }
+api.post("/updates", async (req, res) => {
+  try { res.json({ ok: true, note: await updates.add(req.body) }); } catch (e) { res.status(400).json({ error: e.message }); }
 });
-api.put("/updates/:id", (req, res) => {
-  try { const n = updates.update(req.params.id, req.body); n ? res.json({ ok: true, note: n }) : res.status(404).json({ error: "ไม่พบโน้ตนี้" }); }
+api.put("/updates/:id", async (req, res) => {
+  try { const n = await updates.update(req.params.id, req.body); n ? res.json({ ok: true, note: n }) : res.status(404).json({ error: "ไม่พบโน้ตนี้" }); }
   catch (e) { res.status(400).json({ error: e.message }); }
 });
-api.delete("/updates/:id", (req, res) => updates.remove(req.params.id) ? res.json({ ok: true }) : res.status(404).json({ error: "ไม่พบโน้ตนี้" }));
-
-// ---- ร้านค้า ----
-api.get("/shop", (_req, res) => res.json({ data: shop.list() }));
-api.put("/shop/:sku", (req, res) => {
-  try {
-    const r = shop.update(req.params.sku, req.body);
-    log.audit("shop_update", req, { sku: req.params.sku, price: [r.before.price, r.after.price], onSale: [r.before.onSale, r.after.onSale] });
-    res.json({ ok: true, item: r.after });
-  } catch (e) { res.status(400).json({ error: e.message }); }
+api.delete("/updates/:id", async (req, res) => {
+  try { (await updates.remove(req.params.id)) ? res.json({ ok: true }) : res.status(404).json({ error: "ไม่พบโน้ตนี้" }); }
+  catch (e) { res.status(400).json({ error: e.message }); }
 });
 
-// ---- ผู้ใช้ออนไลน์ ----
-api.get("/presence", (_req, res) => res.json(presence.snapshot({ rooms: playtest.stats(), serverUptimeSec: Math.round(process.uptime()) })));
-
-// ---- Log ----
-api.get("/logs", (req, res) => res.json({ data: log.recent({ level: String(req.query.level || ""), type: String(req.query.type || ""), limit: Math.min(+req.query.limit || 200, 500) }), files: log.files() }));
-api.get("/logs/file/:name", (req, res) => { const p = log.filePath(req.params.name); p && require("fs").existsSync(p) ? res.download(p) : res.status(404).json({ error: "ไม่พบไฟล์" }); });
-
 // ---- สำรอง/กู้คืน ----
-api.get("/backups", (_req, res) => res.json({ data: store.listBackups() }));
-api.post("/backups/restore", (req, res) => {
-  try { store.restore(String(req.body?.name || "")); res.json({ ok: true }); } catch (e) { res.status(400).json({ error: "กู้คืนไม่สำเร็จ" }); }
+api.get("/backups", wrapA(async (_req, res) => res.json({ data: await store.listBackups() })));
+api.post("/backups/restore", async (req, res) => {
+  try { await store.restore(String(req.body?.name || "")); res.json({ ok: true }); } catch (e) { console.error("restore:", e.message); res.status(400).json({ error: "กู้คืนไม่สำเร็จ" }); }
 });
 
 api.use((err, _req, res, _next) => res.status(400).json({ error: err.code === "LIMIT_FILE_SIZE" ? "ไฟล์ใหญ่เกิน 10MB" : err.message }));

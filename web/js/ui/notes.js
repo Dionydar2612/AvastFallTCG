@@ -9,7 +9,6 @@ function loadUpdateNotes(){
     if(!j||!Array.isArray(j.data))return;
     UPDATE_NOTES=j.data.filter(n=>n&&n.title&&Array.isArray(n.items));
     try{syncBell()}catch(e){}
-    try{if(ui.modal&&ui.modal.t==='notes')render()}catch(e){}
   }).catch(()=>{});
 }
 loadUpdateNotes();

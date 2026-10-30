@@ -359,13 +359,13 @@ function guideHTML(){
     'ใน Main Phase คลิก Unit ที่ Cost ต่ำบนมือ (ใบที่เรืองแสงคือเล่นได้) แล้วเลือก “อัญเชิญ …” โดยใช้ Element ธาตุตรงกับ Unit',
     'กดปุ่ม "ไป Attack Phase" ถ้าไม่มี Unit ที่โจมตีได้ เกมจะผ่านเฟสให้ รอบอทเล่น แล้วเทิร์นถัดไป Unit ที่ลงไว้จะโจมตีได้',
     'เลือก Unit ที่ตั้งอยู่ แล้วคลิกเป้าหมายสีแดง ถ้าฝั่งตรงข้ามไม่มี Unit ตั้งอยู่ ตีเข้า Avatar ได้เลย',
-    'ลองเล่นจนจบเกม ถ้าสงสัยจุดไหน กดปุ่ม "กติกา" บนหน้าเกม ชี้การ์ดเพื่ออ่านข้อความเต็ม หรือ "ส่งข้อเสนอแนะ" บอกเราได้'
+    'ลองเล่นจนจบเกม ถ้าสงสัยจุดไหน กดปุ่ม "กติกา" บนหน้าเกม ชี้การ์ดเพื่ออ่านข้อความเต็ม หรือกด "ข้อเสนอแนะ" ที่หน้า Home / เมนูบัญชีมุมขวาบน บอกเราได้'
   ];
   const elIcons=Object.keys(ELEMENTS).map(n=>`<span class="chip">${elIcon(n,16)} ${n}</span>`).join('');
   return `${navHTML()}
   <div class="hero"><span class="ot-badge"><i></i>วิธีเล่น · สอนเล่นตั้งแต่ต้น</span><h1>เริ่มเล่น AvastFall TCG</h1><p class="muted">อ่านจบแล้วลองเล่นกับบอทได้ทันที หน้านี้อธิบายตั้งแต่ว่าการ์ดแต่ละใบมีอะไร สนามมีอะไร เล่นการ์ดยังไง ไปจนถึง Keyword ทุกตัว ถ้าติดตรงไหนระหว่างเล่น กดปุ่ม "กติกา" บนหน้าเกมเปิดดูย่อ ๆ ได้ตลอด</p>
   <nav class="gd-toc" aria-label="สารบัญ">${toc.map(([id,t],i)=>`<a href="#${id}">${i+1}. ${t}</a>`).join('')}</nav>
-  <div class="ot-cta"><button class="btn pri" data-act="page" data-v="play">ไปลองเล่นเลย</button></div></div>
+  <div class="ot-cta"><button class="btn pri" data-act="quickplay">ไปลองเล่นเลย</button></div></div>
   ${videoHTML()}
 
   <section class="gd" id="gd-goal"><h2>1. เป้าหมายของเกม</h2>
@@ -484,5 +484,5 @@ function guideHTML(){
     </ol>
   </section>
 
-  <section class="gd" id="gd-first"><h2>13. ลองเล่นรอบแรก</h2><ol class="gd-first">${first.map(t=>`<li>${t}</li>`).join('')}</ol><div class="ot-cta"><button class="btn pri" data-act="page" data-v="play">เริ่มเล่นกับบอท</button> <button class="btn" data-act="feedback">ส่งข้อเสนอแนะ / แจ้งบั๊ก</button></div></section>`;
+  <section class="gd" id="gd-first"><h2>13. ลองเล่นรอบแรก</h2><ol class="gd-first">${first.map(t=>`<li>${t}</li>`).join('')}</ol><div class="ot-cta"><button class="btn pri" data-act="quickplay">เริ่มเล่นกับบอท</button></div></section>`;
 }

@@ -2,38 +2,46 @@
 <html lang="th">
 <head>
 <meta charset="utf-8">
+<link rel="icon" href="/favicon.ico" sizes="any"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png"><link rel="icon" type="image/png" sizes="192x192" href="/assets/icon-192.png"><link rel="apple-touch-icon" href="/assets/apple-touch-icon.png"><meta name="theme-color" content="#0a2233">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>AvastFall TCG · Open Test ทดลองเล่น</title>
-<meta name="description" content="เปิดให้ทดลองเล่น AvastFall TCG (Open Test) เล่นกับบอทหรือเล่นกับเพื่อนได้ทันที ไม่ต้องสมัคร">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mali:wght@400;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap">
-<link rel="stylesheet" href="css/style.css">
-<link rel="stylesheet" href="css/site.css"><!-- แถบเมนูเดียว Playtest · Card List · Deckbuilder -->
-<link rel="stylesheet" href="css/theme.css"><!-- ธีมรวมให้เหมือนหน้า Card List (ต้องโหลดหลังสุด) -->
+<title>Home · AvastFall TCG</title>
+<meta name="description" content="AvastFall TCG (Open Test) — ล็อกอินเพื่อเข้าร้านค้า จัดเด็ค ดูการ์ด และทดลองเล่นกับบอทหรือเพื่อน">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@1,700;1,800&family=Mali:wght@400;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="css/style.css?v=5">
+<link rel="stylesheet" href="css/site.css?v=9"><!-- แถบเมนูเดียว Home · Decks · Cards · Shop -->
+<link rel="stylesheet" href="css/theme.css">
+<link rel="stylesheet" href="css/lobby.css?v=1"><!-- ธีมรวมให้เหมือนหน้า Card List (ต้องโหลดหลังสุด) -->
 <style id="imgcss"></style><!-- CSS รูปการ์ด สร้างจาก URL ของ card-api (js/ui/data-sync.js) -->
 </head>
-<body>
+<body class="shell">
 <header class="site-bar" id="siteBar">
-  <a class="site-brand" href="/" data-go="play" aria-label="AvastFall TCG"><i>A</i><span>AvastFall TCG</span><em>OPEN TEST</em></a>
-  <div class="site-tools" id="siteTools" aria-label="ทางลัด">
-    <button type="button" class="site-tool" data-packs id="hdrPacks">เปิดซอง</button>
-    <button type="button" class="site-tool" data-hdr="guide" id="hdrGuide">วิธีเล่น</button>
-    <button type="button" class="site-tool" data-hdr="notes" id="hdrNotes" aria-label="Update Note"><svg class="bell" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg><span>Update Note</span><i class="dot" id="hdrNotesDot" hidden></i></button>
-  </div>
-  <div class="site-sw" id="siteSw" role="tablist" aria-label="เมนูเว็บ" data-tab="play">
-    <span class="pill" aria-hidden="true"></span>
-    <button role="tab" data-tab="play" aria-selected="true" aria-controls="panePlay" id="tabPlay">Playtest</button>
-    <button role="tab" data-tab="cards" aria-selected="false" aria-controls="paneCards" id="tabCards" tabindex="-1">Card List</button>
-    <button role="tab" data-tab="deck" aria-selected="false" aria-controls="paneCards" id="tabDeck" tabindex="-1">Deckbuilder</button>
+  <a class="site-brand" href="/" data-go="home" aria-label="AvastFall TCG — Home"><img class="lg" src="/assets/logo-128.png" width="44" height="44" alt=""><span>AvastFall TCG</span><em>OPEN TEST</em></a>
+  <nav class="site-sw" id="siteSw" role="tablist" aria-label="เมนูหลัก" data-tab="home">
+    <button role="tab" data-tab="home" aria-selected="true" id="tabHome">Home</button>
+    <button role="tab" data-tab="decks" aria-selected="false" id="tabDecks" tabindex="-1">Decks</button>
+    <button role="tab" data-tab="cards" aria-selected="false" id="tabCards" tabindex="-1">Cards</button>
+    <button role="tab" data-tab="shop" aria-selected="false" id="tabShop" tabindex="-1">Shop</button>
+    <span class="ind" aria-hidden="true"></span>
+  </nav>
+  <div class="site-user" id="siteUser">
+    <button type="button" class="site-game" id="siteGame" hidden>▶ กลับเข้าเกม</button>
+    <button type="button" class="site-chip coin" id="siteCoin" data-go="shop" title="เหรียญของคุณ — ไปร้านค้า"><i class="ic" aria-hidden="true"></i><b id="siteCoinNum">–</b></button>
+    <button type="button" class="site-chip cards" id="siteCards" data-go="cards" title="การ์ดที่สะสมได้ — ไปดูการ์ด"><i class="ic" aria-hidden="true"></i><b id="siteCardsNum">–</b></button>
+    <button type="button" class="site-me" id="siteMe" aria-haspopup="menu" aria-expanded="false" aria-controls="siteMenu"><span class="av" aria-hidden="true" id="siteAv">?</span><span class="nm" id="siteName">ผู้เล่น</span><svg class="chev" width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M1 3l4 4 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><i class="dot" id="siteMeDot" hidden></i></button>
+    <div class="site-menu" id="siteMenu" role="menu" hidden>
+      <div class="who"><b id="menuName">ผู้เล่น</b><span id="menuRole" class="role">ผู้เล่น</span></div>
+      <button type="button" role="menuitem" data-hdr="notes" id="hdrNotes">🔔 แจ้งเตือน · Update Note<i class="dot" id="hdrNotesDot" hidden></i></button>
+      <button type="button" role="menuitem" data-hdr="feedback" id="hdrFeedback">💬 ข้อเสนอแนะ</button>
+      <button type="button" role="menuitem" data-hdr="guide" id="hdrGuide">📖 วิธีเล่น</button>
+      <hr>
+      <button type="button" role="menuitem" class="out" id="siteOut">ออกจากระบบ</button>
+    </div>
   </div>
 </header>
-<div class="site-view" id="siteView" data-tab="play"><div class="site-track">
-  <section class="site-pane" id="panePlay" role="tabpanel" aria-labelledby="tabPlay"><div class="wrap" id="app"></div></section>
-  <section class="site-pane off" id="paneCards" role="tabpanel" aria-labelledby="tabCards"><iframe id="cardsFrame" title="Card List" data-src="/cards/?embed=1"></iframe></section>
-</div></div>
-
-<!-- เปิดซอง BT01: หน้าต่างซ้อนโหลด /packs.html ตอนกดครั้งแรก (เกมที่ค้างอยู่ไม่หาย) -->
-<div class="pk-ov" id="pkOv" hidden role="dialog" aria-modal="true" aria-label="เปิดซอง">
-  <div class="pk-ov-box"><button type="button" class="pk-ov-x" id="pkClose" aria-label="ปิด">✕</button><iframe id="pkFrame" title="เปิดซอง BT01" data-src="/packs.html"></iframe></div>
+<div class="site-view" id="siteView" data-tab="home">
+  <section class="site-pane on" id="paneHub" role="tabpanel" aria-label="Home และร้านค้า"><iframe id="hubFrame" title="Home และร้านค้า" data-src="/hub.html"></iframe></section>
+  <section class="site-pane" id="panePlay" role="tabpanel" aria-label="ทดลองเล่น"><div class="wrap" id="app"></div></section>
+  <section class="site-pane" id="paneCards" role="tabpanel" aria-label="เด็คและการ์ด"><iframe id="cardsFrame" title="เด็คและการ์ด" data-src="/cards/?embed=1"></iframe></section>
 </div>
 
 <!-- 1) กฎและเอนจิน (ไม่แตะ DOM) -->
@@ -71,8 +79,8 @@
 <script src="js/ui/game.js"></script>
 <script src="js/ui/modals.js"></script>
 <script src="js/ui/events.js"></script>
+<script src="js/ui/dnd.js"></script>
 <script src="js/ui/main.js"></script>
-<script src="js/site.js?v=3"></script><!-- แท็บเลื่อน ต้องโหลดหลังสุด -->
-<script src="/js/presence.js" defer></script>
+<script src="js/site.js?v=8"></script><!-- แท็บเลื่อน ต้องโหลดหลังสุด -->
 </body>
 </html>

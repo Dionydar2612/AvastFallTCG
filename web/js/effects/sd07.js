@@ -27,19 +27,92 @@ const drawDiscard = cond => ({ resolve: async ({ G, p, self }) => {
 
 /* ---- 001 อาเรีย (Avatar) */
 FX['SD07-001'] = {
-  abilities: [{ id: 'cheer', kw: 'ACTIVATE 1/turn', zone: 'avatar', spend: 2, label: '[Spend 2 Element] เลือก Unit สูงสุด 2 ใบ ATK +1',
+  abilities: [{
+    id: 'cheer',
+    kw: 'ACTIVATE 1/turn',
+    zone: 'avatar',
+    spend: 2,
+    label: '[Spend 2 Element] เลือก Unit สูงสุด 2 ใบ ATK +1',
     can: ({ G, p }) => standN(G, p) >= 2 && mine(G, p).length > 0,
     resolve: async ({ G, p }) => {
-      for (const u of await pickMany(G, p, 'อาเรีย: เลือก Unit ฝ่ายคุณสูงสุด 2 ใบ ได้รับ ATK +1', mine(G, p), 2)) buff(G, u, 1, p);
-    } }],
-  on: { spellCast: async ({ G, self, p, card, player }) => {
-    if (player !== p || self.autoTurn === G.turn || card.def.type !== 'Spell' || card.def.cost < 2 || !isWater(card)) return;
-    const u = await H.pickUnit(G, p, mine(G, p), 'อาเรีย: เลือก Unit ฝ่ายคุณ 1 ใบ ATK +1 และโจมตีได้แม้ลงมาในเทิร์นนี้', true);
-    if (!u) return;
-    self.autoTurn = G.turn;
-    buff(G, u, 1, p); addMod(G, u, { flag: 'haste', until: 'turnEnd' });
-  } } };
-NOTES['SD07-001'] = 'AUTO 1/turn ทำงานเมื่อร่าย Spell ธาตุน้ำ Cost 2 ขึ้นไป (ไม่รวม Ultimate) เลือก Unit ได้หรือข้ามก็ได้ ถ้าข้ามจะยังไม่นับว่าใช้ในเทิร์นนี้';
+      for (const u of await pickMany(
+        G,
+        p,
+        'อาเรีย: เลือก Unit ฝ่ายคุณสูงสุด 2 ใบ ได้รับ ATK +1',
+        mine(G, p),
+        2
+      )) {
+        buff(G, u, 1, p);
+      }
+    }
+  }],
+
+  on: {
+    spellCast: async ({ G, self, p, card, player }) => {
+      if (
+        player !== p ||
+        self.autoTurn === G.turn ||
+        card.def.type !== 'Spell' ||
+        card.def.cost < 2 ||
+        !isWater(card)
+      ) return;
+
+      const u1 = await H.pickUnit(
+        G,
+        p,
+        mine(G, p),
+        'อาเรีย: เลือก Unit ใบที่ 1 ได้ ATK +1 และ Haste',
+        true
+      );
+
+      // หากข้ามการเลือกใบแรก จะยังไม่นับว่าใช้ AUTO ในเทิร์นนี้
+      if (!u1) return;
+
+      const selected = [u1];
+
+      // ตัด Unit ใบแรกออก เพื่อไม่ให้เลือกซ้ำ
+      const remaining = mine(G, p).filter(
+        u => u.uid !== u1.uid
+      );
+
+      // ถ้ายังมี Unit ใบอื่น ให้ถามว่าจะเลือกเพิ่มหรือไม่
+      if (remaining.length > 0) {
+        const chooseSecond = await H.yesNo(
+          G,
+          p,
+          'อาเรีย: ต้องการเลือก Unit ใบที่ 2 เพิ่มหรือไม่?',
+          'เลือกอีกใบ',
+          'พอแล้ว'
+        );
+
+        if (chooseSecond) {
+          const u2 = await H.pickUnit(
+            G,
+            p,
+            remaining,
+            'อาเรีย: เลือก Unit ใบที่ 2 ได้ ATK +1 และ Haste'
+          );
+
+          if (u2) selected.push(u2);
+        }
+      }
+
+      // นับว่าใช้ AUTO หลังจากเลือก Unit ใบแรกสำเร็จแล้ว
+      self.autoTurn = G.turn;
+
+      // Unit ที่เลือกแต่ละใบได้รับ ATK +1 และ Haste จนจบเทิร์น
+      for (const u of selected) {
+        buff(G, u, 1, p);
+        addMod(G, u, {
+          flag: 'haste',
+          until: 'turnEnd'
+        });
+      }
+    }
+  }
+};
+
+NOTES['SD07-001'] = 'AUTO 1/turn ทำงานเมื่อร่าย Spell ธาตุน้ำ Cost 2 ขึ้นไป (ไม่รวม Ultimate) เลือก Unit ได้สูงสุด 2 ใบ โดยเลือกใบแรกก่อน จากนั้นเลือกใบที่สองเพิ่มหรือข้ามก็ได้ Unit ที่เลือกแต่ละใบได้รับ ATK +1 และ Haste จนจบเทิร์น หากข้ามการเลือกใบแรก จะยังไม่นับว่าใช้ AUTO ในเทิร์นนี้';
 
 /* ---- 002 ฟาร์ลูล */
 FX['SD07-002'] = {
