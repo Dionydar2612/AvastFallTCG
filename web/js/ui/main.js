@@ -17,6 +17,13 @@ window.AFApp={
      - คู่ต่อสู้ (บอท/ผู้เล่น 2): ที่ผู้เล่นเลือกไว้เอง ไม่งั้นสุ่มเด็คตัวอย่าง
      - ออนไลน์ หรือเด็คยังไม่พร้อม → เปิดหน้าตั้งค่าแมตช์ให้จัดการต่อ (ซ้อนอยู่ใต้ Home) */
   launch(o){
+    if(o.mode==='match'){   // จับคู่ออนไลน์: ไม่ย้ายหน้า เข้าคิวแล้วขึ้นหน้าค้นหาทับ Home (js/ui/online.js)
+      if(ui.screen==='game'){if(!confirm('มีเกมที่กำลังเล่นอยู่ — ออกแล้วค้นหาแมตช์ใหม่แทนไหม?'))return {ok:false,err:''};olLeave(true);ui.token++;ui.screen='setup';ui.over=null;ui.pending=null}
+      ui.my=loadMy();
+      if(o.deckId&&deckByKey('my:'+o.deckId)){ui.cfg.sel[0]='my:'+o.deckId;ui.cfg.picked0=true}
+      else if(!ui.cfg.picked0){const ok=allDecks().filter(d=>!d.preset).find(d=>!deckErrors(d.key).length);if(ok)ui.cfg.sel[0]=ok.key}
+      fixSelections();saveCfg();return mmStart();
+    }
     if(ui.screen==='game'){if(!confirm('มีเกมที่กำลังเล่นอยู่ — เริ่มเกมใหม่แทนไหม?'))return {ok:false,err:''};olLeave(true);ui.token++}
     ui.screen='setup';ui.page='play';ui.modal=null;ui.err='';ui.over=null;ui.pending=null;
     const mode=['bot','hot','spec'].includes(o.mode)?o.mode:'bot';ui.cfg.mode=mode;olLeave(true);

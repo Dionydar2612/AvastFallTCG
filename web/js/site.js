@@ -114,7 +114,7 @@
     if (!o.mode) { try { o.mode = localStorage.getItem('af-lobby-mode') || 'bot'; } catch (e) { o.mode = 'bot'; } }   // โหมดที่เลือกไว้ที่ Home
     if (!window.AFApp || !AFApp.launch) return { ok: false, err: 'ระบบเกมยังโหลดไม่เสร็จ ลองอีกครั้ง' };
     var r = AFApp.launch(o);
-    if (r && r.ok) go('play');                                    // เริ่มเกมแล้วค่อยสลับไปกระดาน · ถ้าเด็คใช้ไม่ได้ จะอยู่ที่ Home และแจ้งข้อความให้
+    if (r && r.ok && !r.queued) go('play');                                    // เริ่มเกมแล้วค่อยสลับไปกระดาน · ถ้าเด็คใช้ไม่ได้ จะอยู่ที่ Home และแจ้งข้อความให้
     return r || { ok: false, err: '' };
   }
   /* มีเกมค้างอยู่ → แสดงปุ่ม "กลับเข้าเกม" เมื่อผู้เล่นออกไปดูหน้าอื่น */

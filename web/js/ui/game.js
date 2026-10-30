@@ -172,6 +172,7 @@ function gameHTML(){
 }
 function overHTML(){
   const G=ui.G,r=ui.over;
+  if(ui.ol&&ui.ol.mm)return mmOverHTML(G,r,ui.ol);   // แมตช์จับคู่ออนไลน์: หน้าสรุปผลพร้อมแต้ม/เหรียญ (js/ui/online.js)
   return `<div class="ov"><div class="dlg narrow over"><h2>จบเกม</h2><div class="win">${r.winner==null?'เสมอ':esc(G.players[r.winner].name)+' ชนะ'}</div><div>${esc(r.reason)}</div><div class="muted">เล่นไป ${G.turn} เทิร์น · HP ${G.players.map(P=>esc(P.name)+' '+P.avatar.hp).join(' / ')}</div><div class="acts"><button class="btn" data-act="closeover">ดูกระดาน</button><button class="btn" data-act="tosetup">ตั้งค่าใหม่</button><button class="btn pri" data-act="restart">เล่นอีกครั้ง</button></div></div></div>`;
 }
 

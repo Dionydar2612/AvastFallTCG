@@ -7,10 +7,11 @@
   var $ = function (id) { return document.getElementById(id); };
   var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (m) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]; }); };
   var BACK = '/assets/card-back.jpg';
-  var MODES = [['bot', 'VS บอท'], ['hot', '2 คน · เครื่องเดียว'], ['online', 'ออนไลน์กับเพื่อน']];
+  var MODES = [['bot', 'VS บอท'], ['hot', '2 คน · เครื่องเดียว'], ['match', 'จับคู่ออนไลน์'], ['online', 'ออนไลน์กับเพื่อน']];
   var S = { view: 'home', cards: null, byId: null, own: (window.__AF && window.__AF.owned) || {}, raw: {}, qty: {}, me: null, coins: 0, items: {}, mode: 'bot' };
   try { S.mode = localStorage.getItem('af-lobby-mode') || 'bot'; } catch (e) { }
   if (!MODES.some(function (m) { return m[0] === S.mode; })) S.mode = 'bot';
+  var isOl = function () { return S.mode === 'online' || S.mode === 'match'; };   // โหมดที่ใช้เด็คเดียว + เกมออนไลน์
   var baseId = function (id) { return String(id).replace(/^([A-Za-z0-9]+-\d+).*$/, '$1'); };
   var fmt = function (n) { return Number(n).toLocaleString('th-TH'); };
 
@@ -162,7 +163,7 @@
       var deckLine = cur ? '<button type="button" class="dpill" data-act="setup" title="เปลี่ยนเด็ค"><b>' + esc(cur.name || 'เด็ค') + '</b><span class="' + (cur.ok ? 'ok' : 'warn') + '">' + (cur.ok ? (cur.preset ? '✓ เด็คตัวอย่าง' : '✓ พร้อมเล่น') : '⚠ ใช้เล่นไม่ได้') + '</span></button>' : main ? '<button type="button" class="dpill" data-go="decks" title="ไปจัดเด็ค"><b>' + esc(main.name || 'เด็คใหม่') + '</b><span class="' + (mainInfo.ok ? 'ok' : 'warn') + '">' + (mainInfo.ok ? '✓ พร้อมเล่น' : mainInfo.miss ? '⚠ การ์ดไม่พอ' : mainInfo.n + '/60 ใบ') + '</span></button>'
         : '<button type="button" class="dpill" data-go="shop"><b>ยังไม่มีเด็คของคุณ</b><span class="warn">เริ่มที่ Shop ›</span></button>';
       var modeName = (MODES.filter(function (m) { return m[0] === S.mode; })[0] || MODES[0])[1];
-      var hint = (S.mode === 'online' ? 'โหมดออนไลน์: กด PLAY เพื่อสร้างหรือเข้าห้องกับเพื่อน' : 'กด PLAY เพื่อเริ่ม ' + modeName + ' ทันที') + (cur && cur.preset && !st.ownedTotal ? ' · ใช้เด็คตัวอย่างฟรี หรือซื้อ Starter Deck ที่ Shop' : '');
+      var hint = (S.mode === 'online' ? 'โหมดออนไลน์: กด PLAY เพื่อสร้างหรือเข้าห้องกับเพื่อน' : S.mode === 'match' ? matchHint() : 'กด PLAY เพื่อเริ่ม ' + modeName + ' ทันที') + (cur && cur.preset && !st.ownedTotal ? ' · ใช้เด็คตัวอย่างฟรี หรือซื้อ Starter Deck ที่ Shop' : '');
 
       var h = '<div class="lobby">' +
         '<div class="subbar" role="tablist" aria-label="โหมดการเล่น">' + MODES.map(function (m) { return '<button type="button" role="tab" class="mode' + (S.mode === m[0] ? ' on' : '') + '" aria-selected="' + (S.mode === m[0]) + '" data-mode="' + m[0] + '">' + m[1] + '</button>'; }).join('') +
@@ -202,6 +203,11 @@
   }
 
   /* ---------- ปุ่มเล่น / ห้องออนไลน์ (อยู่ที่ Home ทั้งหมด ไม่ต้องย้ายหน้า) ---------- */
+  /* โหมดจับคู่ออนไลน์: ข้อความใต้ปุ่ม PLAY = ลีก/แต้มของฉัน + รางวัลที่ได้ */
+  function matchHint() {
+    var u = S.me && S.me.user, base = 'กด PLAY เพื่อค้นหาคู่แข่ง — จับคู่กับผู้เล่นที่กำลังค้นหาอยู่พร้อมกัน · ชนะรับแต้มและเหรียญ';
+    return u && u.points != null ? (u.league || 'BRONZE') + ' LEAGUE · ' + u.points + ' แต้ม · ชนะ ' + (u.wins || 0) + ' แพ้ ' + (u.losses || 0) + ' — ' + base : base;
+  }
   function ctlHtml(inGame, hint) {
     var resume = inGame ? '<button type="button" class="resume" data-act="resume">▶ มีเกมที่กำลังเล่นอยู่ — กลับเข้าเกม</button>' : '';
     if (S.mode === 'online') return resume + onlineHtml();
@@ -246,8 +252,8 @@
     if (S.view !== 'home') return;
     var G = game(); if (!G) return; var u = G.ui, o = u.ol;
     syncEmblem();
-    if (o && S.mode !== 'online') { S.mode = 'online'; try { localStorage.setItem('af-lobby-mode', 'online'); } catch (e) { } show('home'); return; }   // เปิดลิงก์ห้อง ?room=
-    if (u.screen === 'game' && S.mode === 'online' && !S.inGame) { S.inGame = true; go('play'); return; }
+    if (o && !isOl()) { S.mode = o.mm ? 'match' : 'online'; try { localStorage.setItem('af-lobby-mode', 'online'); } catch (e) { } show('home'); return; }   // เปิดลิงก์ห้อง ?room=
+    if (u.screen === 'game' && isOl() && !S.inGame) { S.inGame = true; go('play'); return; }
     if (S.mode !== 'online') { lastSig = ''; return; }
     var sig = JSON.stringify([o && [o.code, o.peer, o.ready, o.peerReady, o.conn, o.hadPeer], u.err, u.olbusy, u.screen]);
     if (sig === lastSig) return;
@@ -277,7 +283,7 @@
   /* ---------- ตั้งค่าแมตช์ (เด็คของทั้งสองฝั่ง · ใครเล่นก่อน) เป็นหน้าต่างบน Home ---------- */
   function openMatch() {
     var G = game(); if (!G) { toast('ระบบเกมยังโหลดไม่เสร็จ ลองอีกครั้ง', true); return; }
-    try { G.ui.my = window.parent.loadMy(); G.ui.cfg.mode = S.mode === 'online' ? 'online' : (G.ui.cfg.mode === 'online' ? 'bot' : G.ui.cfg.mode); } catch (e) { }
+    try { G.ui.my = window.parent.loadMy(); G.ui.cfg.mode = isOl() ? 'online' : (G.ui.cfg.mode === 'online' ? 'bot' : G.ui.cfg.mode); } catch (e) { }
     var dlg = openDlg('', function () { show('home'); });
     var draw = function () {
       var u = G.ui, c = u.cfg, all = G.allDecks(), top = dlg.scrollTop;
@@ -287,8 +293,8 @@
       };
       var mine = all.filter(function (d) { return !d.preset; }), pre = all.filter(function (d) { return d.preset; });
       var list = function (p) { return (mine.length ? '<div class="dgrp">เด็คของฉัน</div>' + mine.map(function (d) { return row(d, p); }).join('') : '') + '<div class="dgrp">เด็คตัวอย่าง (ใช้ฟรี)</div>' + pre.map(function (d) { return row(d, p); }).join(''); };
-      var two = S.mode !== 'online';
-      dlg.innerHTML = '<button type="button" class="x" aria-label="ปิด">✕</button><h2>เลือกเด็ค</h2><p class="mut" style="margin:0 40px 6px 0">' + (S.mode === 'online' ? 'เลือกเด็คของคุณสำหรับห้องออนไลน์' : 'เลือกเด็คของทั้งสองฝั่งและใครเล่นก่อน · กด PLAY ที่ Home เพื่อเริ่มได้ทันที') + '</p>' +
+      var two = !isOl();
+      dlg.innerHTML = '<button type="button" class="x" aria-label="ปิด">✕</button><h2>เลือกเด็ค</h2><p class="mut" style="margin:0 40px 6px 0">' + (isOl() ? 'เลือกเด็คของคุณสำหรับเล่นออนไลน์' : 'เลือกเด็คของทั้งสองฝั่งและใครเล่นก่อน · กด PLAY ที่ Home เพื่อเริ่มได้ทันที') + '</p>' +
         '<div class="mgrid"><section><h3>' + (S.mode === 'bot' ? 'เด็คของคุณ' : S.mode === 'hot' ? 'เด็คผู้เล่น 1' : 'เด็คของคุณ') + '</h3><div class="dlist">' + list(0) + '</div></section>' +
         (two ? '<section><h3>' + (S.mode === 'bot' ? 'เด็คบอท' : 'เด็คผู้เล่น 2') + '</h3><button type="button" class="btn sm' + (c.picked1 ? '' : ' pri') + '" data-rand="1">🎲 สุ่มเด็คตัวอย่างทุกครั้ง</button><div class="dlist">' + list(1) + '</div></section>' : '') + '</div>' +
         (two ? '<div class="srow2"><b>ใครเล่นก่อน</b>' + [['random', 'สุ่ม'], ['0', 'ผู้เล่น 1'], ['1', 'ผู้เล่น 2']].map(function (f) { return '<button type="button" class="btn sm' + (String(c.first) === f[0] ? ' pri' : '') + '" data-first="' + f[0] + '">' + f[1] + '</button>'; }).join('') + '</div>' : '') +
@@ -515,8 +521,8 @@
     var vb = t.closest('[data-view]'); if (vb) { show(vb.dataset.view); return; }
     var md = t.closest('[data-mode]'); if (md) {
       S.mode = md.dataset.mode; try { localStorage.setItem('af-lobby-mode', S.mode); } catch (er) { }
-      var G = game(); if (G) { if (S.mode !== 'online' && G.ui.ol) window.parent.olLeave(true); G.ui.cfg.mode = S.mode === 'online' ? 'online' : (G.ui.cfg.mode === 'online' ? 'bot' : G.ui.cfg.mode); G.saveCfg(); G.ui.err = ''; }
-      var mn = (MODES.filter(function (m) { return m[0] === S.mode; })[0] || MODES[0])[1]; if (S.mode !== 'online') S.hint = 'กด PLAY เพื่อเริ่ม ' + mn + ' ทันที';
+      var G = game(); if (G) { if (!isOl() && G.ui.ol) window.parent.olLeave(true); G.ui.cfg.mode = isOl() ? 'online' : (G.ui.cfg.mode === 'online' ? 'bot' : G.ui.cfg.mode); G.saveCfg(); G.ui.err = ''; }
+      var mn = (MODES.filter(function (m) { return m[0] === S.mode; })[0] || MODES[0])[1]; if (S.mode === 'match') S.hint = matchHint(); else if (S.mode !== 'online') S.hint = 'กด PLAY เพื่อเริ่ม ' + mn + ' ทันที';
       lastSig = ''; refreshCtl();
       Array.prototype.forEach.call(document.querySelectorAll('.mode'), function (b) { var on = b === md; b.classList.toggle('on', on); b.setAttribute('aria-selected', on); });
       return;

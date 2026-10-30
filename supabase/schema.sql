@@ -57,6 +57,10 @@ create table if not exists public.profiles (
 alter table public.profiles add column if not exists last_seen_at timestamptz;
 alter table public.profiles add column if not exists last_page text;
 create index if not exists profiles_last_seen_idx on public.profiles (last_seen_at desc);
+-- แมตช์จับคู่ออนไลน์: แต้มแรงก์ + สถิติแพ้ชนะ (รันซ้ำได้)
+alter table public.profiles add column if not exists rank_points int not null default 0 check (rank_points >= 0);
+alter table public.profiles add column if not exists wins   int not null default 0;
+alter table public.profiles add column if not exists losses int not null default 0;
 create unique index if not exists profiles_username_lower_idx on public.profiles (lower(username));
 
 create table if not exists public.user_decks (          -- เด็คที่ผู้ใช้จัดไว้ (Deckbuilder)
@@ -125,6 +129,20 @@ create table if not exists public.audit_logs (
 );
 create index if not exists audit_logs_at_idx on public.audit_logs (at desc);
 
+-- ---------- ประวัติแมตช์จับคู่ออนไลน์ (เก็บผล + รางวัลที่แจก) ----------
+create table if not exists public.match_results (
+  id          bigint generated always as identity primary key,
+  at          timestamptz not null default now(),
+  room        text,
+  p0          uuid,
+  p1          uuid,
+  winner      int,                                     -- 0 | 1 | null = เสมอ
+  secs        int,                                     -- ความยาวเกม (วินาที)
+  reason      text,                                    -- finish | forfeit | timeout
+  detail      jsonb                                    -- รางวัลของแต่ละฝั่ง
+);
+create index if not exists match_results_at_idx on public.match_results (at desc);
+
 -- ---------- RLS: เปิดทุกตาราง ไม่มี policy = เฉพาะ service_role (เซิร์ฟเวอร์) เข้าถึงได้ ----------
 alter table public.card_sets    enable row level security;
 alter table public.cards        enable row level security;
@@ -138,6 +156,7 @@ alter table public.purchases    enable row level security;
 alter table public.update_notes enable row level security;
 alter table public.app_meta     enable row level security;
 alter table public.audit_logs   enable row level security;
+alter table public.match_results enable row level security;
 
 -- ---------- สิทธิ์ให้เซิร์ฟเวอร์ (service_role) เข้าตารางผ่าน Data API ----------
 -- โปรเจกต์ Supabase ใหม่ ๆ บางตัวไม่ให้สิทธิ์ตารางใหม่อัตโนมัติ → ไม่ใส่ = "Could not find the table ... in the schema cache"

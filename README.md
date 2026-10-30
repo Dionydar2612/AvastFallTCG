@@ -57,6 +57,26 @@ Card metadata—including names, types, elements, stats, and effects—is stored
 
 The application is served by a single Node.js/Express server. The game, catalogue, deck builder, and API use the same deployment and card data source.
 
+## Online matchmaking (ranked-style queue)
+
+On the Home lobby, choose the **จับคู่ออนไลน์** mode and press **PLAY**. The player joins a queue and sees a full-screen "searching" screen (league, format ribbon, selected deck, elapsed timer, cancel button). The server pairs only players who are searching the same queue at the same time (longest wait first, never a player with themselves). Both browsers then join a room and press "ready" automatically. Private friend rooms (**ออนไลน์กับเพื่อน**) are unchanged and give no rewards.
+
+When a match ends, a result screen shows VICTORY / DEFEAT / DRAW, both Avatars, and the **points** and **coins** each player earned plus league progress.
+
+**How results are trusted.** The server does not run the game rules. Each browser reports the winner; rewards are paid only when both reports agree. Leaving mid-game counts as a loss; a player who stays offline for 90 s forfeits. Anti-farming limits: no rewards for games shorter than `MATCH_MIN_SECS`, a daily coin cap per player, and a daily limit on rewarded games against the same opponent (these counters are in memory and reset when the server restarts). Like the rest of online play, this is meant for playtests, not a cheat-proof competitive ladder.
+
+**Database.** Re-run `supabase/schema.sql` (safe to repeat) to add `profiles.rank_points`, `wins`, `losses` and the `match_results` history table. Until then the queue still works and pays coins only.
+
+| Variable | Default | Meaning |
+| --- | --- | --- |
+| `RANK_WIN` / `RANK_LOSS` / `RANK_DRAW` | `25` / `10` / `0` | Points gained on a win, lost on a defeat (never below 0), gained on a draw |
+| `COINS_WIN` / `COINS_LOSS` / `COINS_DRAW` | `30` / `5` / `10` | Coins paid per result |
+| `MATCH_MIN_SECS` | `60` | Shorter games pay nothing |
+| `MATCH_DAILY_COIN_CAP` | `300` | Max coins from matchmaking per player per day (Bangkok time) |
+| `MATCH_PAIR_DAILY_CAP` | `5` | Max rewarded games against the same opponent per day |
+
+Leagues by points: BRONZE 0 · SILVER 100 · GOLD 250 · PLATINUM 500 · DIAMOND 800 · MASTER 1200 (see `lib/rank.js`).
+
 ## Technology stack
 
 - **Runtime:** Node.js 22 or later

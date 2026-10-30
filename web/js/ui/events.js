@@ -103,6 +103,7 @@ function handle(act,d,el,e){
     case 'closeover':ui.over=ui.over;ui.hideOver=true;ui.overShown=false;ui.over=null;return render();
     case 'restart':return startGame();
     case 'tosetup':olLeave(true);ui.token++;ui.screen='setup';ui.page='play';DATA.applyPending();fixSelections();ui.pending=null;ui.over=null;ui.modal=null;render();return AFSite.go('home');   // จบเกม → กลับ Home
+    case 'mmagain':{olLeave(true);ui.token++;ui.screen='setup';ui.page='play';DATA.applyPending();fixSelections();ui.pending=null;ui.over=null;ui.modal=null;render();AFSite.go('home');setTimeout(mmStart,60);return}   // จบแมตช์จับคู่ → กลับ Home แล้วเข้าคิวใหม่ทันที
     case 'tab':ui.tab=d.v;return render();
     case 'gmenu':ui.gmenu=!ui.gmenu;return render();
     case 'panel':ui.showPanel=!ui.showPanel;return render();
@@ -112,7 +113,7 @@ function handle(act,d,el,e){
     case 'closesettings':ui.settings=false;return render();
     case 'setscale':applyScale(+d.v);return render();
     case 'surrender':{
-      if(!confirm('ยอมแพ้และกลับไปหน้า Home?'))return;
+      if(!confirm(ui.ol&&ui.ol.mm&&!ui.over?'ยอมแพ้จะนับเป็นแพ้และเสียแต้ม — ออกจากแมตช์ไหม?':'ยอมแพ้และกลับไปหน้า Home?'))return;
       olLeave(true);ui.token++;ui.screen='setup';ui.page='play';DATA.applyPending();fixSelections();ui.pending=null;ui.over=null;ui.modal=null;ui.menu=null;ui.settings=false;
       render();return AFSite.go('home');
     }
