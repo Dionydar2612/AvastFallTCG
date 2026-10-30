@@ -61,6 +61,8 @@ create index if not exists profiles_last_seen_idx on public.profiles (last_seen_
 alter table public.profiles add column if not exists rank_points int not null default 0 check (rank_points >= 0);
 alter table public.profiles add column if not exists wins   int not null default 0;
 alter table public.profiles add column if not exists losses int not null default 0;
+-- รางวัลเลื่อนแรงค์ที่กดรับไปแล้ว (รายชื่อลีก เช่น ["SILVER","GOLD"]) (รันซ้ำได้)
+alter table public.profiles add column if not exists rank_claims jsonb not null default '[]'::jsonb;
 create unique index if not exists profiles_username_lower_idx on public.profiles (lower(username));
 
 create table if not exists public.user_decks (          -- เด็คที่ผู้ใช้จัดไว้ (Deckbuilder)

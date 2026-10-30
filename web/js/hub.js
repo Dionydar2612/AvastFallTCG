@@ -172,7 +172,7 @@
           '<div class="art"><div class="artcut"><div class="artin"><div class="glow"></div><div class="fan n' + fan.length + '">' + fanHtml + '</div><div class="logo">AVASTFALL<small>TRADING CARD GAME</small></div></div></div></div>' +
           '<div class="side">' +
             '<div class="center">' +
-              '<div class="hexo"><div class="hexi" id="emblem">' + (emblem ? pic(emblem) : '<img src="' + BACK + '" alt="">') + '</div></div>' + deckLine +
+              '<div id="emblemwrap" class="emblemwrap">' + emblemHtml(emblem) + '</div>' + deckLine +
               '<div id="ctl" class="ctl">' + ctlHtml(inGame, hint) + '</div>' +
             '</div>' +
             '<div class="bottom">' +
@@ -200,6 +200,70 @@
       S.okDeckId = okDeck ? okDeck.id : null; S.inGame = inGame; S.hint = hint;
       $('view').innerHTML = h; startCycle();
     });
+  }
+
+  /* ---------- แรงค์: กรอบตามลีก (โหมดจับคู่ออนไลน์) + หน้า Ladder รางวัลเลื่อนแรงค์ ---------- */
+  var LG_TH = { BRONZE: 'BRONZE', SILVER: 'SILVER', GOLD: 'GOLD', PLATINUM: 'PLATINUM', DIAMOND: 'DIAMOND', MASTER: 'MASTER' };
+  function rkFrame(lg, inner, id, gem, off) {
+    return '<div class="rk rk-' + lg + '"><i class="rk-fr"></i><i class="rk-bv"></i><span class="rk-tab">' + lg.charAt(0) + '</span>' +
+      '<div class="rk-ph' + (gem ? ' gem' + (off ? ' off' : '') : '') + '"' + (id ? ' id="' + id + '"' : '') + '>' + inner + '</div></div>';
+  }
+  /* วงกลางหน้า Home: โหมดจับคู่ออนไลน์ = กรอบแรงค์ + Avatar ที่เลือก + แต้ม (กดเปิด Ladder) · โหมดอื่น = เหรียญ Avatar เดิม */
+  function emblemHtml(emblem) {
+    var img = emblem ? pic(emblem) : '<img src="' + BACK + '" alt="">';
+    if (S.mode !== 'match') return '<div class="hexo"><div class="hexi" id="emblem">' + img + '</div></div>';
+    var u = (S.me && S.me.user) || {}, lg = LG_TH[u.league] ? u.league : 'BRONZE', pts = u.points || 0, n = u.rankClaimable || 0;
+    return '<button type="button" class="rkw rk-' + lg + '" data-act="ladder" title="ดูแรงค์และรางวัลเลื่อนแรงค์" aria-label="' + lg + ' LEAGUE ' + pts + ' แต้ม — ดูรางวัลเลื่อนแรงค์">' +
+      rkFrame(lg, img, 'emblem') + (n ? '<span class="rk-dot" aria-label="มีรางวัลรอรับ ' + n + ' รายการ">' + (n > 9 ? '9+' : n) + '</span>' : '') +
+      '<span class="rk-pill">' + fmt(pts) + '</span></button>';
+  }
+  function redrawEmblem() { var w = $('emblemwrap'); if (w && S.view === 'home') w.innerHTML = emblemHtml(S.emblemId && S.byId ? S.byId[String(S.emblemId).toLowerCase()] : null); }
+  /* ตำแหน่งบนแถบแต้ม: 0..n (คอลัมน์ละลีก · ลีกสุดท้ายถึงแล้วหยุดกลางคอลัมน์) */
+  function ladPos(R) {
+    var t = R.tiers, idx = 0; t.forEach(function (x, i) { if (x.reached) idx = i; });
+    var c = t[idx], frac = c.upTo ? Math.min(1, (R.points - c.at) / (c.upTo - c.at)) : .5;
+    return idx + frac;
+  }
+  function ladderHtml(R) {
+    var t = R.tiers, n = t.length, cur = R.league.name, avatar = S.emblemId && S.byId ? S.byId[String(S.emblemId).toLowerCase()] : null;
+    var pos = ladPos(R), pct = Math.max(0, Math.min(100, pos / n * 100)), mePct = Math.max(5, Math.min(95, pct));
+    var cols = t.map(function (x) {
+      var isCur = x.name === cur, face = isCur ? (avatar ? pic(avatar) : '<img src="' + BACK + '" alt="">') : x.name.charAt(0);
+      var act = x.claimed ? '<div class="lad-st got">✓ รับแล้ว</div>'
+        : x.claimable ? '<button type="button" class="lad-go" data-act="rkclaim" data-tier="' + x.name + '">รับรางวัล</button>'
+        : !x.coins ? '<div class="lad-st free">ลีกเริ่มต้น</div>'
+        : '<div class="lad-st lock">🔒 อีก ' + fmt(Math.max(0, x.at - R.points)) + ' แต้ม</div>';
+      return '<div class="lad-col' + (isCur ? ' cur' : '') + (x.reached ? '' : ' lock') + '">' +
+        rkFrame(x.name, face, null, !isCur, !x.reached) +
+        '<span class="lad-lg">' + x.name + ' LEAGUE</span><span class="lad-need">' + (x.at ? 'ตั้งแต่ ' + fmt(x.at) + ' แต้ม' : 'เริ่มต้น') + '</span>' +
+        (x.coins ? '<div class="lad-rw"><span class="bigcoin"></span>+' + fmt(x.coins) + '</div>' : '<div class="lad-rw none">ไม่มีรางวัล</div>') + act + '</div>';
+    }).join('');
+    var ticks = t.slice(1).map(function (x, i) { return '<span class="tick' + (x.reached ? ' hit' : '') + '" style="left:' + ((i + 1) / n * 100) + '%"><span>' + fmt(x.at) + '</span></span>'; }).join('');
+    return '<button type="button" class="x" aria-label="ปิด">✕</button>' +
+      '<div class="lad-head"><h2>Ladder · รางวัลเลื่อนแรงค์</h2><span class="grow"></span>' +
+        '<div class="st"><span>แต้มของคุณ <b>' + fmt(R.points) + '</b></span><span>ชนะ <b>' + R.wins + '</b></span><span>แพ้ <b>' + R.losses + '</b></span></div>' +
+        (R.claimable ? '<span class="gift">🎁 รอรับ ' + R.claimable + ' รายการ</span>' : '') + '</div>' +
+      '<div class="lad-mid">' + cur + ' LEAGUE</div>' +
+      '<div class="lad-scroll"><div class="lad-track" style="--n:' + n + '">' + cols +
+        '<div class="lad-bar"><i class="fill" style="width:' + pct + '%"></i>' + ticks + '<span class="me" style="left:' + mePct + '%"><span class="bigcoin" style="width:16px;height:16px;box-shadow:0 0 0 2px #7a5600 inset"></span>' + fmt(R.points) + '</span></div>' +
+      '</div></div>' +
+      '<p class="lad-foot">ชนะ +' + (R.winPts || 0) + ' แต้ม · แพ้ −' + (R.lossPts || 0) + ' แต้ม — สะสมแต้มถึงลีกไหนก็กดรับรางวัลของลีกนั้นได้ครั้งเดียว</p>';
+  }
+  function openLadder() {
+    var dlg = openDlg('<p class="mut center">กำลังโหลด…</p>', function () { if (S.view === 'home') redrawEmblem(); });
+    dlg.classList.add('lad');
+    return api('GET', '/api/me/rank').then(function (R) {
+      S.rank = R; if (!$('ov').hidden && dlg.isConnected) { dlg.innerHTML = ladderHtml(R); var cur = dlg.querySelector('.lad-col.cur'); if (cur && cur.scrollIntoView) cur.scrollIntoView({ block: 'nearest', inline: 'center' }); }
+    }).catch(function (e) { dlg.innerHTML = '<button type="button" class="x" aria-label="ปิด">✕</button><p class="mut center" style="padding:20px">โหลดแรงค์ไม่สำเร็จ: ' + esc(e.message) + '</p>'; });
+  }
+  function claimRank(tier, btn) {
+    btn.disabled = true;
+    api('POST', '/api/me/rank/claim', { tier: tier }).then(function (r) {
+      setCoins(r.coins); S.rank = r;
+      if (S.me && S.me.user) { S.me.user.rankClaimable = r.claimable; S.me.user.points = r.points; }
+      var dlg = document.querySelector('#ov .dlg.lad'); if (dlg) { var sc = dlg.querySelector('.lad-scroll'), l = sc ? sc.scrollLeft : 0; dlg.innerHTML = ladderHtml(r); sc = dlg.querySelector('.lad-scroll'); if (sc) sc.scrollLeft = l; }
+      toast('🎁 ได้รับ ' + fmt(r.amount) + ' เหรียญจากลีก ' + r.tier + '!');
+    }).catch(function (er) { toast(er.message, true); btn.disabled = false; });
   }
 
   /* ---------- ปุ่มเล่น / ห้องออนไลน์ (อยู่ที่ Home ทั้งหมด ไม่ต้องย้ายหน้า) ---------- */
@@ -523,7 +587,8 @@
       S.mode = md.dataset.mode; try { localStorage.setItem('af-lobby-mode', S.mode); } catch (er) { }
       var G = game(); if (G) { if (!isOl() && G.ui.ol) window.parent.olLeave(true); G.ui.cfg.mode = isOl() ? 'online' : (G.ui.cfg.mode === 'online' ? 'bot' : G.ui.cfg.mode); G.saveCfg(); G.ui.err = ''; }
       var mn = (MODES.filter(function (m) { return m[0] === S.mode; })[0] || MODES[0])[1]; if (S.mode === 'match') S.hint = matchHint(); else if (S.mode !== 'online') S.hint = 'กด PLAY เพื่อเริ่ม ' + mn + ' ทันที';
-      lastSig = ''; refreshCtl();
+      lastSig = ''; refreshCtl(); redrawEmblem();
+      if (S.mode === 'match') api('GET', '/api/me').then(function (me) { S.me = me; if (S.mode === 'match') { S.hint = matchHint(); redrawEmblem(); refreshCtl(); } }).catch(function () { });   // แต้มล่าสุด (เพิ่งเล่นจบ)
       Array.prototype.forEach.call(document.querySelectorAll('.mode'), function (b) { var on = b === md; b.classList.toggle('on', on); b.setAttribute('aria-selected', on); });
       return;
     }
@@ -545,6 +610,8 @@
     else if (a.dataset.act === 'play') launch(null);
     else if (a.dataset.act === 'setup') openMatch();
     else if (a.dataset.act === 'sets') openSets();
+    else if (a.dataset.act === 'ladder') openLadder();
+    else if (a.dataset.act === 'rkclaim') claimRank(a.dataset.tier, a);
     else if (/^ol/.test(a.dataset.act)) olAct(a.dataset.act);
     else if (a.dataset.act === 'resume') go('play');
     else if (a.dataset.act === 'playdeck') launch(a.dataset.deck);

@@ -1,0 +1,72 @@
+/* แรงค์โหมดจับคู่ออนไลน์: กรอบหกเหลี่ยมตามลีก (Home) + หน้า Ladder รางวัลเลื่อนแรงค์ (เปิดเมื่อกดที่กรอบ) */
+.rk{--c1:#cd7f32;--c2:#a45f22;--cl:#f6d8b8;--cd:#2a211c;--gl:#e9a566;
+  position:relative;width:var(--rk-w,clamp(120px,21vh,200px));aspect-ratio:1.1547;filter:drop-shadow(0 8px 0 rgba(0,0,0,.2))}
+.rk-BRONZE  {--c1:#d58a45;--c2:#a45f22;--cl:#f6d8b8;--cd:#2a211c;--gl:#e9a566}
+.rk-SILVER  {--c1:#aebbc9;--c2:#7f8ea0;--cl:#f4f7fa;--cd:#252b33;--gl:#cfd8e2}
+.rk-GOLD    {--c1:#ffc20e;--c2:#d99a00;--cl:#fff3bd;--cd:#2b2410;--gl:#ffd84d}
+.rk-PLATINUM{--c1:#2fd1c5;--c2:#17a39a;--cl:#dcfffb;--cd:#12302f;--gl:#7ff0e6}
+.rk-DIAMOND {--c1:#4aa3ff;--c2:#2a73d6;--cl:#e3f2ff;--cd:#14253c;--gl:#8cc7ff}
+.rk-MASTER  {--c1:#e24fd0;--c2:#9b3fd6;--cl:#ffffff;--cd:#2a1b33;--gl:#f09cf0}
+.rk i,.rk .rk-ph{position:absolute;display:block;clip-path:polygon(25% 0,75% 0,100% 50%,75% 100%,25% 100%,0 50%)}
+.rk-fr{inset:0;background:conic-gradient(from -30deg,var(--c1) 0 60deg,var(--c2) 60deg 120deg,var(--cl) 120deg 240deg,#59606f 240deg 300deg,#59606f 300deg 360deg)}
+.rk-bv{inset:6%;background:repeating-linear-gradient(45deg,#1a1d25 0 3px,#2b303b 3px 6px)}
+.rk-ph{inset:10.5%;background:#dfe5ea;overflow:hidden}
+.rk-ph img,.rk-ph .noimg{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 8%;transform:scale(2.1);transform-origin:50% 20%}
+.rk-ph.gem{display:grid;place-items:center;background:radial-gradient(circle at 50% 38%,#fff,var(--gl) 55%,var(--c2));font:800 italic calc(var(--rk-w,160px)*.34)/1 var(--f-lobby,'Barlow Condensed',sans-serif);color:var(--cd);text-shadow:0 2px 0 rgba(255,255,255,.55)}
+.rk-ph.gem.off{filter:grayscale(1) brightness(.78);opacity:.8}
+.rk::after{content:"";position:absolute;inset:0;clip-path:polygon(25% 0,75% 0,100% 50%,75% 100%,25% 100%,0 50%);background:linear-gradient(115deg,rgba(255,255,255,.35) 0,rgba(255,255,255,0) 28%,rgba(255,255,255,0) 70%,rgba(255,255,255,.18));pointer-events:none}
+.rk-MASTER::before{content:"";position:absolute;inset:-8%;background:radial-gradient(closest-side,rgba(226,79,208,.55),rgba(226,79,208,0));animation:rkglow 2.4s ease-in-out infinite;pointer-events:none}
+@keyframes rkglow{50%{opacity:.45;transform:scale(1.06)}}
+.rk-tab{position:absolute;z-index:2;left:13%;top:3.5%;min-width:19%;padding:2px 8px 2px 10px;transform:skewX(-14deg);background:var(--c1);border:2px solid var(--cd);font:800 italic clamp(11px,calc(var(--rk-w,160px)*.095),18px)/1.1 var(--f-lobby,'Barlow Condensed',sans-serif);color:#fff;text-align:center;text-shadow:0 1px 0 rgba(0,0,0,.45)}
+
+/* ปุ่มกรอบ + ป้ายแต้มใต้กรอบ (Home) */
+.rkw{display:flex;flex-direction:column;align-items:center;gap:0;position:relative;padding:0;border:0;background:none;cursor:pointer;color:inherit;transition:transform .12s}
+.rkw:hover{transform:translateY(-2px)}.rkw:hover .rk-pill{border-color:var(--gold)}
+.rkw:focus-visible{outline:3px solid var(--gold);outline-offset:6px;border-radius:12px}
+.rk-pill{margin-top:-6px;position:relative;z-index:3;min-width:min(62%,120px);padding:3px 22px;border:3px solid var(--c1,#fff);border-radius:12px;background:#15171d;color:#fff;font:800 clamp(16px,2.6vh,22px)/1.2 var(--f-lobby,'Barlow Condensed',sans-serif);letter-spacing:.04em;text-align:center;box-shadow:0 3px 0 rgba(0,0,0,.35);clip-path:polygon(10% 0,90% 0,100% 50%,90% 100%,10% 100%,0 50%);border-radius:0}
+.rk-pill small{display:block;font:700 9px/1 var(--f);letter-spacing:.16em;color:var(--gl);margin-bottom:1px}
+.rkw .rk-dot{position:absolute;z-index:4;top:2px;right:6%;display:grid;place-items:center;min-width:24px;height:24px;padding:0 6px;border:3px solid #fff;border-radius:99px;background:var(--bad,#c0121f);color:#fff;font:800 13px/1 var(--f);animation:rkpulse 1.4s ease-in-out infinite}
+@keyframes rkpulse{50%{transform:scale(1.18)}}
+.rkw .rk-hint{position:absolute;z-index:4;bottom:-2px;right:-6px;display:none}
+.rk-cap{margin-top:5px;font-size:.72rem;font-weight:700;color:var(--ink2);letter-spacing:.04em}
+
+/* หน้า Ladder (หน้าต่างรางวัลเลื่อนแรงค์) */
+.dlg.lad{width:min(1180px,100%);padding:0;border-color:#0d2b45;background:linear-gradient(180deg,#bfe9fb,#7fd3f2 60%,#5cc4ee);color:#06283d;overflow:auto}
+.lad-head{position:sticky;left:0;display:flex;align-items:center;flex-wrap:wrap;gap:8px 18px;padding:12px 56px 12px 18px;background:#fff;border-bottom:3px solid #0d2b45;color:#111}
+.lad-head h2{margin:0;font:800 italic 26px/1 var(--f-lobby,'Barlow Condensed',sans-serif);letter-spacing:.03em;text-transform:uppercase}
+.lad-head .grow{flex:1}
+.lad-head .st{display:flex;gap:14px;font-size:.85rem;font-weight:700;color:#334}
+.lad-head .st b{color:#111}
+.lad-head .gift{display:inline-flex;align-items:center;gap:6px;padding:2px 12px;border:2px solid #111;border-radius:99px;background:var(--gold);font-weight:800;font-size:.85rem;color:#111}
+.dlg.lad .x{background:#fff;color:#111;border-color:#111}
+.lad-mid{text-align:center;margin:10px auto 0;width:max-content;max-width:calc(100% - 24px);padding:2px 34px;background:#7a45d6;color:#fff;font:800 italic 18px/1.5 var(--f-lobby,'Barlow Condensed',sans-serif);letter-spacing:.06em;clip-path:polygon(6% 0,94% 0,100% 100%,0 100%)}
+.lad-scroll{overflow-x:auto;padding:0 0 4px}
+.lad-track{position:relative;padding-bottom:36px;display:grid;grid-template-columns:repeat(var(--n),minmax(176px,1fr));min-width:calc(var(--n)*176px)}
+.lad-col{position:relative;display:flex;flex-direction:column;align-items:center;gap:7px;padding:22px 10px 20px;border-right:2px solid rgba(255,255,255,.75)}
+.lad-col:last-child{border-right:0}
+.lad-col.cur{background:linear-gradient(180deg,rgba(255,255,255,.55),rgba(255,255,255,.18))}
+.lad-col .rk{--rk-w:112px}
+.lad-col.cur .rk{--rk-w:132px}
+.lad-lg{display:inline-block;min-width:130px;padding:3px 14px;border:2px solid #c9ced3;border-radius:99px;background:#fff;font:800 14px/1.3 var(--f-lobby,'Barlow Condensed',sans-serif);font-style:italic;letter-spacing:.05em;text-align:center;color:#111;clip-path:polygon(8% 0,92% 0,100% 50%,92% 100%,8% 100%,0 50%);border-radius:0;border:0}
+.lad-col.cur .lad-lg{background:#7a45d6;color:#fff}
+.lad-need{font-size:.8rem;font-weight:700;color:#0d3a58}
+.lad-rw{display:flex;align-items:center;gap:6px;padding:4px 14px;border-radius:99px;background:rgba(6,40,61,.82);color:#fff;font-weight:800}
+.lad-rw .bigcoin{width:22px;height:22px}
+.lad-rw.none{background:rgba(6,40,61,.35);font-weight:600;font-size:.85rem}
+.lad-go{min-width:128px;padding:6px 14px;border:3px solid #111;border-radius:99px;background:var(--gold);color:#111;font:800 15px/1.2 var(--f);cursor:pointer;box-shadow:3px 3px 0 #111;animation:rkpulse2 1.6s ease-in-out infinite}
+.lad-go:hover{background:#111;color:var(--gold)}.lad-go[disabled]{opacity:.6;cursor:wait;animation:none}
+@keyframes rkpulse2{50%{box-shadow:3px 3px 0 #111,0 0 0 5px rgba(255,194,14,.55)}}
+.lad-st{min-width:128px;padding:5px 12px;border-radius:99px;text-align:center;font-weight:700;font-size:.85rem}
+.lad-st.got{background:rgba(26,138,58,.18);color:#0b5f26;border:2px solid rgba(11,95,38,.5)}
+.lad-st.lock{background:rgba(255,255,255,.45);color:#35596e;border:2px dashed rgba(6,40,61,.35)}
+.lad-st.free{color:#35596e;font-weight:600}
+/* แถบความคืบหน้าแต้ม */
+.lad-bar{position:relative;grid-column:1/-1;height:26px;margin-top:6px;background:#a8cfe2;border-top:2px solid rgba(255,255,255,.8)}
+.lad-bar .fill{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(180deg,#2f7bff,#1747d1);transition:width .5s}
+.lad-bar .tick{position:absolute;top:0;bottom:0;width:0;border-left:2px solid #fff}
+.lad-bar .tick span{position:absolute;top:100%;left:0;transform:translate(-50%,4px);padding:0 8px;border:2px solid #7a45d6;border-radius:99px;background:#fff;font:800 12px/1.5 var(--f);color:#3a2370;white-space:nowrap}
+.lad-bar .tick.hit span{background:#7a45d6;color:#fff}
+.lad-bar .me{position:absolute;top:50%;z-index:3;transform:translate(-50%,-50%);display:inline-flex;align-items:center;gap:5px;padding:2px 12px 2px 6px;border:2px solid #fff;border-radius:99px;background:#e0412f;color:#fff;font:800 13px/1.5 var(--f);box-shadow:0 2px 0 rgba(0,0,0,.3);white-space:nowrap}
+.lad-foot{padding:6px 18px 16px;text-align:center;font-size:.8rem;font-weight:600;color:#12435f}
+@media (max-width:640px){.lad-head{padding-right:52px}.lad-head .st{width:100%}}
+@media (prefers-reduced-motion:reduce){.rk-MASTER::before,.rkw .rk-dot,.lad-go{animation:none}}
