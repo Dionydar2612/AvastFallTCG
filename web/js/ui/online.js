@@ -94,7 +94,7 @@ async function olReady(){
   if(deckErrors(ui.cfg.sel[0]).length){ui.err='เด็คยังไม่ครบ 60 ใบ';return render()}
   ui.err='';o.ready=true;render();
   try{await olSend({t:'ready',deck:deckOf(0),hash:olHash(),name:olName()})}
-  catch(e){o.ready=false;ui.err=e.message;render()}
+  catch(e){o.ready=false;ui.err=e.message;if(o.mm){olSend({t:'leave'}).catch(()=>{});mmFail(e.message);return}render()}   // แมตช์จับคู่: เด็คไม่ผ่านการตรวจ → แจ้งแล้วออกจากห้อง ไม่ค้างหน้ารอ
 }
 /* ------------------------------------------------------------------ แปลงตัวเลือกเป็นข้อความที่ส่งข้ามเครื่อง */
 function olEnc(kind,v,spec){
