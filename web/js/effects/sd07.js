@@ -34,16 +34,9 @@ FX['SD07-001'] = {
     spend: 2,
     label: '[Spend 2 Element] เลือก Unit สูงสุด 2 ใบ ATK +1',
     can: ({ G, p }) => standN(G, p) >= 2 && mine(G, p).length > 0,
-    resolve: async ({ G, p }) => {
-      for (const u of await pickMany(
-        G,
-        p,
-        'อาเรีย: เลือก Unit ฝ่ายคุณสูงสุด 2 ใบ ได้รับ ATK +1',
-        mine(G, p),
-        2
-      )) {
-        buff(G, u, 1, p);
-      }
+    targets: async ({ G, p }) => pickMany(G, p, 'อาเรีย: เลือก Unit ฝ่ายคุณสูงสุด 2 ใบ ได้รับ ATK +1', mine(G, p), 2),
+    resolve: async ({ G, p }, selected) => {
+      for (const u of (selected || [])) buff(G, u, 1, p);
     }
   }],
 
@@ -53,81 +46,46 @@ FX['SD07-001'] = {
         player !== p ||
         self.autoTurn === G.turn ||
         card.def.type !== 'Spell' ||
+        card.def.kind === 'Ultimate' ||
         card.def.cost < 2 ||
         !isWater(card)
       ) return;
 
-      const u1 = await H.pickUnit(
+      // ข้อความการ์ดระบุเลือก Unit 1 ใบ ไม่ใช่สูงสุด 2 ใบ
+      const u = await H.pickUnit(
         G,
         p,
         mine(G, p),
-        'อาเรีย: เลือก Unit ใบที่ 1 ได้ ATK +1 และ Haste',
+        'อาเรีย: เลือก Unit ฝ่ายคุณ 1 ใบ ได้รับ ATK +1 และ Haste',
         true
       );
+      if (!u) return;
 
-      // หากข้ามการเลือกใบแรก จะยังไม่นับว่าใช้ AUTO ในเทิร์นนี้
-      if (!u1) return;
-
-      const selected = [u1];
-
-      // ตัด Unit ใบแรกออก เพื่อไม่ให้เลือกซ้ำ
-      const remaining = mine(G, p).filter(
-        u => u.uid !== u1.uid
-      );
-
-      // ถ้ายังมี Unit ใบอื่น ให้ถามว่าจะเลือกเพิ่มหรือไม่
-      if (remaining.length > 0) {
-        const chooseSecond = await H.yesNo(
-          G,
-          p,
-          'อาเรีย: ต้องการเลือก Unit ใบที่ 2 เพิ่มหรือไม่?',
-          'เลือกอีกใบ',
-          'พอแล้ว'
-        );
-
-        if (chooseSecond) {
-          const u2 = await H.pickUnit(
-            G,
-            p,
-            remaining,
-            'อาเรีย: เลือก Unit ใบที่ 2 ได้ ATK +1 และ Haste'
-          );
-
-          if (u2) selected.push(u2);
-        }
-      }
-
-      // นับว่าใช้ AUTO หลังจากเลือก Unit ใบแรกสำเร็จแล้ว
       self.autoTurn = G.turn;
-
-      // Unit ที่เลือกแต่ละใบได้รับ ATK +1 และ Haste จนจบเทิร์น
-      for (const u of selected) {
-        buff(G, u, 1, p);
-        addMod(G, u, {
-          flag: 'haste',
-          until: 'turnEnd'
-        });
-      }
+      buff(G, u, 1, p);
+      addMod(G, u, { flag: 'haste', until: 'turnEnd' });
     }
   }
 };
 
-NOTES['SD07-001'] = 'AUTO 1/turn ทำงานเมื่อร่าย Spell ธาตุน้ำ Cost 2 ขึ้นไป (ไม่รวม Ultimate) เลือก Unit ได้สูงสุด 2 ใบ โดยเลือกใบแรกก่อน จากนั้นเลือกใบที่สองเพิ่มหรือข้ามก็ได้ Unit ที่เลือกแต่ละใบได้รับ ATK +1 และ Haste จนจบเทิร์น หากข้ามการเลือกใบแรก จะยังไม่นับว่าใช้ AUTO ในเทิร์นนี้';
+NOTES['SD07-001'] = 'AUTO 1/turn ทำงานเมื่อร่าย Spell ธาตุน้ำ Cost 2 ขึ้นไป เลือก Unit ฝ่ายคุณ 1 ใบ ให้ได้รับ ATK +1 และ Haste จนจบเทิร์น หากไม่เลือกจะยังไม่นับว่าใช้ AUTO ในเทิร์นนี้';
 
 /* ---- 002 ฟาร์ลูล */
-FX['SD07-002'] = {
+FX['SD07-002'] = { counterableAtkBuff: true,
   on: { unitEntered: async ({ G, self, p, unit }) => {
     if (unit.owner !== p || unit.zone !== 'field' || self.zone !== 'field') return;
     buff(G, self, 1, p);
   } },
-  abilities: [{ id: 'parade', kw: 'ACTIVATE 1/turn', zone: 'field', spend: 1, label: '[Spend 1 Element] ATK +2 ถ้ามี Unit ครบ 4 ใบ จั่ว 1',
+  abilities: [{ id: 'parade', kw: 'ACTIVATE 1/turn', zone: 'field', spend: 1, targetSelf: true, label: '[Spend 1 Element] ATK +2 ถ้ามี Unit ครบ 4 ใบ จั่ว 1',
     can: ({ G, p }) => standN(G, p) >= 1,
     resolve: async ({ G, p, self }) => { buff(G, self, 2, p); if (full(G, p)) H.draw(G, p, 1); } }] };
 NOTES['SD07-002'] = 'AUTO นับ Unit ฝ่ายเราทุกใบที่เข้าสู่ Action Zone ในเทิร์นนั้น (รวมตัวเอง) แต่ละใบให้ ATK +1';
 
 /* ---- 003 อามี */
-FX['SD07-003'] = { on: { attackDeclared: async ({ G, self, p, attacker }) => {
+FX['SD07-003'] = { on: { attackDeclared: async ({ G, self, p, attacker, item }) => {
   if (attacker !== self || !full(G, p)) return;
+  // แจ้ง Counter window ว่า Unit ใดได้รับ ATK จาก AUTO นี้
+  if (item) item.atkBuffTargets = [self];
   addMod(G, self, { atk: 2, until: 'battle' }); log(G, `${self.def.name} ได้รับ ATK +2 จนจบการต่อสู้`, p);
 } } };
 
@@ -143,13 +101,17 @@ FX['SD07-004'] = { advent: { resolve: async ({ G, p, self }) => {
 /* ---- 005 ริล์ม: ไม่มีความสามารถ */
 
 /* ---- 006 อีเนส */
-FX['SD07-006'] = { advent: { resolve: async ({ G, p, self }) => {
-  if (standN(G, p) < 1 || !(await H.yesNo(G, p, 'อีเนส: Spend 1 Element เพื่อให้ Unit นี้ได้รับ ATK +1?'))) return;
-  await AF.payElems(G, p, 1, null, 'อีเนส'); buff(G, self, 1, p);
-} } };
+FX['SD07-006'] = { counterableAtkBuff: true, advent: {
+  targets: async ({ G, p, self }) => {
+    if (standN(G, p) < 1 || !(await H.yesNo(G, p, 'อีเนส: Spend 1 Element เพื่อให้ Unit นี้ได้รับ ATK +1?'))) return null;
+    if (!(await AF.payElems(G, p, 1, null, 'อีเนส'))) return null;
+    return self;
+  },
+  resolve: async ({ G, p }, target) => { if (target) buff(G, target, 1, p); }
+} };
 
 /* ---- 007 ลาห์ตี */
-FX['SD07-007'] = { advent: {
+FX['SD07-007'] = { counterableAtkBuff: true, advent: {
   targets: async ({ G, p, self }) => (await H.pickUnit(G, p, mine(G, p, u => u !== self), 'ลาห์ตี: เลือก Unit ฝ่ายคุณอื่น 1 ใบ ได้รับ ATK +1')) || false,
   resolve: async ({ G, p }, u) => buff(G, u, 1, p) } };
 
@@ -168,16 +130,24 @@ FX['SD07-009'] = { battleSave: async ({ G, p, unit }) => {
 NOTES['SD07-009'] = 'COUNTER ของ Unit ใช้ได้ขณะอยู่บนสนาม (ไม่ต้องใช้จากมือ) เมื่อ Unit ฝ่ายเรา (รวมตัวเอง) กำลังจะถูกทำลายจากการต่อสู้ ใช้ได้ไม่จำกัดครั้ง ตราบที่ยังมีการ์ดบนมือให้ทิ้ง';
 
 /* ---- 010 อิซาเบลลา */
-FX['SD07-010'] = { advent: { resolve: async ({ G, p, self }) => {
-  const others = mine(G, p, u => u !== self);
-  if (others.length && standN(G, p) >= 2 && await H.yesNo(G, p, 'อิซาเบลลา: Spend 2 Element เพื่อให้ Unit ฝ่ายคุณอื่นสูงสุด 2 ใบ ATK +1?')) {
-    await AF.payElems(G, p, 2, null, 'อิซาเบลลา');
-    for (const u of await pickMany(G, p, 'อิซาเบลลา: เลือก Unit ฝ่ายคุณอื่นสูงสุด 2 ใบ ได้รับ ATK +1', others, 2)) buff(G, u, 1, p);
+FX['SD07-010'] = { counterableAtkBuff: true, advent: {
+  targets: async ({ G, p, self }) => {
+    const others = mine(G, p, u => u !== self);
+    let buffTargets = [];
+    if (others.length && standN(G, p) >= 2 && await H.yesNo(G, p, 'อิซาเบลลา: Spend 2 Element เพื่อให้ Unit ฝ่ายคุณอื่นสูงสุด 2 ใบ ATK +1?')) {
+      if (await AF.payElems(G, p, 2, null, 'อีซาเบลลา')) {
+        buffTargets = await pickMany(G, p, 'อิซาเบลลา: เลือก Unit ฝ่ายคุณอื่นสูงสุด 2 ใบ ได้รับ ATK +1', others, 2);
+      }
+    }
+    return { buffTargets };
+  },
+  resolve: async ({ G, p }, data) => {
+    for (const u of ((data && data.buffTargets) || [])) buff(G, u, 1, p);
+    if (!full(G, p)) return;
+    for (const u of mine(G, p, u => !!(FX[u.def.id] || {}).advent)) addMod(G, u, { flag: 'haste', until: 'turnEnd' });
+    log(G, 'Unit ทุกใบที่มี ADVENT โจมตีได้แม้ลงมาในเทิร์นนี้', p);
   }
-  if (!full(G, p)) return;
-  for (const u of mine(G, p, u => !!(FX[u.def.id] || {}).advent)) addMod(G, u, { flag: 'haste', until: 'turnEnd' });
-  log(G, 'Unit ทุกใบที่มี ADVENT โจมตีได้แม้ลงมาในเทิร์นนี้', p);
-} } };
+} };
 NOTES['SD07-010'] = 'เงื่อนไข Unit ครบ 4 ใบแยกจากการ Spend: ตรวจตอนเอฟเฟกต์ทำงาน และให้ Unit ที่มี ADVENT ในขณะนั้นทุกใบโจมตีได้จนจบเทิร์น';
 
 /* ---- 012 เพิร์ช */
@@ -186,7 +156,10 @@ FX['SD07-012'] = { advent: {
   resolve: async ({ G, p }, u) => buff(G, u, 1, p, 'cri') } };
 
 /* ---- 013 รินะ */
-FX['SD07-013'] = { advent: { resolve: async ({ G, p, self }) => { if (mine(G, p, u => u !== self).length) buff(G, self, 1, p); } } };
+FX['SD07-013'] = { counterableAtkBuff: true, advent: {
+  targets: async ({ G, p, self }) => mine(G, p, u => u !== self).length ? self : false,
+  resolve: async ({ G, p }, target) => buff(G, target, 1, p)
+} };
 
 /* ---- 014 เออร์มา */
 FX['SD07-014'] = { advent: drawDiscard((G, p) => G.players[p].hand.length > 5) };
@@ -199,30 +172,39 @@ FX['SD07-015'] = { advent: { resolve: async ({ G, p }) => {
 } } };
 
 /* ---- 016 มนตร์เสน่ห์แห่งท่วงทำนอง */
-FX['SD07-016'] = { spell: { resolve: async ({ G, p, self }) => {
-  buff(G, await H.pickUnit(G, p, mine(G, p), `${self.def.name}: เลือก Unit ฝ่ายคุณ 1 ใบ ได้รับ ATK +1`), 1, p);
-} } };
+FX['SD07-016'] = { counterableAtkBuff: true, spell: {
+  prepare: async ({ G, p, self }) => H.pickUnit(G, p, mine(G, p), `${self.def.name}: เลือก Unit ฝ่ายคุณ 1 ใบ ได้รับ ATK +1`),
+  resolve: async ({ G, p, target }) => buff(G, target, 1, p)
+} };
 
 /* ---- 017 คำสัญญาใต้แสงจันทร์ */
-FX['SD07-017'] = { spell: { resolve: async ({ G, p, self }) => {
-  const u = await H.pickUnit(G, p, mine(G, p), `${self.def.name}: เลือก Unit ฝ่ายคุณ 1 ใบ ได้รับ ATK +2`);
-  if (!u) return;
-  buff(G, u, 2, p);
-  if (AF.tribeHas(u, SINGER)) H.draw(G, p, 1);
-} } };
+FX['SD07-017'] = { counterableAtkBuff: true, spell: {
+  prepare: async ({ G, p, self }) => H.pickUnit(G, p, mine(G, p), `${self.def.name}: เลือก Unit ฝ่ายคุณ 1 ใบ ได้รับ ATK +2`),
+  resolve: async ({ G, p, target }) => {
+    if (!target) return;
+    buff(G, target, 2, p);
+    if (AF.tribeHas(target, SINGER)) H.draw(G, p, 1);
+  }
+} };
 
 /* ---- 018 เสียงประสานแห่งมิตรภาพ */
-FX['SD07-018'] = { spell: { resolve: async ({ G, p, self }) => {
-  for (const u of await pickMany(G, p, `${self.def.name}: เลือก Unit ฝ่ายคุณ 2 ใบ ได้รับ ATK +1`, mine(G, p), 2)) buff(G, u, 1, p);
-} } };
+FX['SD07-018'] = { counterableAtkBuff: true, spell: {
+  prepare: async ({ G, p, self }) => pickMany(G, p, `${self.def.name}: เลือก Unit ฝ่ายคุณ 2 ใบ ได้รับ ATK +1`, mine(G, p), 2),
+  resolve: async ({ G, p, target }) => {
+    for (const u of (target || [])) buff(G, u, 1, p);
+  }
+} };
 
 /* ---- 019 บทเพลงกล่อมคลื่น */
-FX['SD07-019'] = { spell: { resolve: async ({ G, p, self }) => {
-  buff(G, await H.pickUnit(G, p, mine(G, p), `${self.def.name}: เลือก Unit ฝ่ายคุณ 1 ใบ ได้รับ ATK +2`), 2, p);
-  const c = G.players[p].discard.slice();
-  const [x] = await H.pickCards(G, p, { title: `${self.def.name}: เลือกการ์ด 1 ใบจากกองทิ้งขึ้นมือ`, cards: c, kind: 'reveal', ctx: { all: c } });
-  if (x) { place(G, x, 'hand'); log(G, `นำ ${x.def.name} จากกองทิ้งขึ้นมือ`, p); }
-} } };
+FX['SD07-019'] = { counterableAtkBuff: true, spell: {
+  prepare: async ({ G, p, self }) => H.pickUnit(G, p, mine(G, p), `${self.def.name}: เลือก Unit ฝ่ายคุณ 1 ใบ ได้รับ ATK +2`),
+  resolve: async ({ G, p, self, target }) => {
+    buff(G, target, 2, p);
+    const c = G.players[p].discard.slice();
+    const [x] = await H.pickCards(G, p, { title: `${self.def.name}: เลือกการ์ด 1 ใบจากกองทิ้งขึ้นมือ`, cards: c, kind: 'reveal', ctx: { all: c } });
+    if (x) { place(G, x, 'hand'); log(G, `นำ ${x.def.name} จากกองทิ้งขึ้นมือ`, p); }
+  }
+} };
 
 /* ---- 020 กระแสน้ำแห่งความทรงจำ */
 FX['SD07-020'] = { spell: { resolve: async ({ G, p, self }) => {
@@ -257,14 +239,36 @@ FX['SD07-023'] = { counter: {
 
 /* ---- 024 เสียงประสานตัดกำลัง (Counter) */
 FX['SD07-024'] = { counter: {
-  when: (G, r, last) => last.controller !== r && last.kind !== 'attack' && last.source && last.source.def && /ATK\s*\+/.test(JSON.stringify(last.source.def.fx || [])) && G.players[AF.opp(r)].field.some(Boolean),
-  resolve: async ({ G, p, self }) => {
-    const u = await H.pickUnit(G, p, H.oppUnits(G, p, null, self), `${self.def.name}: เลือก Unit ฝ่ายตรงข้ามที่ได้รับ ATK เพิ่ม`);
+  // ใช้ได้เฉพาะตอน Spell ฝ่ายตรงข้ามเลือก Unit เป้าหมายที่จะเพิ่ม ATK ไว้แล้ว
+  when: (G, r, last) => {
+    if (!last || last.controller === r) return false;
+    // AUTO ที่เพิ่ม ATK ระหว่างประกาศโจมตี ระบุเป้าหมายไว้บน item โดยตรง
+    if (last.kind === 'attack' && Array.isArray(last.atkBuffTargets)) {
+      return last.atkBuffTargets.some(u => u && u.zone === 'field' && u.owner === AF.opp(r));
+    }
+    if (!last.source || !last.target) return false;
+    if (!['spell', 'ultimate', 'unit-ability', 'avatar-ability', 'domain-ability', 'equip-ability'].includes(last.kind)) return false;
+    const sourceFx = FX[last.source.def.id] || {};
+    if (!sourceFx.counterableAtkBuff) return false;
+    const targets = Array.isArray(last.target)
+      ? last.target
+      : (last.target && Array.isArray(last.target.buffTargets) ? last.target.buffTargets : [last.target]);
+    return targets.some(u => u && u.zone === 'field' && u.owner === AF.opp(r));
+  },
+  resolve: async ({ G, p, self, target }) => {
+    const raw = target && target.atkBuffTargets ? target.atkBuffTargets : (target && target.target);
+    const candidates = Array.isArray(raw)
+      ? raw
+      : (raw && Array.isArray(raw.buffTargets) ? raw.buffTargets : [raw]);
+    const targets = candidates.filter(u => u && u.zone === 'field' && u.owner === AF.opp(p));
+    const u = await H.pickUnit(G, p, targets, `${self.def.name}: เลือก Unit เป้าหมายที่กำลังจะได้รับ ATK เพิ่ม`);
     if (!u) return;
-    addMod(G, u, { atk: -u.def.atk, until: 'turnEnd' });
+    // เปลี่ยนเฉพาะ ATK ตั้งต้นเป็น 0; โบนัส ATK จากเอฟเฟกต์ที่กำลัง resolve ยังบวกต่อได้
+    addMod(G, u, { setBaseAtk: 0, until: 'turnEnd' });
     log(G, `${u.def.name} มี ATK ตั้งต้นเป็น 0 จนจบเทิร์น`, p);
-  } } };
-NOTES['SD07-024'] = 'ใช้ได้เมื่อฝ่ายตรงข้ามใช้เอฟเฟกต์ที่มีข้อความ ATK + (Counter ทำงานก่อนเอฟเฟกต์นั้นจะแก้) เลือก Unit ที่เป็นเป้า → ATK ตั้งต้นเป็น 0 (โบนัสที่ได้รับตามมายังคงอยู่) จนจบเทิร์น';
+  }
+} };
+NOTES['SD07-024'] = 'Counter จะตอบโต้ Spell ฝ่ายตรงข้ามที่ประกาศเป้าหมาย Unit เพื่อเพิ่ม ATK แล้ว เลือกหนึ่ง Unit จากเป้าหมายที่ถูกเลือกไว้ ปรับ ATK ตั้งต้นเป็น 0 จนจบเทิร์น โบนัส ATK จาก Spell ที่กำลัง resolve ยังคงได้รับตามปกติ';
 
 /* ---- 025 สร้อยไข่มุกแห่งเสียงสะท้อน (Equipment) */
 FX['SD07-025'] = { equip: {},
@@ -274,8 +278,10 @@ FX['SD07-025'] = { equip: {},
   } } };
 
 /* ---- 026 อัลติเมตซิมโฟนี (Ultimate) */
-FX['SD07-026'] = { ultimate: { resolve: async ({ G, p, self }) => {
-  for (const u of await pickMany(G, p, `${self.def.name}: เลือก Unit ฝ่ายคุณสูงสุด 4 ใบ ได้รับ ATK +3`, mine(G, p), 4)) buff(G, u, 3, p);
+FX['SD07-026'] = { counterableAtkBuff: true, ultimate: {
+  prepare: async ({ G, p, self }) => pickMany(G, p, `${self.def.name}: เลือก Unit ฝ่ายคุณสูงสุด 4 ใบ ได้รับ ATK +3`, mine(G, p), 4),
+  resolve: async ({ G, p, self, target }) => {
+  for (const u of (target || [])) buff(G, u, 3, p);
   H.draw(G, p, 2);
   if (!full(G, p)) return;
   for (const u of mine(G, p)) if (u.state !== 'stand') AF.setStand(G, u);
