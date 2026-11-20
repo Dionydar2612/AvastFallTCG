@@ -32,7 +32,7 @@ html.ingame .game {
 }
 html.ingame .game main {
   grid-column: 2; grid-row: 1; min-width: 0; height: calc(100dvh - 66px); min-height: 0;
-  display: grid; grid-template-rows: minmax(min-content, 1fr) auto minmax(min-content, 1fr) auto; align-content: stretch; gap: 12px;
+  display: grid; grid-template-rows: minmax(min-content, .85fr) auto minmax(min-content, 1.15fr) auto; align-content: stretch; gap: 12px;
   position: relative; isolation: isolate; padding: clamp(10px, 1.4vw, 22px);
   border: 1px solid rgba(147, 190, 203, .2); border-radius: 22px;
   background:
@@ -54,6 +54,10 @@ html.ingame .duel-half .side {
   box-shadow: inset 0 1px 0 rgba(255,255,255,.045), 0 6px 18px rgba(0,0,0,.14);
 }
 html.ingame .side.bot { --side-accent: #75b8df; }
+html.ingame .side.bot .card:not(.mini) { --cw: calc(var(--cwb) * 1.1); }
+html.ingame .side.bot .av { width: calc(var(--cwb) * 1.68); }
+html.ingame .side.bot .hexw { width: calc(var(--cwb) * 1.62 + 6px); height: calc(var(--cwb) * 1.84 + 6px); }
+html.ingame .side.bot .hex { width: calc(var(--cwb) * 1.62); height: calc(var(--cwb) * 1.84); }
 html.ingame .side.act { border-color: color-mix(in srgb, var(--side-accent) 72%, white); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--side-accent) 32%, transparent), 0 0 24px color-mix(in srgb, var(--side-accent) 15%, transparent); }
 html.ingame .side .head { min-height: 30px; gap: 7px; color: #e6f0f1; font-size: 13px; }
 html.ingame .side .head > span:first-child { padding: 4px 12px; border: 1px solid color-mix(in srgb, var(--side-accent) 50%, transparent); border-radius: 99px; background: color-mix(in srgb, var(--side-accent) 14%, transparent); font-weight: 700; }
@@ -82,8 +86,9 @@ html.ingame .bar .muted { color: #9eb2b8; }
 html.ingame .chain { border-color: rgba(216,131,131,.48); background: rgba(58,27,35,.58); color: #f1d8d6; }
 html.ingame .board-controls { display: grid; gap: 6px; min-width: 0; }
 html.ingame .hand-dock { position: relative; min-width: 0; padding: 18px 8px 0; border-top: 1px solid rgba(173, 205, 212, .15); border-radius: 12px 12px 0 0; background: linear-gradient(180deg, rgba(3,13,21,.04), rgba(3,13,21,.36)); }
+html.ingame .hand-dock .handrow .card.handc { --cw: calc(var(--cwb) * 1.3); }
 html.ingame .handrow {
-  min-height: 0; margin: 0; padding: 6px 8px 4px; gap: clamp(3px, .45vw, 8px);
+  min-height: calc(var(--cwb) * 1.3 * 1.418 + 22px); margin: 0; padding: 6px 8px 4px; gap: clamp(3px, .45vw, 8px);
   align-items: flex-end; justify-content: center; overflow-x: auto; overflow-y: visible;
 }
 html.ingame .handrow .card { margin-left: 0 !important; transform: translateY(var(--fan-y, 0px)) rotate(var(--fan-angle, 0deg)); transform-origin: center bottom; box-shadow: 0 10px 22px rgba(0,0,0,.34); }
@@ -130,8 +135,158 @@ html.ingame .cover .ti-p.first { background: linear-gradient(110deg, #e4c77d, #a
   html.ingame .row.mid { gap: 3px; }
   html.ingame .zone { padding: 3px; }
   html.ingame .hand-dock { display: block; padding-top: 20px; }
-  html.ingame .handrow { padding: 12px 6px 4px; justify-content: flex-start; }
+  html.ingame .hand-dock .handrow .card.handc { --cw: calc(var(--cwb) * 1.35); }
+  html.ingame .handrow { min-height: calc(var(--cwb) * 1.35 * 1.418 + 22px); padding: 12px 6px 4px; justify-content: flex-start; }
 }
 @media (prefers-reduced-motion: reduce) {
   html.ingame .game main, html.ingame .side, html.ingame .zone, html.ingame .slot { scroll-behavior: auto; }
+}
+
+/* Card first battlefield layout */
+html.ingame .game {
+  --opponent-accent: #8d9be8;
+  --player-accent: #e2bd72;
+  --surface: #101e29;
+  --line-soft: rgba(190, 216, 222, .16);
+}
+html.ingame .game main {
+  grid-template-rows: minmax(0, .82fr) auto minmax(0, 1.18fr) minmax(150px, .78fr);
+  gap: clamp(7px, .8vw, 12px);
+  overflow: hidden;
+}
+html.ingame .duel-half { min-height: 0; }
+html.ingame .duel-half .side {
+  width: 100%; height: 100%; min-height: 0; box-sizing: border-box;
+  display: grid; grid-template-rows: auto minmax(0, 1fr) auto; align-content: stretch;
+  padding: clamp(7px, .75vw, 12px); gap: clamp(6px, .65vw, 10px);
+  border-radius: 18px;
+}
+html.ingame .side.top { --side-accent: var(--opponent-accent); }
+html.ingame .side.bot { --side-accent: var(--player-accent); }
+html.ingame .side.bot.act {
+  border-color: color-mix(in srgb, var(--player-accent) 75%, white);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--player-accent) 30%, transparent), 0 0 22px color-mix(in srgb, var(--player-accent) 12%, transparent);
+}
+html.ingame .side.top.act {
+  border-color: color-mix(in srgb, var(--opponent-accent) 75%, white);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--opponent-accent) 30%, transparent), 0 0 22px color-mix(in srgb, var(--opponent-accent) 12%, transparent);
+}
+html.ingame .side .head { flex-wrap: nowrap; min-width: 0; overflow: hidden; }
+html.ingame .side .head .eli { display: flex; min-width: 0; margin-left: auto; }
+html.ingame .side .head .eli > span { white-space: nowrap; }
+html.ingame .side .head .hand-opp { flex: 0 0 auto; }
+html.ingame .side .row.mid { min-width: 0; min-height: 0; align-items: center; justify-content: space-around; gap: clamp(5px, .8vw, 14px); }
+html.ingame .side .zone { min-width: max-content; }
+html.ingame .side .zone .in { gap: clamp(3px, .35vw, 6px); }
+html.ingame .side .azone { align-self: stretch; display: grid; align-content: center; min-height: 0; padding: 6px 10px 9px; }
+html.ingame .side .azone .in { align-items: center; gap: clamp(8px, 1vw, 18px); }
+html.ingame .side .slot { width: calc(var(--cwb) * 1.52); height: calc(var(--cwb) * 1.52); border-radius: 12px; }
+html.ingame .side .slot > .card:not(.mini) { --cw: calc(var(--cwb) * 1.08); }
+html.ingame .side.bot .slot { width: calc(var(--cwb) * 1.72); height: calc(var(--cwb) * 1.72); border-radius: 14px; }
+html.ingame .side.bot .slot > .card:not(.mini) { --cw: calc(var(--cwb) * 1.28); }
+html.ingame .side .av { width: calc(var(--cwb) * 1.78); gap: 4px; }
+html.ingame .side .av .hpn { font-size: clamp(13px, .95vw, 18px); font-weight: 800; }
+html.ingame .side.bot .av { width: calc(var(--cwb) * 2.08); }
+html.ingame .side.bot .hexw { width: calc(var(--cwb) * 1.88 + 8px); height: calc(var(--cwb) * 2.08 + 8px); }
+html.ingame .side.bot .hex { width: calc(var(--cwb) * 1.88); height: calc(var(--cwb) * 2.08); }
+html.ingame .side .pile .card.mini { --cw: calc(var(--cwb) * .84); }
+html.ingame .side .zone .mslot { width: calc(var(--cwb) * .74); height: calc(var(--cwb) * 1.05); }
+html.ingame .board-controls { gap: 5px; }
+html.ingame .bar { min-height: 46px; margin: 0; padding: 7px 12px; gap: 12px; }
+html.ingame .bar .msg { line-height: 1.35; }
+html.ingame .bar .btn { min-height: 38px; white-space: nowrap; }
+html.ingame .hand-dock { min-height: 0; padding: 16px 8px 4px; }
+html.ingame .handrow {
+  min-height: calc(var(--cwb) * 1.42 * 1.418 + 24px); padding: 6px 14px 4px;
+  gap: clamp(5px, .5vw, 10px); justify-content: safe center; align-items: flex-end;
+}
+html.ingame .hand-dock .handrow .card.handc { --cw: calc(var(--cwb) * 1.42); }
+html.ingame .handrow .card { flex: 0 0 auto; }
+html.ingame .hand-toggle { top: -13px; }
+html.ingame .game .panel { z-index: 3; }
+html.ingame #cardpop:not(.sheet) {
+  width: min(350px, calc(100vw - 24px)); max-height: calc(100dvh - 16px); overflow: auto;
+  padding: 14px; border-color: rgba(190,216,222,.28); border-radius: 16px;
+  background: rgba(13,27,38,.98); color: #edf5f7; box-shadow: 0 18px 48px rgba(0,0,0,.48);
+  pointer-events: auto; font-size: 14px; line-height: 1.5; overscroll-behavior: contain;
+}
+html.ingame #cardpop:not(.sheet) .insp .big { width: 112px; max-width: 112px; }
+html.ingame #cardpop:not(.sheet) .insp h3 { color: #f3e4bf; font-size: 18px; line-height: 1.3; }
+html.ingame #cardpop:not(.sheet) .kv .chip { border-color: rgba(190,216,222,.2); background: rgba(255,255,255,.07); color: #e5eff1; }
+html.ingame #cardpop:not(.sheet) .fxl { color: #e0e9eb; font-size: 14px; line-height: 1.55; }
+html.ingame .card, html.ingame .slot, html.ingame .zone, html.ingame .side, html.ingame .hand-toggle, html.ingame .bar .btn {
+  transition: border-color .18s ease, background-color .18s ease, box-shadow .2s ease, transform .2s cubic-bezier(.2,.75,.25,1);
+}
+html.ingame .side .slot:has(.card):hover { z-index: 2; }
+html.ingame .side.bot .slot:has(.card):hover > .card { transform: translateY(-5px) scale(1.035); }
+html.ingame .duel-half.opponent .side { background: linear-gradient(125deg, color-mix(in srgb, var(--opponent-accent) 8%, #101c26), rgba(10,22,31,.94)); }
+html.ingame .duel-half.player .side { background: linear-gradient(125deg, color-mix(in srgb, var(--player-accent) 8%, #101c26), rgba(10,22,31,.94)); }
+
+/* Touch screens use the same game state and zones, with a scrollable hand tray. */
+@media (max-width: 1050px) {
+  html.ingame, html.ingame body { height: 100%; min-height: 100%; overflow: auto; }
+  html.ingame .wrap { min-height: 0; height: 100dvh; box-sizing: border-box; padding: 4px 8px 8px; overflow: auto; }
+  html.ingame .top:not(.side) { position: sticky; top: 0; }
+  html.ingame .game { display: block; min-height: 0; }
+  html.ingame .game main {
+    height: auto; min-height: calc(100dvh - 120px); overflow: visible;
+    display: grid; grid-template-rows: minmax(190px, auto) auto minmax(260px, auto) auto;
+    gap: 8px; padding: 8px; margin-bottom: 12px;
+  }
+  html.ingame .duel-half, html.ingame .board-controls { display: block; }
+  html.ingame .duel-half .side { height: auto; min-height: 0; display: grid; grid-template-rows: auto auto auto; }
+  html.ingame .side .head { flex-wrap: wrap; }
+  html.ingame .side .head .eli { flex-wrap: wrap; margin-left: 0; }
+  html.ingame .side .row.mid { min-height: 0; justify-content: space-evenly; }
+  html.ingame .hand-dock { position: sticky; bottom: 0; z-index: 4; padding: 18px 4px max(8px, env(safe-area-inset-bottom)); background: linear-gradient(180deg, rgba(9,20,29,.76), rgba(9,20,29,.98) 22%); backdrop-filter: blur(10px); }
+  html.ingame .handrow { justify-content: flex-start; overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x proximity; }
+  html.ingame .handrow .card.handc { scroll-snap-align: center; }
+  html.ingame .game .panel { position: relative; max-height: 50dvh; margin-bottom: 12px; }
+  html.ingame .game .panel.show { position: fixed; left: 8px; right: 8px; bottom: max(8px, env(safe-area-inset-bottom)); top: auto; width: auto; height: min(72dvh, 620px); max-height: none; z-index: 60; }
+}
+@media (max-width: 700px) {
+  html.ingame .wrap { padding: 4px 6px 8px; }
+  html.ingame .game main { grid-template-rows: minmax(164px, auto) auto minmax(225px, auto) auto; gap: 6px; padding: 6px; }
+  html.ingame .duel-half .side { padding: 7px; gap: 7px; border-radius: 14px; }
+  html.ingame .side .head { gap: 5px; font-size: 12px; }
+  html.ingame .side .head > span:first-child { padding: 3px 9px; }
+  html.ingame .side .head .eli { width: 100%; justify-content: flex-start; }
+  html.ingame .side .eli .eld, html.ingame .side .eli .ela { font-size: 11px; }
+  html.ingame .side .row.mid { gap: 3px; }
+  html.ingame .side .zone { min-width: 0; padding: 4px; }
+  html.ingame .side .zone .in { gap: 2px; }
+  html.ingame .side .zone .mslot { width: calc(var(--cwb) * .53); height: calc(var(--cwb) * .76); }
+  html.ingame .side .pile .card.mini { --cw: calc(var(--cwb) * .68); }
+  html.ingame .side .av { width: calc(var(--cwb) * 1.32); }
+  html.ingame .side .av .hexw { width: calc(var(--cwb) * 1.27 + 6px); height: calc(var(--cwb) * 1.42 + 6px); }
+  html.ingame .side .av .hex { width: calc(var(--cwb) * 1.27); height: calc(var(--cwb) * 1.42); }
+  html.ingame .side.bot .av { width: calc(var(--cwb) * 1.65); }
+  html.ingame .side.bot .av .hexw { width: calc(var(--cwb) * 1.55 + 7px); height: calc(var(--cwb) * 1.72 + 7px); }
+  html.ingame .side.bot .av .hex { width: calc(var(--cwb) * 1.55); height: calc(var(--cwb) * 1.72); }
+  html.ingame .side .azone { padding: 5px; }
+  html.ingame .side .slot, html.ingame .side.bot .slot { width: calc(var(--cwb) * 1.25); height: calc(var(--cwb) * 1.42); border-radius: 9px; }
+  html.ingame .side .slot > .card:not(.mini), html.ingame .side.bot .slot > .card:not(.mini) { --cw: calc(var(--cwb) * 1.08); }
+  html.ingame .board-controls .bar { align-items: stretch; }
+  html.ingame .board-controls .bar .msg { min-width: 0; font-size: 13px; }
+  html.ingame .board-controls .bar .msg .muted { font-size: 12px; }
+  html.ingame .board-controls .bar .btn { min-height: 44px; }
+  html.ingame .hand-dock { padding-top: 20px; }
+  html.ingame .handrow { min-height: calc(var(--cwb) * 1.45 * 1.418 + 22px); padding: 10px 8px 5px; gap: 8px; }
+  html.ingame .hand-dock .handrow .card.handc { --cw: calc(var(--cwb) * 1.45); }
+  html.ingame .handrow .card { transform: none; }
+  html.ingame .handrow .card:hover { transform: translateY(-5px); }
+}
+@media (max-width: 1050px) {
+  html.ingame #cardpop:not(.sheet) { width: min(350px, calc(100vw - 24px)); }
+}
+@media (orientation: landscape) and (max-width: 1050px) {
+  html.ingame .game main { grid-template-columns: minmax(0, 1fr) minmax(210px, .55fr); grid-template-rows: auto auto auto; align-items: stretch; }
+  html.ingame .duel-half.opponent { grid-column: 1; grid-row: 1; }
+  html.ingame .board-controls { grid-column: 2; grid-row: 1 / span 2; align-self: center; }
+  html.ingame .duel-half.player { grid-column: 1; grid-row: 2; }
+  html.ingame .hand-dock { grid-column: 1 / -1; grid-row: 3; }
+  html.ingame .game main { min-height: calc(100dvh - 112px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  html.ingame *, html.ingame *::before, html.ingame *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
 }

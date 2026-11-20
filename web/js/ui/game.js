@@ -43,6 +43,7 @@ const pdOf=()=>ui.pending;
 function freshLog(){const G=ui.G;const f=G.log.slice(ui.seen);ui.seen=G.log.length;return f}
 function cardEl(c,o={}){
   const G=ui.G;const d=c.def;
+  const statsPreview=d.kind==='Unit'?`<span class="chip">ATK ${d.atk}</span><span class="chip">DEF ${d.def}</span><span class="chip">CRI ${d.cri}</span>`:d.kind==='Avatar'&&c.owner>=0&&G.players[c.owner]&&G.players[c.owner].avatar.card.uid===c.uid?`<span class="chip">HP ${G.players[c.owner].avatar.hp}</span>`:'';
   if(o.down)return `<div class="card back ${o.cls||''}" ${o.uid?`data-uid="${c.uid}"`:''}></div>`;
   return `<div class="card ${cardArt(d.id)} ${o.cls||''}" data-uid="${c.uid}" title="${esc(d.name)}" ${o.style?`style="${o.style}"`:''}>${o.inner||''}</div>`;
 }
@@ -143,7 +144,7 @@ function inspectorHTML(c){
   if(c.zone==='hand'&&c.owner===ui.viewer&&pdOf()&&pdOf().kind==='act'){const w=AF.whyNot(G,c.owner,c);if(w)why=`<div class="note"><b>เล่นตอนนี้ไม่ได้:</b> ${esc(w)}</div>`}
   const cost=d.kind==='Unit'?`Cost ${d.cost}`:d.kind==='Avatar'?'':(d.noCost?'ไม่มีค่าร่าย':`Spend ${d.cost}`);
   const fx=d.fx.map(f=>`<div>${f[0]?`<span class="kw">${esc(f[0])}</span>`:''}${esc(f[1])}</div>`).join('')||'<div class="muted">ไม่มีเอฟเฟกต์</div>';
-  return `<div class="insp"><div class="ihd"><div class="big ${cardArt(d.id)}" title="แตะเพื่อขยาย/ย่อรูปการ์ด"></div><div class="itx"><h3>${esc(d.name)}</h3><div class="kv"><span class="chip">${kindTh(d.kind)}</span>${cost?`<span class="chip">${cost}</span>`:''}<span class="chip">${esc(d.tribe)}</span><span class="chip">${d.id}</span></div>${live}</div></div><div class="fxl">${fx}</div>${why}${(d.unscripted?'<div class="note"><b>ยังไม่มีสคริปต์เอฟเฟกต์:</b> การ์ดนี้เล่นได้ แต่เอฟเฟกต์ไม่ทำงาน ใช้แถบ "เครื่องมือ" ทำผลเอง</div>':'')+(d.stale?'<div class="note"><b>ข้อความต่างจากที่สคริปต์เขียนไว้:</b> การ์ดถูกแก้ใน card-api เอฟเฟกต์อาจไม่ตรงกับข้อความใหม่</div>':'')}${CARD_NOTES[d.id]?`<div class="note"><b>การตีความของระบบ:</b> ${esc(CARD_NOTES[d.id])}</div>`:''}</div>`;
+  return `<div class="insp"><div class="ihd"><div class="big ${cardArt(d.id)}" title="แตะเพื่อขยาย/ย่อรูปการ์ด"></div><div class="itx"><h3>${esc(d.name)}</h3><div class="kv"><span class="chip">${kindTh(d.kind)}</span>${cost?`<span class="chip">${cost}</span>`:''}${statsPreview}<span class="chip">${esc(d.tribe)}</span><span class="chip">${d.id}</span></div>${live}</div></div><div class="fxl">${fx}</div>${why}${(d.unscripted?'<div class="note"><b>ยังไม่มีสคริปต์เอฟเฟกต์:</b> การ์ดนี้เล่นได้ แต่เอฟเฟกต์ไม่ทำงาน ใช้แถบ "เครื่องมือ" ทำผลเอง</div>':'')+(d.stale?'<div class="note"><b>ข้อความต่างจากที่สคริปต์เขียนไว้:</b> การ์ดถูกแก้ใน card-api เอฟเฟกต์อาจไม่ตรงกับข้อความใหม่</div>':'')}${CARD_NOTES[d.id]?`<div class="note"><b>การตีความของระบบ:</b> ${esc(CARD_NOTES[d.id])}</div>`:''}</div>`;
 }
 function panelHTML(){
   const G=ui.G;

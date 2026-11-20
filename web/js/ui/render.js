@@ -14,7 +14,9 @@ function fitLayout(){
   const wide=IW>1050;
   /* จอกว้าง: เหลือที่ให้แผงข้าง 340px · มือถือ/แท็บเล็ต: แผงข้างซ่อน (เปิดเป็นแผ่นจากปุ่มเมนู) กระดานใช้เต็มความกว้าง */
   let hi=wide?Math.min(82,W*.054,(W-726)/7.2):W<=700?Math.min(64,(W-60)/6.4):Math.min(70,(W-84)/7.4),lo=wide?26:16;   // มือถือแนวตั้ง: แถวกลางกว้างแค่ ~6.4 ช่วงการ์ด (กองไพ่/Magic/Domain ย่อแล้ว)
-  const ok=x=>{de.style.setProperty('--cwb',x+'px');return main.getBoundingClientRect().bottom+scrollY<=IH-8&&main.scrollWidth<=main.clientWidth+1&&main.scrollHeight<=main.clientHeight+1};
+  /* Keep card size tied to the available width. The board now owns its rows; shrinking
+     cards to compensate for content height made the artwork unreadably small. */
+  const ok=x=>{de.style.setProperty('--cwb',x+'px');return main.scrollWidth<=main.clientWidth+1};
   if(hi<=lo){de.style.setProperty('--cwb',lo+'px');return}
   if(ok(hi))return;
   for(let i=0;i<8;i++){const m=(hi+lo)/2;if(ok(m))lo=m;else hi=m}
