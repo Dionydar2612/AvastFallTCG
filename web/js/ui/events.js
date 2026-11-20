@@ -42,7 +42,7 @@ function showPop(c,el,pin,force){
     if(c.zone==='deck')return hidePop();}
     const vw=innerWidth,vh=innerHeight,sheet=vw<700;
     pop.innerHTML=(sheet?'<button type="button" class="btn sm pop-x" data-popx aria-label="ปิด">✕ ปิด</button>':'')+inspectorHTML(c);popPin=!!pin;pop.hidden=false;
-    const r=el.getBoundingClientRect(),W=Math.min(350,vw-16);
+    const r=el.getBoundingClientRect(),W=250;
     pop.classList.toggle('sheet',sheet);pop.classList.remove('zoom');pop.scrollTop=0;
     if(sheet)return;   // มือถือ: แผ่นรายละเอียดเต็มความกว้าง เลื่อนอ่านได้ (css .sheet)
     const menuW=pin&&ui.menu!==false?300:0;
@@ -66,8 +66,7 @@ function setInspect(c){
 }
 const canHover=matchMedia('(hover:hover)').matches;
 root.addEventListener('mouseover',e=>{if(prefs.hover===false)return;if(!ui.G||ui.screen!=='game'){const pd0=e.target.closest('[data-pdef]');if(pd0&&canHover)showPop(pdefCard(pd0.dataset.pdef),pd0,false,true);return}const pd0=e.target.closest('[data-pdef]');if(pd0){if(canHover)showPop(pdefCard(pd0.dataset.pdef),pd0,false,true);return}const pp=e.target.closest('[data-pop]');if(pp){const c=cardMap()[+pp.dataset.pop];if(c&&canHover)showPop(c,pp,false);return}const el=e.target.closest('[data-uid]');if(el){const c=cardMap()[+el.dataset.uid];if(c){setInspect(c);if(canHover)showPop(c,el,false)}}});
-root.addEventListener('mouseout',e=>{if(popPin||pop.contains(e.relatedTarget))return;const el=e.target.closest('[data-uid],[data-pop],[data-pdef]');if(el&&!(e.relatedTarget&&el.contains(e.relatedTarget)))hidePop()});
-pop.addEventListener('mouseleave',()=>{if(!popPin&&!pop.classList.contains('sheet'))hidePop()});
+root.addEventListener('mouseout',e=>{if(popPin)return;const el=e.target.closest('[data-uid],[data-pop],[data-pdef]');if(el&&!(e.relatedTarget&&el.contains(e.relatedTarget)))hidePop()});
 root.addEventListener('click',e=>{
   hidePop();
   const a=e.target.closest('[data-act]');
@@ -113,7 +112,6 @@ function handle(act,d,el,e){
     case 'tosetup':olLeave(true);ui.token++;ui.screen='setup';ui.page='play';DATA.applyPending();fixSelections();ui.pending=null;ui.over=null;ui.modal=null;render();return AFSite.go('home');   // จบเกม → กลับ Home
     case 'mmagain':{olLeave(true);ui.token++;ui.screen='setup';ui.page='play';DATA.applyPending();fixSelections();ui.pending=null;ui.over=null;ui.modal=null;render();AFSite.go('home');setTimeout(mmStart,60);return}   // จบแมตช์จับคู่ → กลับ Home แล้วเข้าคิวใหม่ทันที
     case 'tab':ui.tab=d.v;return render();
-    case 'handfan':ui.handExpanded=!ui.handExpanded;return render();
     case 'gmenu':ui.gmenu=!ui.gmenu;return render();
     case 'panel':ui.showPanel=!ui.showPanel;return render();
     case 'gohome':ui.showPanel=false;render();return AFSite.go('home');
