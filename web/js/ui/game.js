@@ -82,7 +82,7 @@ function sideHTML(p,isTop,fresh){
   const hit=fresh.find(l=>l.extra&&l.extra.dmg&&l.p===p);
   const hpbar=`<div class="hp" title="HP ${P.avatar.hp}">${Array.from({length:10},(_,i)=>`<i class="${i<P.avatar.hp?'':'off'}"></i>`).join('')}</div>`;
   const av=`<div class="av"><div class="hexw ${avT?'tg':avHL==='hl'?'hl':''}" data-uid="${P.avatar.card.uid}" ${avT?`data-zone="avatar" data-p="${p}"`:''}><div class="hex ${cardArt(P.avatar.card.def.id)} ${hit?'hit':''}"></div>${hit?`<span class="float">-${hit.extra.dmg}</span>`:''}</div><div class="hpn">HP ${P.avatar.hp}</div>${hpbar}</div>`;
-  const slots=P.field.map(u=>`<div class="slot ${u?'':'empty'}">${u?unitEl(u,(hlFor(u.uid))+(fresh.some(l=>l.extra&&(l.extra.enter===u.uid))?' flash':'')+(fresh.some(l=>l.extra&&l.extra.attack===u.uid)?' atk':'')):''}</div>`).join('');
+  const slots=P.field.map(u=>`<div class="slot ${u?'':'empty'}">${u?unitEl(u,(hlFor(u.uid))+(prefs.playFx&&!prefs.motion&&fresh.some(l=>l.extra&&(l.extra.enter===u.uid))?' summon':'')+(fresh.some(l=>l.extra&&l.extra.attack===u.uid)?' atk':'')):''}</div>`).join('');
   const action=`<div class="azone"><span class="zlab">Action Zone · Unit 4 ช่อง</span><div class="in">${slots}</div></div>`;
   const msl=P.magic.map(c=>`<div class="mslot">${c?cardEl(c,{cls:'mini'}):''}</div>`).join('');
   const dsl=Array.from({length:dl},(_,i)=>{const c=P.domains[i];return `<div class="mslot">${c?cardEl(c,{cls:`mini ${hlFor(c.uid)}`}):''}</div>`}).join('');
@@ -185,9 +185,9 @@ function applyScale(v,save){
   if(save!==false){try{localStorage.setItem(SCALE_KEY,v)}catch(e){}}
   if(ui.screen==='game'&&typeof fitLayout==='function')fitLayout();
 }
-/* ค่ากำหนดส่วนตัวของหน้าเกม (จำไว้ในเบราว์เซอร์): hover = แสดงการ์ดเมื่อเอาเมาส์ชี้ · motion = ลดแอนิเมชัน · log = แสดงบันทึกอัตโนมัติ */
+/* ค่ากำหนดส่วนตัวของหน้าเกม (จำไว้ในเบราว์เซอร์) */
 const PREF_KEY='af-prefs';
-const prefs=Object.assign({hover:true,motion:false},(()=>{try{return JSON.parse(localStorage.getItem(PREF_KEY)||'{}')}catch(e){return {}}})());
+const prefs=Object.assign({hover:true,motion:false,playFx:true},(()=>{try{return JSON.parse(localStorage.getItem(PREF_KEY)||'{}')}catch(e){return {}}})());
 function applyPrefs(){document.documentElement.classList.toggle('rm',!!prefs.motion);try{localStorage.setItem(PREF_KEY,JSON.stringify(prefs))}catch(e){}}
 applyPrefs();
 function settingsHTML(){
@@ -202,6 +202,8 @@ function settingsHTML(){
     <h3 class="sh">การเล่น</h3>
     ${bot?`<div class="srow"><span>ความเร็วบอท</span><span class="sseg">${[[0,'ทันที'],[250,'เร็ว'],[550,'ปกติ'],[1000,'ช้า']].map(([n,l])=>`<button class="btn sm ${sp===n?'pri':''}" data-act="pref" data-k="speed" data-v="${n}">${l}</button>`).join('')}</span></div>`:''}
     <div class="srow"><span>แสดงการ์ดเมื่อเอาเมาส์ชี้</span><span class="sseg">${seg('hover','1',prefs.hover,'เปิด')}${seg('hover','0',!prefs.hover,'ปิด')}</span></div>
+    <div class="srow"><span>เอฟเฟกต์ตอนลงการ์ด</span><span class="sseg">${seg('playFx','1',prefs.playFx,'เปิด')}${seg('playFx','0',!prefs.playFx,'ปิด')}</span></div>
+    <p class="muted">แสดงแสงและจังหวะการ์ดลงสนามเมื่อมีการอัญเชิญ</p>
     <div class="srow"><span>แอนิเมชัน</span><span class="sseg">${seg('motion','0',!prefs.motion,'ปกติ')}${seg('motion','1',prefs.motion,'ลดลง')}</span></div>
     <p class="muted">ค่าทั้งหมดถูกจำไว้ในเบราว์เซอร์นี้</p>
     <h3 class="sh">เมนูลัด</h3>

@@ -43,10 +43,12 @@ h1,h2,h3{font-family:var(--f-disp);margin:0;text-wrap:balance}
 .card.tg{box-shadow:0 0 0 3px var(--coral),0 0 14px 2px var(--coral);cursor:crosshair;animation:pulse 1s ease-in-out infinite}
 .card.sel{box-shadow:0 0 0 3px var(--gold),0 0 16px 3px var(--gold)}
 .card.dim{filter:grayscale(.7) brightness(.8)}
-.card.flash{animation:flash .7s ease-out}
+.card.summon{z-index:4;animation:cardLand .52s cubic-bezier(.2,.8,.2,1) both}
+.card.summon::after{content:"";position:absolute;inset:-6px;border:2px solid var(--teal);border-radius:inherit;opacity:0;pointer-events:none;z-index:5;animation:summonPulse .58s ease-out both}
 .card.atk{animation:lunge .5s ease-out}
 @keyframes pulse{50%{box-shadow:0 0 0 3px var(--teal),0 0 4px 0 var(--teal)}}
-@keyframes flash{0%{filter:brightness(2.2);transform:scale(1.12)}100%{filter:none;transform:none}}
+@keyframes cardLand{0%{opacity:.45;transform:translateY(-22px) scale(.86);filter:brightness(1.35)}65%{opacity:1;transform:translateY(2px) scale(1.035);filter:brightness(1.08)}100%{transform:none;filter:none}}
+@keyframes summonPulse{0%{opacity:0;transform:scale(.88)}24%{opacity:.75}100%{opacity:0;transform:scale(1.12)}}
 @keyframes lunge{40%{transform:translateY(-14px) scale(1.06)}}
 .stats{position:absolute;left:0;right:0;bottom:-1px;display:flex;justify-content:center;gap:2px;transform:translateY(55%)}
 .card.rest .stats{transform:translateY(55%) rotate(-90deg);transform-origin:center;left:auto;right:auto;bottom:auto;position:absolute;top:50%;left:-45%;flex-direction:column}
