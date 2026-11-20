@@ -150,14 +150,14 @@ html.ingame .game {
   --line-soft: rgba(190, 216, 222, .16);
 }
 html.ingame .game main {
-  grid-template-rows: minmax(0, .82fr) auto minmax(0, 1.18fr) minmax(150px, .78fr);
-  gap: clamp(7px, .8vw, 12px);
-  overflow: hidden;
+  grid-template-rows: minmax(min-content, .82fr) auto minmax(min-content, 1.18fr) minmax(150px, .78fr);
+  gap: clamp(6px, .65vw, 10px);
+  overflow-x: hidden; overflow-y: auto; scrollbar-width: thin; scrollbar-color: rgba(154,185,194,.35) transparent;
 }
-html.ingame .duel-half { min-height: 0; }
+html.ingame .duel-half { min-height: min-content; }
 html.ingame .duel-half .side {
-  width: 100%; height: 100%; min-height: 0; box-sizing: border-box;
-  display: grid; grid-template-rows: auto minmax(0, 1fr) auto; align-content: stretch;
+  width: 100%; height: auto; min-height: min-content; box-sizing: border-box;
+  display: grid; grid-template-rows: auto minmax(min-content, 1fr) auto; align-content: stretch;
   padding: clamp(7px, .75vw, 12px); gap: clamp(6px, .65vw, 10px);
   border-radius: 18px;
 }
@@ -171,14 +171,16 @@ html.ingame .side.top.act {
   border-color: color-mix(in srgb, var(--opponent-accent) 75%, white);
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--opponent-accent) 30%, transparent), 0 0 22px color-mix(in srgb, var(--opponent-accent) 12%, transparent);
 }
-html.ingame .side .head { flex-wrap: nowrap; min-width: 0; overflow: hidden; }
+html.ingame .side .head { flex-wrap: wrap; min-width: 0; overflow: visible; }
 html.ingame .side .head .eli { display: flex; min-width: 0; margin-left: auto; }
 html.ingame .side .head .eli > span { white-space: nowrap; }
 html.ingame .side .head .hand-opp { flex: 0 0 auto; }
-html.ingame .side .row.mid { min-width: 0; min-height: 0; align-items: center; justify-content: space-around; gap: clamp(5px, .8vw, 14px); }
+html.ingame .side .row.mid { min-width: 0; min-height: calc(var(--cwb) * 1.9 + 42px); align-items: center; justify-content: space-around; gap: clamp(5px, .8vw, 14px); }
+html.ingame .side.bot .row.mid { min-height: calc(var(--cwb) * 2.1 + 42px); }
 html.ingame .side .zone { min-width: max-content; }
 html.ingame .side .zone .in { gap: clamp(3px, .35vw, 6px); }
-html.ingame .side .azone { align-self: stretch; display: grid; align-content: center; min-height: 0; padding: 6px 10px 9px; }
+html.ingame .side .azone { align-self: stretch; display: grid; align-content: center; min-height: calc(var(--cwb) * 1.52 + 34px); padding: 6px 10px 9px; }
+html.ingame .side.bot .azone { min-height: calc(var(--cwb) * 1.72 + 34px); }
 html.ingame .side .azone .in { align-items: center; gap: clamp(8px, 1vw, 18px); }
 html.ingame .side .slot { width: calc(var(--cwb) * 1.52); height: calc(var(--cwb) * 1.52); border-radius: 12px; }
 html.ingame .side .slot > .card:not(.mini) { --cw: calc(var(--cwb) * 1.08); }
