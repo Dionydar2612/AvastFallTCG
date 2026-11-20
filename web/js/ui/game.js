@@ -44,7 +44,7 @@ function freshLog(){const G=ui.G;const f=G.log.slice(ui.seen);ui.seen=G.log.leng
 function cardEl(c,o={}){
   const G=ui.G;const d=c.def;
   if(o.down)return `<div class="card back ${o.cls||''}" ${o.uid?`data-uid="${c.uid}"`:''}></div>`;
-  return `<div class="card ${cardArt(d.id)} ${o.cls||''}" data-uid="${c.uid}" title="${esc(d.name)}">${o.inner||''}</div>`;
+  return `<div class="card ${cardArt(d.id)} ${o.cls||''}" data-uid="${c.uid}" title="${esc(d.name)}" ${o.style?`style="${o.style}"`:''}>${o.inner||''}</div>`;
 }
 function unitEl(u,hl){
   const G=ui.G;
@@ -107,7 +107,8 @@ function handHTML(){
   const playable=new Set(pd&&pd.kind==='act'&&pd.p===ui.viewer&&ui.cover===null?pd.spec.actions.filter(a=>a.card&&a.card.zone==='hand').map(a=>a.uid):[]);
   const act=pd&&pd.kind==='act'&&pd.p===ui.viewer;
   const hidden=ui.cfg.mode==='spec'&&!ui.peek;
-  return `<div class="handrow">${P.hand.map(c=>hidden?`<div class="card back handc"></div>`:cardEl(c,{cls:`handc ${playable.has(c.uid)?'hl':act?'dim':''}`})).join('')||'<span class="muted">ไม่มีการ์ดบนมือ</span>'}</div>`;
+  const fan=(i)=>{const mid=(P.hand.length-1)/2,t=mid?((i-mid)/mid):0;return `--fan-angle:${(t*22).toFixed(1)}deg;--fan-y:${(Math.abs(t)*Math.abs(t)*18).toFixed(1)}px`};
+  return `<div class="handrow">${P.hand.map((c,i)=>hidden?`<div class="card back handc" style="${fan(i)}"></div>`:cardEl(c,{cls:`handc ${playable.has(c.uid)?'hl':act?'dim':''}`,style:fan(i)})).join('')||'<span class="muted">ไม่มีการ์ดบนมือ</span>'}</div>`;
 }
 function barHTML(){
   const G=ui.G;const pd=pdOf();
@@ -167,7 +168,7 @@ function gameHTML(){
   const btns=`<button class="btn sm" data-act="settings">⚙ ตั้งค่า</button><button class="btn sm" data-act="help">กติกา</button>${ui.cfg.mode==="online"?"":`<button class="btn sm" data-act="restart">เริ่มใหม่</button>`}<button class="btn sm" data-act="surrender">ยอมแพ้</button>`;
   return `<div class="top"><button class="btn sm home" data-act="gohome" title="ไปหน้า Home (เกมยังค้างอยู่ กลับมาเล่นต่อได้)">⌂ Home</button><span class="pill">เทิร์น ${G.turn}</span>${phaseBar()}<span class="spacer"></span><button class="btn sm narrowonly" data-act="panel">📋 การ์ด/บันทึก</button><span class="tbtns">${btns}</span><button class="btn sm onlym" data-act="gmenu" aria-label="เมนู">☰ เมนู</button></div>
   ${ui.gmenu?`<div class="gmenu"><button class="btn" data-act="panel">📋 การ์ด · บันทึก · กติกา</button><button class="btn" data-act="settings">⚙ ตั้งค่า</button><button class="btn" data-act="help">📖 กติกาโดยย่อ</button>${ui.cfg.mode==="online"?"":`<button class="btn" data-act="restart">↻ เริ่มใหม่</button>`}<button class="btn" data-act="surrender">🏳 ยอมแพ้</button><button class="btn" data-act="gohome">⌂ ไปหน้า Home</button></div>`:''}
-  <div class="game" data-ph="${pdOf()&&pdOf().kind||''}"><main style="min-width:0"><section class="duel-half opponent">${sideHTML(opp,true,fresh)}</section><div class="board-controls">${chainHTML()}${barHTML()}</div><section class="duel-half player">${sideHTML(v,false,fresh)}</section><div class="hand-dock">${handHTML()}</div></main>${panelHTML()}</div>
+  <div class="game" data-ph="${pdOf()&&pdOf().kind||''}"><main style="min-width:0"><section class="duel-half opponent">${sideHTML(opp,true,fresh)}</section><div class="board-controls">${chainHTML()}${barHTML()}</div><section class="duel-half player">${sideHTML(v,false,fresh)}</section><div class="hand-dock ${ui.handExpanded?'expanded':''}"><button type="button" class="hand-toggle" data-act="handfan" aria-expanded="${!!ui.handExpanded}">${ui.handExpanded?'ย่อมือการ์ด':'ขยายมือการ์ด'}</button>${handHTML()}</div></main>${panelHTML()}</div>
   ${ui.menu?menuHTML():''}${ui.over?overHTML():''}${pendingModalHTML()}${ui.modal?modalHTML():''}${ui.settings?settingsHTML():''}`;
 }
 function overHTML(){

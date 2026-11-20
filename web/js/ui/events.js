@@ -112,6 +112,7 @@ function handle(act,d,el,e){
     case 'tosetup':olLeave(true);ui.token++;ui.screen='setup';ui.page='play';DATA.applyPending();fixSelections();ui.pending=null;ui.over=null;ui.modal=null;render();return AFSite.go('home');   // จบเกม → กลับ Home
     case 'mmagain':{olLeave(true);ui.token++;ui.screen='setup';ui.page='play';DATA.applyPending();fixSelections();ui.pending=null;ui.over=null;ui.modal=null;render();AFSite.go('home');setTimeout(mmStart,60);return}   // จบแมตช์จับคู่ → กลับ Home แล้วเข้าคิวใหม่ทันที
     case 'tab':ui.tab=d.v;return render();
+    case 'handfan':ui.handExpanded=!ui.handExpanded;return render();
     case 'gmenu':ui.gmenu=!ui.gmenu;return render();
     case 'panel':ui.showPanel=!ui.showPanel;return render();
     case 'gohome':ui.showPanel=false;render();return AFSite.go('home');
