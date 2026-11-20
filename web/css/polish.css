@@ -1,0 +1,84 @@
+/* Shared visual polish: calm surfaces, consistent interaction timing, and accessible motion. */
+:root {
+  --paper: #f5f7f5;
+  --panel: #ffffff;
+  --ink: #23313a;
+  --ink2: #64747c;
+  --line: #d7e0df;
+  --soft: #e9efed;
+  --rule: #e8eeeb;
+  --mat: #edf3f1;
+  --teal: #347f78;
+  --tealtint: #e6f1ee;
+  --coral: #bd665f;
+  --bad: #bd665f;
+  --good: #43816a;
+  --warn: #987343;
+  --gold: #e6bd68;
+  --bg: var(--paper);
+  --card: var(--panel);
+  --mut: var(--ink2);
+  --pap: var(--mat);
+  --r: 16px;
+  --sh: 0 8px 24px rgba(31, 54, 56, .08);
+  --ui-ease: cubic-bezier(.2, .75, .25, 1);
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #171e22; --panel: #222c31; --ink: #e8efed; --ink2: #a4b2b1;
+    --line: #39474b; --soft: #2b383c; --rule: #263236; --mat: #273338;
+    --teal: #79b8ad; --tealtint: #293b3b; --coral: #db9387; --bad: #db9387;
+    --good: #83bea1; --warn: #d1b17a; --gold: #d7b56d; --sh: 0 10px 28px rgba(0,0,0,.2);
+    --bg: var(--paper); --card: var(--panel); --mut: var(--ink2); --pap: var(--mat);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #171e22; --panel: #222c31; --ink: #e8efed; --ink2: #a4b2b1;
+  --line: #39474b; --soft: #2b383c; --rule: #263236; --mat: #273338;
+  --teal: #79b8ad; --tealtint: #293b3b; --coral: #db9387; --bad: #db9387;
+  --good: #83bea1; --warn: #d1b17a; --gold: #d7b56d; --sh: 0 10px 28px rgba(0,0,0,.2);
+  --bg: var(--paper); --card: var(--panel); --mut: var(--ink2); --pap: var(--mat);
+  color-scheme: dark;
+}
+html { scroll-behavior: smooth; }
+body { color: var(--ink); }
+:where(button, a, input, select, textarea) { -webkit-tap-highlight-color: transparent; }
+:where(button, a, .box, .panel, .pbox, .opts, .mdk, .item, .dk, .grid button, .cc, .site-chip, .site-me, .mode, .sublink) {
+  transition: color .2s var(--ui-ease), background-color .2s var(--ui-ease), border-color .2s var(--ui-ease),
+    box-shadow .24s var(--ui-ease), transform .24s var(--ui-ease), opacity .2s var(--ui-ease);
+}
+:where(.box, .panel, .pbox, .opts, .mdk, .item, .olbox) {
+  border-color: var(--line) !important;
+  border-radius: var(--r) !important;
+  box-shadow: var(--sh) !important;
+}
+:where(.btn, .chip, .site-chip, .site-me, input, select, textarea) { border-radius: 12px; }
+:where(input, select, textarea) { border-color: var(--line) !important; }
+:where(input, select, textarea):focus-visible { outline: 3px solid color-mix(in srgb, var(--teal) 38%, transparent); outline-offset: 2px; }
+:where(.btn, .chip, .site-menu button, .site-menu a, .mode, .sublink):focus-visible { outline: 3px solid var(--teal); outline-offset: 3px; }
+.btn { box-shadow: 0 2px 5px rgba(31,54,56,.08); transition: transform .2s var(--ui-ease), box-shadow .2s var(--ui-ease), background-color .2s var(--ui-ease), color .2s var(--ui-ease); }
+.btn:hover:not([disabled]) { transform: translateY(-2px); box-shadow: 0 6px 14px rgba(31,54,56,.12); }
+.btn:active:not([disabled]) { transform: translateY(0) scale(.98); }
+.btn.pri, .btn.pri:hover { background: var(--teal); color: #fff; border-color: var(--teal); box-shadow: 0 4px 12px color-mix(in srgb, var(--teal) 22%, transparent); }
+.chip.on, .tabs button.on { background: var(--teal); color: #fff; }
+.tabs button, .site-sw button { transition: color .22s var(--ui-ease), background-color .22s var(--ui-ease); }
+.site-bar { background: #25343a; border-bottom: 1px solid rgba(255,255,255,.08); box-shadow: 0 4px 18px rgba(24,39,43,.13); }
+.site-sw button[aria-selected="true"] { color: #e6c779; }
+.site-sw .ind { background: #e6c779; }
+.site-chip { background: rgba(255,255,255,.09); }
+.site-me .av { background: #e6c779; }
+.site-pane.on { animation: paneIn .3s var(--ui-ease) both; }
+.box, .panel, .pbox, .opts, .mdk, .item { background-color: var(--panel); }
+.grid button:hover, .cc:hover { transform: translateY(-3px); }
+.item:hover, .dk:hover { transform: translateY(-2px); }
+.ov, .af-ov { animation: overlayIn .2s ease-out both; }
+.ov .dlg, .af-dlg { animation: dialogIn .28s var(--ui-ease) both; }
+@keyframes overlayIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes dialogIn { from { opacity: 0; transform: translateY(10px) scale(.985); } to { opacity: 1; transform: none; } }
+.toast { transition: opacity .22s var(--ui-ease), transform .28s var(--ui-ease); }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}

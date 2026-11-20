@@ -1,22 +1,23 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="th">
 <head>
 <meta charset="utf-8">
 <link rel="icon" href="/favicon.ico" sizes="any"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png"><link rel="icon" type="image/png" sizes="192x192" href="/assets/icon-192.png"><link rel="apple-touch-icon" href="/assets/apple-touch-icon.png"><meta name="theme-color" content="#0a2233">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Home · AvastFall TCG</title>
-<meta name="description" content="AvastFall TCG (Open Test) — ล็อกอินเพื่อเข้าร้านค้า จัดเด็ค ดูการ์ด และทดลองเล่นกับบอทหรือเพื่อน">
+<title>Home ยท AvastFall TCG</title>
+<meta name="description" content="AvastFall TCG (Open Test) โ€” เธฅเนเธญเธเธญเธดเธเน€เธเธทเนเธญเน€เธเนเธฒเธฃเนเธฒเธเธเนเธฒ เธเธฑเธ”เน€เธ”เนเธ เธ”เธนเธเธฒเธฃเนเธ” เนเธฅเธฐเธ—เธ”เธฅเธญเธเน€เธฅเนเธเธเธฑเธเธเธญเธ—เธซเธฃเธทเธญเน€เธเธทเนเธญเธ">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@1,700;1,800&family=Mali:wght@400;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap">
 <link rel="stylesheet" href="css/style.css?v=7">
-<link rel="stylesheet" href="css/site.css?v=11"><!-- แถบเมนูเดียว Home · Decks · Cards · Shop · Rewards -->
+<link rel="stylesheet" href="css/site.css?v=11"><!-- เนเธ–เธเน€เธกเธเธนเน€เธ”เธตเธขเธง Home ยท Decks ยท Cards ยท Shop ยท Rewards -->
 <link rel="stylesheet" href="css/theme.css">
-<link rel="stylesheet" href="css/lobby.css?v=1"><link rel="stylesheet" href="css/match.css?v=2"><!-- หน้าค้นหาแมตช์ + หน้าสรุปผลจับคู่ออนไลน์ --><!-- ธีมรวมให้เหมือนหน้า Card List (ต้องโหลดหลังสุด) -->
-<style id="imgcss"></style><!-- CSS รูปการ์ด สร้างจาก URL ของ card-api (js/ui/data-sync.js) -->
+<link rel="stylesheet" href="css/lobby.css?v=1"><link rel="stylesheet" href="css/match.css?v=2"><!-- เธซเธเนเธฒเธเนเธเธซเธฒเนเธกเธ•เธเน + เธซเธเนเธฒเธชเธฃเธธเธเธเธฅเธเธฑเธเธเธนเนเธญเธญเธเนเธฅเธเน --><!-- เธเธตเธกเธฃเธงเธกเนเธซเนเน€เธซเธกเธทเธญเธเธซเธเนเธฒ Card List (เธ•เนเธญเธเนเธซเธฅเธ”เธซเธฅเธฑเธเธชเธธเธ”) -->
+<style id="imgcss"></style><!-- CSS เธฃเธนเธเธเธฒเธฃเนเธ” เธชเธฃเนเธฒเธเธเธฒเธ URL เธเธญเธ card-api (js/ui/data-sync.js) -->
+<link rel="stylesheet" href="css/polish.css?v=1">
 </head>
 <body class="shell">
 <header class="site-bar" id="siteBar">
-  <a class="site-brand" href="/" data-go="home" aria-label="AvastFall TCG — Home"><img class="lg" src="/assets/logo-128.png" width="44" height="44" alt=""><span>AvastFall TCG</span><em>OPEN TEST</em></a>
-  <nav class="site-sw" id="siteSw" role="tablist" aria-label="เมนูหลัก" data-tab="home">
+  <a class="site-brand" href="/" data-go="home" aria-label="AvastFall TCG โ€” Home"><img class="lg" src="/assets/logo-128.png" width="44" height="44" alt=""><span>AvastFall TCG</span><em>OPEN TEST</em></a>
+  <nav class="site-sw" id="siteSw" role="tablist" aria-label="เน€เธกเธเธนเธซเธฅเธฑเธ" data-tab="home">
     <button role="tab" data-tab="home" aria-selected="true" id="tabHome">Home</button>
     <button role="tab" data-tab="decks" aria-selected="false" id="tabDecks" tabindex="-1">Decks</button>
     <button role="tab" data-tab="cards" aria-selected="false" id="tabCards" tabindex="-1">Cards</button>
@@ -25,30 +26,30 @@
     <span class="ind" aria-hidden="true"></span>
   </nav>
   <div class="site-user" id="siteUser">
-    <button type="button" class="site-game" id="siteGame" hidden>▶ กลับเข้าเกม</button>
-    <button type="button" class="site-chip coin" id="siteCoin" data-go="shop" title="เหรียญของคุณ — ไปร้านค้า"><i class="ic" aria-hidden="true"></i><b id="siteCoinNum">–</b></button>
-    <button type="button" class="site-chip cards" id="siteCards" data-go="cards" title="การ์ดที่สะสมได้ — ไปดูการ์ด"><i class="ic" aria-hidden="true"></i><b id="siteCardsNum">–</b></button>
-    <button type="button" class="site-me" id="siteMe" aria-haspopup="menu" aria-expanded="false" aria-controls="siteMenu"><span class="av" aria-hidden="true" id="siteAv">?</span><span class="nm" id="siteName">ผู้เล่น</span><svg class="chev" width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M1 3l4 4 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><i class="dot" id="siteMeDot" hidden></i></button>
+    <button type="button" class="site-game" id="siteGame" hidden>โ–ถ เธเธฅเธฑเธเน€เธเนเธฒเน€เธเธก</button>
+    <button type="button" class="site-chip coin" id="siteCoin" data-go="shop" title="เน€เธซเธฃเธตเธขเธเธเธญเธเธเธธเธ“ โ€” เนเธเธฃเนเธฒเธเธเนเธฒ"><i class="ic" aria-hidden="true"></i><b id="siteCoinNum">โ€“</b></button>
+    <button type="button" class="site-chip cards" id="siteCards" data-go="cards" title="เธเธฒเธฃเนเธ”เธ—เธตเนเธชเธฐเธชเธกเนเธ”เน โ€” เนเธเธ”เธนเธเธฒเธฃเนเธ”"><i class="ic" aria-hidden="true"></i><b id="siteCardsNum">โ€“</b></button>
+    <button type="button" class="site-me" id="siteMe" aria-haspopup="menu" aria-expanded="false" aria-controls="siteMenu"><span class="av" aria-hidden="true" id="siteAv">?</span><span class="nm" id="siteName">เธเธนเนเน€เธฅเนเธ</span><svg class="chev" width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M1 3l4 4 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><i class="dot" id="siteMeDot" hidden></i></button>
     <div class="site-menu" id="siteMenu" role="menu" hidden>
-      <div class="who"><b id="menuName">ผู้เล่น</b><span id="menuRole" class="role">ผู้เล่น</span></div>
-      <button type="button" role="menuitem" data-hdr="notes" id="hdrNotes">🔔 แจ้งเตือน · Update Note<i class="dot" id="hdrNotesDot" hidden></i></button>
-      <button type="button" role="menuitem" data-hdr="feedback" id="hdrFeedback">💬 ข้อเสนอแนะ</button>
-      <button type="button" role="menuitem" data-hdr="guide" id="hdrGuide">📖 วิธีเล่น</button>
+      <div class="who"><b id="menuName">เธเธนเนเน€เธฅเนเธ</b><span id="menuRole" class="role">เธเธนเนเน€เธฅเนเธ</span></div>
+      <button type="button" role="menuitem" data-hdr="notes" id="hdrNotes">๐”” เนเธเนเธเน€เธ•เธทเธญเธ ยท Update Note<i class="dot" id="hdrNotesDot" hidden></i></button>
+      <button type="button" role="menuitem" data-hdr="feedback" id="hdrFeedback">๐’ฌ เธเนเธญเน€เธชเธเธญเนเธเธฐ</button>
+      <button type="button" role="menuitem" data-hdr="guide" id="hdrGuide">๐“– เธงเธดเธเธตเน€เธฅเนเธ</button>
       <hr>
-      <button type="button" role="menuitem" class="out" id="siteOut">ออกจากระบบ</button>
+      <button type="button" role="menuitem" class="out" id="siteOut">เธญเธญเธเธเธฒเธเธฃเธฐเธเธ</button>
     </div>
   </div>
 </header>
 <div class="site-view" id="siteView" data-tab="home">
-  <section class="site-pane on" id="paneHub" role="tabpanel" aria-label="Home และร้านค้า"><iframe id="hubFrame" title="Home และร้านค้า" data-src="/hub.html"></iframe></section>
-  <section class="site-pane" id="panePlay" role="tabpanel" aria-label="ทดลองเล่น"><div class="wrap" id="app"></div></section>
-  <section class="site-pane" id="paneCards" role="tabpanel" aria-label="เด็คและการ์ด"><iframe id="cardsFrame" title="เด็คและการ์ด" data-src="/cards/?embed=1"></iframe></section>
+  <section class="site-pane on" id="paneHub" role="tabpanel" aria-label="Home เนเธฅเธฐเธฃเนเธฒเธเธเนเธฒ"><iframe id="hubFrame" title="Home เนเธฅเธฐเธฃเนเธฒเธเธเนเธฒ" data-src="/hub.html"></iframe></section>
+  <section class="site-pane" id="panePlay" role="tabpanel" aria-label="เธ—เธ”เธฅเธญเธเน€เธฅเนเธ"><div class="wrap" id="app"></div></section>
+  <section class="site-pane" id="paneCards" role="tabpanel" aria-label="เน€เธ”เนเธเนเธฅเธฐเธเธฒเธฃเนเธ”"><iframe id="cardsFrame" title="เน€เธ”เนเธเนเธฅเธฐเธเธฒเธฃเนเธ”" data-src="/cards/?embed=1"></iframe></section>
 </div>
 
-<!-- 1) กฎและเอนจิน (ไม่แตะ DOM) -->
+<!-- 1) เธเธเนเธฅเธฐเน€เธญเธเธเธดเธ (เนเธกเนเนเธ•เธฐ DOM) -->
 <script src="js/engine/engine.js"></script>
 
-<!-- 2) เอฟเฟกต์การ์ด: แก้/เพิ่มสคริปต์การ์ดที่นี่ (_kit = ตัวช่วยร่วม ต้องโหลดก่อนชุดการ์ด) -->
+<!-- 2) เน€เธญเธเน€เธเธเธ•เนเธเธฒเธฃเนเธ”: เนเธเน/เน€เธเธดเนเธกเธชเธเธฃเธดเธเธ•เนเธเธฒเธฃเนเธ”เธ—เธตเนเธเธตเน (_kit = เธ•เธฑเธงเธเนเธงเธขเธฃเนเธงเธก เธ•เนเธญเธเนเธซเธฅเธ”เธเนเธญเธเธเธธเธ”เธเธฒเธฃเนเธ”) -->
 <script src="js/effects/_kit.js"></script>
 <script src="js/effects/sd01.js"></script>
 <script src="js/effects/sd02.js"></script>
@@ -59,15 +60,15 @@
 <script src="js/effects/sd07.js"></script>
 <script src="js/effects/bt01.js"></script>
 
-<!-- 3) บอท -->
+<!-- 3) เธเธญเธ— -->
 <script src="js/bot.js"></script>
 
-<!-- 4) ข้อมูลการ์ด: snapshot สำรอง + ดึงข้อมูล/รูปจาก card-api -->
+<!-- 4) เธเนเธญเธกเธนเธฅเธเธฒเธฃเนเธ”: snapshot เธชเธณเธฃเธญเธ + เธ”เธถเธเธเนเธญเธกเธนเธฅ/เธฃเธนเธเธเธฒเธ card-api -->
 <script src="js/data/snapshot.js"></script>
 <script src="js/data/cards-api.js"></script>
 <script src="js/data/feedback-api.js"></script>
 
-<!-- 5) หน้าจอ (UI) -->
+<!-- 5) เธซเธเนเธฒเธเธญ (UI) -->
 <script src="js/ui/base.js"></script>
 <script src="js/ui/notes.js"></script>
 <script src="js/ui/data-sync.js"></script>
@@ -82,6 +83,6 @@
 <script src="js/ui/events.js?v=3"></script>
 <script src="js/ui/dnd.js"></script>
 <script src="js/ui/main.js?v=2"></script>
-<script src="js/site.js?v=10"></script><!-- แท็บเลื่อน ต้องโหลดหลังสุด -->
+<script src="js/site.js?v=10"></script><!-- เนเธ—เนเธเน€เธฅเธทเนเธญเธ เธ•เนเธญเธเนเธซเธฅเธ”เธซเธฅเธฑเธเธชเธธเธ” -->
 </body>
 </html>
