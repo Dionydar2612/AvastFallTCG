@@ -292,3 +292,39 @@ html.ingame .duel-half.player .side { background: linear-gradient(125deg, color-
 @media (prefers-reduced-motion: reduce) {
   html.ingame *, html.ingame *::before, html.ingame *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
 }
+
+/* Fan hand: overlap at rest, lift only the card under the pointer. */
+html.ingame .menu { z-index: 95; }
+html.ingame .hand-dock { overflow: visible; padding: 10px 8px 6px; }
+html.ingame .handrow {
+  position: relative; min-height: calc(var(--cwb) * 1.42 * 1.418 + 34px); padding: 14px 12px 8px;
+  display: flex; align-items: flex-end; justify-content: center; gap: 0;
+  overflow-x: auto; overflow-y: clip; scrollbar-width: none; overscroll-behavior-x: contain; isolation: isolate;
+}
+html.ingame .handrow::-webkit-scrollbar { display: none; }
+html.ingame .handrow .card.handc {
+  position: relative; z-index: calc(1 + var(--hand-order, 0));
+  margin-left: calc(var(--cw) * -.44) !important;
+  transform: translateY(var(--fan-y, 0px)) rotate(var(--fan-angle, 0deg));
+  transform-origin: center bottom; transition: transform .22s cubic-bezier(.2,.8,.2,1), box-shadow .18s ease, filter .18s ease;
+}
+html.ingame .handrow .card.handc:first-child { margin-left: 0 !important; }
+html.ingame .handrow .card.handc:hover,
+html.ingame .handrow .card.handc:focus-visible {
+  z-index: 100 !important; transform: translateY(-26px) rotate(0deg) scale(1.08);
+  box-shadow: 0 12px 30px rgba(0,0,0,.62), 0 0 0 2px rgba(230,203,135,.8);
+}
+html.ingame .handrow .card.handc.hl { z-index: calc(2 + var(--hand-order, 0)); }
+html.ingame .handrow .card.handc.hl:hover { z-index: 100 !important; }
+@media (max-width: 1050px) {
+  html.ingame .hand-dock { padding: 10px 4px max(8px, env(safe-area-inset-bottom)); }
+  html.ingame .handrow { justify-content: flex-start; min-height: calc(var(--cwb) * 1.45 * 1.418 + 34px); padding: 14px 10px 8px; }
+  html.ingame .handrow .card.handc { margin-left: calc(var(--cw) * -.3) !important; }
+  html.ingame .handrow .card.handc:first-child { margin-left: 0 !important; }
+}
+@media (hover: none) {
+  html.ingame .handrow .card.handc:hover { transform: none; box-shadow: inherit; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html.ingame .handrow .card.handc { transition: none; }
+}
