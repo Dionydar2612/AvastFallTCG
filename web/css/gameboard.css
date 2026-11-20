@@ -294,7 +294,7 @@ html.ingame .duel-half.player .side { background: linear-gradient(125deg, color-
 }
 
 /* Fan hand: overlap at rest, lift only the card under the pointer. */
-html.ingame .menu { z-index: 95; }
+html.ingame .menu { z-index: 9999; }
 html.ingame .hand-dock { overflow: visible; padding: 10px 8px 6px; }
 html.ingame .handrow {
   position: relative; min-height: calc(var(--cwb) * 1.42 * 1.418 + 34px); padding: 14px 12px 8px;

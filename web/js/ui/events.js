@@ -23,7 +23,7 @@ function onCard(uid,el){
     }
     if(pd.kind==='act'){
       const acts=pd.spec.actions.filter(a=>a.uid===uid||(a.card&&a.card.host&&a.card.host.uid===uid));
-      if(acts.length){hidePop();ui.inspect=c;return openMenu(acts,el)}
+      if(acts.length){ui.inspect=c;return openMenu(acts,el)}
       if(c.zone==='hand'&&c.owner===pd.p){const w=AF.whyNot(G,c.owner,c);ui.inspect=c;ui.tab='card';ui.menu={actions:[],x:el.getBoundingClientRect().left,y:el.getBoundingClientRect().bottom,why:w};return render()}
     }
   }
