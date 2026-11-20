@@ -15,7 +15,7 @@ body.shell{padding:0}
 .site-sw button[aria-selected="true"]{color:var(--gold)}
 .site-sw button:focus-visible{outline:3px solid var(--gold);outline-offset:-6px;border-radius:8px}
 .site-sw .ind{position:absolute;left:0;bottom:-3px;height:5px;width:var(--pw,0);transform:translateX(var(--px,0));background:var(--gold);border-radius:3px 3px 0 0;opacity:0}
-.site-sw.ready .ind{opacity:1;transition:transform .32s cubic-bezier(.65,.05,.25,1),width .32s cubic-bezier(.65,.05,.25,1)}
+.site-sw.ready .ind{opacity:1;transition:transform .18s cubic-bezier(.2,.75,.25,1),width .18s cubic-bezier(.2,.75,.25,1)}
 
 /* ชิปเหรียญ / การ์ด */
 .site-user{position:relative;display:flex;align-items:center;gap:10px;flex:none}
@@ -51,9 +51,7 @@ body.shell{padding:0}
 /* พื้นที่แสดงหน้า: ทุกหน้าใช้เอฟเฟกต์เข้าแบบเดียวกัน */
 .site-view{position:relative}
 .site-pane{display:none;min-width:0}
-.site-pane.on{display:block;animation:paneIn .26s cubic-bezier(.2,.7,.2,1) backwards}
-@keyframes paneIn{from{opacity:0;transform:translateX(var(--dx,0))}to{opacity:1;transform:none}}
-.site-view[data-dir="-1"]{--dx:-22px}.site-view[data-dir="1"]{--dx:22px}.site-view[data-dir="0"]{--dx:0px}
+.site-pane.on{display:block}
 #cardsFrame,#hubFrame{display:block;width:100%;height:calc(100vh - var(--bar-h,58px));height:calc(100dvh - var(--bar-h,58px));border:0;background:var(--paper)}
 /* ห้ามมี transform ค้างหลังเอฟเฟกต์จบ: ไม่งั้นหน้าต่างป๊อปอัปของเกม (position:fixed) จะอ้างอิงผิดกรอบ — animation ไม่ใส่ fill-mode forwards จึงปลอดภัย */
 #panePlay{padding:12px 16px 40px}

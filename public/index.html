@@ -1,8 +1,8 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="th"><head><meta charset="utf-8">
 <link rel="icon" href="/favicon.ico" sizes="any"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png"><link rel="icon" type="image/png" sizes="192x192" href="/assets/icon-192.png"><link rel="apple-touch-icon" href="/assets/apple-touch-icon.png"><meta name="theme-color" content="#0a2233">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>เธเธฒเธฃเนเธ”เธ—เธฑเนเธเธซเธกเธ” โ€“ Card Battle</title>
+<title>การ์ดทั้งหมด – Card Battle</title>
 <link href="https://fonts.googleapis.com/css2?family=Mali:wght@400;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/css/lobby.css?v=1">
 <script>if(/[?&]embed=1/.test(location.search))document.documentElement.classList.add("embed")</script>
@@ -121,34 +121,34 @@ table.ct{border-collapse:collapse;width:100%;min-width:640px}
 .db-add{flex-direction:column;align-items:center;justify-content:center;min-height:150px;font:inherit;font-weight:700;font-size:1.1rem;color:var(--ink);border-style:dashed;cursor:pointer;gap:4px}.db-add span{font-size:2.4rem;line-height:1}.db-add:hover{background:var(--gold);color:#111}
 .chip.danger{background:#c0121f;color:#fff;border-color:#c0121f}
 @media(max-width:900px){.db-wrap{grid-template-columns:1fr}.db-side{position:static;max-height:none}}
-.db-own{position:absolute;left:4px;bottom:4px;border:2px solid #111;border-radius:99px;background:var(--gold);color:#111;font-size:.7rem;font-weight:700;padding:0 8px}.db-own.none{background:#ddd;color:#555}.db-avc.lock img{filter:grayscale(1) brightness(.6)}.db-avc.lock{opacity:.8}.db-t.off .db-img img{filter:grayscale(.8)}.gh .bar{flex:1;max-width:220px;height:8px;border:2px solid var(--ink);border-radius:99px;margin:6px 10px 0}.gh .bar i{display:block;height:100%;background:var(--gold)}.noimg{aspect-ratio:170/241;display:flex;align-items:center;justify-content:center;text-align:center;padding:8px;border:2px solid var(--ink);border-radius:10px;background:var(--pap)}.meta{margin-top:14px;padding-top:10px;border-top:1px dashed var(--mut);font-size:.85rem;color:var(--mut)}</style><link rel="stylesheet" href="/css/polish.css?v=1">
+.db-own{position:absolute;left:4px;bottom:4px;border:2px solid #111;border-radius:99px;background:var(--gold);color:#111;font-size:.7rem;font-weight:700;padding:0 8px}.db-own.none{background:#ddd;color:#555}.db-avc.lock img{filter:grayscale(1) brightness(.6)}.db-avc.lock{opacity:.8}.db-t.off .db-img img{filter:grayscale(.8)}.gh .bar{flex:1;max-width:220px;height:8px;border:2px solid var(--ink);border-radius:99px;margin:6px 10px 0}.gh .bar i{display:block;height:100%;background:var(--gold)}.noimg{aspect-ratio:170/241;display:flex;align-items:center;justify-content:center;text-align:center;padding:8px;border:2px solid var(--ink);border-radius:10px;background:var(--pap)}.meta{margin-top:14px;padding-top:10px;border-top:1px dashed var(--mut);font-size:.85rem;color:var(--mut)}</style><link rel="stylesheet" href="/css/polish.css?v=2">
 </head><body><main>
-<nav class="sitetabs" aria-label="เน€เธกเธเธนเน€เธงเนเธ"><a class="on" href="/cards/" data-v="cards" aria-current="page">Card List</a><a href="#deckbuilder" data-v="deck">Deckbuilder</a><a href="/" target="_blank" rel="noopener">Home โ—</a></nav>
+<nav class="sitetabs" aria-label="เมนูเว็บ"><a class="on" href="/cards/" data-v="cards" aria-current="page">Card List</a><a href="#deckbuilder" data-v="deck">Deckbuilder</a><a href="/" target="_blank" rel="noopener">Home ↗</a></nav>
 <div id="v-cards">
-<h1>เธเธฒเธฃเนเธ”เธ—เธฑเนเธเธซเธกเธ”</h1>
-<p style="margin:-4px 0 12px"><a href="/api/docs" target="_blank" rel="noopener" style="color:var(--ink)">๐“ API เธชเธณเธซเธฃเธฑเธเธเธฑเธเธเธฑเธ’เธเธฒ</a></p>
-<div class="srch"><input id="q" class="search" placeholder="เธเนเธเธซเธฒเธ”เนเธงเธขเธเธทเนเธญ เน€เธฅเธเธเธฒเธฃเนเธ” เน€เธเนเธฒ เธซเธฃเธทเธญเธเนเธญเธเธงเธฒเธกเน€เธญเธเน€เธเธเธ•เนโ€ฆ (เน€เธงเนเธเธงเธฃเธฃเธเน€เธเธทเนเธญเธเนเธเธซเธฅเธฒเธขเธเธณเธเธฃเนเธญเธกเธเธฑเธ)"><button id="clr" class="chip" type="button" hidden>โ• เธฅเนเธฒเธเธเธฒเธฃเธเนเธเธซเธฒ</button></div>
-<div class="row"><span>เน€เธฃเธตเธขเธเธ•เธฒเธก:</span><span id="sorts"></span></div>
-<div class="modes" id="modes"><span>เธกเธธเธกเธกเธญเธ:</span><span id="modeBtns"></span><span class="sp"></span>
-<label id="szw">เธเธเธฒเธ” <input id="sz" type="range" min="90" max="300" step="10" value="150"></label>
-<select id="own" aria-label="เธเธฃเธญเธเธ•เธฒเธกเธเธญเธฅเน€เธฅเธเธเธฑเธ"><option value="">เธเธฒเธฃเนเธ”เธ—เธฑเนเธเธซเธกเธ”</option><option value="own">เน€เธเธเธฒเธฐเธ—เธตเนเธเธฑเธเธกเธต</option><option value="miss">เน€เธเธเธฒเธฐเธ—เธตเนเธขเธฑเธเนเธกเนเธกเธต</option></select></div>
+<h1>การ์ดทั้งหมด</h1>
+<p style="margin:-4px 0 12px"><a href="/api/docs" target="_blank" rel="noopener" style="color:var(--ink)">📘 API สำหรับนักพัฒนา</a></p>
+<div class="srch"><input id="q" class="search" placeholder="ค้นหาด้วยชื่อ เลขการ์ด เผ่า หรือข้อความเอฟเฟกต์… (เว้นวรรคเพื่อค้นหลายคำพร้อมกัน)"><button id="clr" class="chip" type="button" hidden>✕ ล้างการค้นหา</button></div>
+<div class="row"><span>เรียงตาม:</span><span id="sorts"></span></div>
+<div class="modes" id="modes"><span>มุมมอง:</span><span id="modeBtns"></span><span class="sp"></span>
+<label id="szw">ขนาด <input id="sz" type="range" min="90" max="300" step="10" value="150"></label>
+<select id="own" aria-label="กรองตามคอลเลกชัน"><option value="">การ์ดทั้งหมด</option><option value="own">เฉพาะที่ฉันมี</option><option value="miss">เฉพาะที่ยังไม่มี</option></select></div>
 <div class="box mfbox" id="mfBox"></div>
 <div class="cnt" id="cnt"></div>
 <div class="grid" id="grid"></div>
 </div>
 <div id="v-deck" hidden></div>
 </main>
-<div id="modal"><button class="nav" id="prev">โ€น</button><div class="dlg box" id="dlg"></div><button class="nav" id="next">โ€บ</button></div>
+<div id="modal"><button class="nav" id="prev">‹</button><div class="dlg box" id="dlg"></div><button class="nav" id="next">›</button></div>
 <script>
 const $=id=>document.getElementById(id);
-const MFS={};let SPEC=[],MFSYNC=()=>{};   // เธ•เธฑเธงเธเธฃเธญเธเธซเธฅเธฒเธขเธ•เธฑเธง (public/mfilter.js)
+const MFS={};let SPEC=[],MFSYNC=()=>{};   // ตัวกรองหลายตัว (public/mfilter.js)
 const tagsOf=c=>String(c.tribe||"").split("/").map(x=>x.trim()).filter(Boolean);
 const elsOf=c=>c.els&&c.els.length?c.els:[c.el].filter(Boolean);
 const kwsOf=c=>uniq(c.fx.map(e=>String(e[0]||"").split(" ")[0])).filter(k=>k&&k!=="COST");
 const statOf=(c,k)=>c[k]==null?null:+c[k];
-const SORTS={no:"เธเธตเธฃเธตเธชเน",name:"เธเธทเนเธญ",type:"เธเธฃเธฐเน€เธ เธ—",cost:"Cost"};
+const SORTS={no:"ซีรีส์",name:"ชื่อ",type:"ประเภท",cost:"Cost"};
 let ALL=[],list=[],cur=0,sort="no",OWN={};
-const MODES={gallery:"๐–ผ เนเธเธฅเน€เธฅเธญเธฃเธต",list:"๐“ เธฃเธฒเธขเธเธฒเธฃ",table:"๐“ เธ•เธฒเธฃเธฒเธ",series:"๐“ เนเธขเธเธ•เธฒเธกเธเธตเธฃเธตเธชเน"};
+const MODES={gallery:"🖼 แกลเลอรี",list:"📃 รายการ",table:"📊 ตาราง",series:"📚 แยกตามซีรีส์"};
 let mode="gallery",gw=150;
 try{mode=localStorage.getItem("cl-mode")||"gallery";gw=+localStorage.getItem("cl-gw")||150}catch(e){}
 if(!MODES[mode])mode="gallery";
@@ -159,17 +159,17 @@ const pic=c=>c.img?`<img loading="lazy" src="${c.img}" alt="${c.name}">`:`<div c
 function init(){
  ALL=CARDS.map((c,i)=>{const d=DECKS[c.deck]||{};const m={rot:d.rot,el:d.el,rar:d.rar,art:d.art,...c,i,fx:c.fx||[]};
   m.code=`${m.deck} ${m.rot||"-"} ${m.no}/${d.total||"?"}`;m.img=(typeof IMAGES!=="undefined"&&IMAGES[c.key||c.deck+"-"+c.no])||c.img||"";return m});
- const items=f=>uniq(ALL.flatMap(f)).sort((a,b)=>String(a).localeCompare(String(b),"th")).map(v=>({v})),top=f=>MF.items(ALL,f);   // top = เน€เธฃเธตเธขเธเธ•เธฒเธกเธเธณเธเธงเธเธเธฒเธฃเนเธ”
- const multi=f=>ALL.some(c=>uniq(f(c)).length>1);   // เธกเธตเธเธฒเธฃเนเธ”เธ—เธตเนเธกเธตเธซเธฅเธฒเธขเธเนเธฒเธเธฃเธดเธ เธเธธเนเธก "เธ•เนเธญเธเธ•เธฃเธเธเธฃเธ" เธ–เธถเธเธกเธตเธเธงเธฒเธกเธซเธกเธฒเธข
+ const items=f=>uniq(ALL.flatMap(f)).sort((a,b)=>String(a).localeCompare(String(b),"th")).map(v=>({v})),top=f=>MF.items(ALL,f);   // top = เรียงตามจำนวนการ์ด
+ const multi=f=>ALL.some(c=>uniq(f(c)).length>1);   // มีการ์ดที่มีหลายค่าจริง ปุ่ม "ต้องตรงครบ" ถึงมีความหมาย
  const mx=k=>Math.max(0,...ALL.map(c=>k==="cost"?(c.cost??c.sc??0):+c[k]||0));
  SPEC=[
-  {t:"chips",k:"deck",label:"เน€เธ”เนเธ/เธเธตเธฃเธตเธชเน",items:items(c=>[c.deck])},
-  {t:"chips",k:"type",label:"เธเธฃเธฐเน€เธ เธ—เธเธฒเธฃเนเธ”",items:items(c=>[c.type])},
-  {t:"chips",k:"el",label:"เธเธฒเธ•เธธ",items:uniq(ALL.flatMap(elsOf)).map(v=>({v,i:ico(v,16)})),mode:multi(elsOf)},
-  {t:"chips",k:"rar",label:"เธเธงเธฒเธกเธซเธฒเธขเธฒเธ",items:items(c=>[c.rar])},
-  {t:"chips",k:"sub",label:"เธเธฃเธฐเน€เธ เธ—เธขเนเธญเธข (Spell)",items:items(c=>[c.sub]),adv:true},
+  {t:"chips",k:"deck",label:"เด็ค/ซีรีส์",items:items(c=>[c.deck])},
+  {t:"chips",k:"type",label:"ประเภทการ์ด",items:items(c=>[c.type])},
+  {t:"chips",k:"el",label:"ธาตุ",items:uniq(ALL.flatMap(elsOf)).map(v=>({v,i:ico(v,16)})),mode:multi(elsOf)},
+  {t:"chips",k:"rar",label:"ความหายาก",items:items(c=>[c.rar])},
+  {t:"chips",k:"sub",label:"ประเภทย่อย (Spell)",items:items(c=>[c.sub]),adv:true},
   {t:"chips",k:"kw",label:"Keyword",items:top(kwsOf),mode:multi(kwsOf),adv:true},
-  {t:"chips",k:"tribe",label:"เน€เธเนเธฒ / เธชเธฑเธเธเธฑเธ”",items:top(tagsOf),mode:multi(tagsOf),adv:true,limit:14},
+  {t:"chips",k:"tribe",label:"เผ่า / สังกัด",items:top(tagsOf),mode:multi(tagsOf),adv:true,limit:14},
   {t:"chips",k:"rot",label:"Rotation",items:items(c=>[c.rot]),adv:true},
   {t:"range",k:"cost",label:"Cost",min:0,max:mx("cost"),adv:true},
   {t:"range",k:"cri",label:"CRI",min:0,max:mx("cri"),adv:true},
@@ -198,27 +198,27 @@ function render(){
   &&MF.inRange(MFS,"cost",hasC(c)?costOf(c):null)&&MF.inRange(MFS,"cri",statOf(c,"cri"))&&MF.inRange(MFS,"atk",statOf(c,"atk"))&&MF.inRange(MFS,"def",statOf(c,"def"))
   &&(!ow||(ow==="own")===!!OWN[c.key||c.deck+"-"+c.no])
   &&(!terms.length||(h=>terms.every(t=>h.includes(t)))([c.no,c.name,c.code,c.tribe,c.deck+"-"+c.no,...c.fx.map(e=>e[1])].join(" ").toLowerCase())));
- const nf=MF.count(SPEC,MFS)+(ow?1:0)+(q?1:0);$("clr").hidden=!nf;$("clr").textContent="โ• เธฅเนเธฒเธเธเธฒเธฃเธเนเธเธซเธฒ"+(nf?` (${nf})`:"");
+ const nf=MF.count(SPEC,MFS)+(ow?1:0)+(q?1:0);$("clr").hidden=!nf;$("clr").textContent="✕ ล้างการค้นหา"+(nf?` (${nf})`:"");
  list.sort({no:(a,b)=>a.i-b.i,name:(a,b)=>a.name.localeCompare(b.name,"th"),type:(a,b)=>a.type.localeCompare(b.type)||a.i-b.i,cost:(a,b)=>costOf(a)-costOf(b)||a.i-b.i}[sort]);
  document.querySelectorAll("#sorts .chip").forEach(b=>b.classList.toggle("on",b.dataset.s===sort));
- $("cnt").innerHTML=`เนเธชเธ”เธ <b>${list.length}</b> เธเธฒเธ <b>${ALL.length}</b> เธเธฒเธฃเนเธ”`;
+ $("cnt").innerHTML=`แสดง <b>${list.length}</b> จาก <b>${ALL.length}</b> การ์ด`;
  document.querySelectorAll("#modeBtns .chip").forEach(b=>b.classList.toggle("on",b.dataset.m===mode));
  $("szw").hidden=!(mode==="gallery"||mode==="series");
  const g=$("grid");g.className="grid"+(mode==="list"?" list":"");g.style.setProperty("--gw",gw+"px");
  const own=c=>OWN[c.key||c.deck+"-"+c.no]||0,hasOwn=Object.keys(OWN).length>0;
- const tile=(c,n)=>{const o=own(c);return `<button class="tile${hasOwn&&!o?" miss":""}" data-n="${n}" aria-label="${c.name}">${pic(c)}${o?`<span class="own">ร—${o}</span>`:""}${mode!=="gallery"||gw>=130?`<span class="cap">${c.name}</span>`:""}</button>`};
- const ef=c=>c.fx.map(e=>(e[0]?e[0]+" ":"")+e[1]).join(" ยท ");
- if(!list.length)g.innerHTML='<div class="empty">เนเธกเนเธเธเธเธฒเธฃเนเธ”เธ—เธตเนเธ•เธฃเธเธเธฑเธเน€เธเธทเนเธญเธเนเธ</div>';
- else if(mode==="list")g.innerHTML=list.map((c,n)=>{const o=own(c);return `<button class="row-i${hasOwn&&!o?" miss":""}" data-n="${n}">${pic(c)}<span class="ri"><b>${c.name}</b> <span class="mt">${c.deck}-${c.no} ยท ${c.type}${c.el?" ยท เธเธฒเธ•เธธ"+c.el:""}${c.rar?" ยท "+c.rar:""}${c.type==="Unit"?` ยท Cost ${c.cost} / ATK ${c.atk} / DEF ${c.def??"-"}`:""}${hasOwn?` ยท เธกเธต ${o} เนเธ`:""}</span><span class="ef">${ef(c)||"เนเธกเนเธกเธตเน€เธญเธเน€เธเธเธ•เน"}</span></span></button>`}).join("");
- else if(mode==="table")g.innerHTML=`<div class="tbl-w"><table class="ct"><thead><tr><th></th><th>เธฃเธซเธฑเธช</th><th>เธเธทเนเธญ</th><th>เธเธฃเธฐเน€เธ เธ—</th><th>เธเธฒเธ•เธธ</th><th>Rarity</th><th>Cost</th><th>CRI</th><th>ATK</th><th>DEF</th>${hasOwn?"<th>เธกเธต</th>":""}</tr></thead><tbody>${list.map((c,n)=>`<tr data-n="${n}"${hasOwn&&!own(c)?' class="miss"':""}><td>${c.img?`<img loading="lazy" src="${c.img}" alt="">`:""}</td><td>${c.deck}-${c.no}</td><td><b>${c.name}</b></td><td>${c.type}</td><td>${(c.els&&c.els.length?c.els:c.el?[c.el]:[]).join("/")}</td><td class="num">${c.rar||""}</td><td class="num">${c.cost??c.sc??""}</td><td class="num">${c.cri??""}</td><td class="num">${c.atk??""}</td><td class="num">${c.def??""}</td>${hasOwn?`<td class="num">${own(c)||""}</td>`:""}</tr>`).join("")}</tbody></table></div>`;
- else if(mode==="series"){let h="",last="";list.forEach((c,n)=>{if(c.deck!==last){last=c.deck;const d=DECKS[c.deck]||{},t=list.filter(x=>x.deck===c.deck),o=t.filter(x=>own(x)).length;h+=`<div class="gh"><span>${c.deck} ${d.name||""}</span><span class="bar"><i style="width:${Math.round(o/t.length*100)}%"></i></span><small>${hasOwn?`เธชเธฐเธชเธกเนเธฅเนเธง ${o}/${t.length}`:t.length+" เนเธ"}</small></div>`}h+=tile(c,n)});g.innerHTML=h}
+ const tile=(c,n)=>{const o=own(c);return `<button class="tile${hasOwn&&!o?" miss":""}" data-n="${n}" aria-label="${c.name}">${pic(c)}${o?`<span class="own">×${o}</span>`:""}${mode!=="gallery"||gw>=130?`<span class="cap">${c.name}</span>`:""}</button>`};
+ const ef=c=>c.fx.map(e=>(e[0]?e[0]+" ":"")+e[1]).join(" · ");
+ if(!list.length)g.innerHTML='<div class="empty">ไม่พบการ์ดที่ตรงกับเงื่อนไข</div>';
+ else if(mode==="list")g.innerHTML=list.map((c,n)=>{const o=own(c);return `<button class="row-i${hasOwn&&!o?" miss":""}" data-n="${n}">${pic(c)}<span class="ri"><b>${c.name}</b> <span class="mt">${c.deck}-${c.no} · ${c.type}${c.el?" · ธาตุ"+c.el:""}${c.rar?" · "+c.rar:""}${c.type==="Unit"?` · Cost ${c.cost} / ATK ${c.atk} / DEF ${c.def??"-"}`:""}${hasOwn?` · มี ${o} ใบ`:""}</span><span class="ef">${ef(c)||"ไม่มีเอฟเฟกต์"}</span></span></button>`}).join("");
+ else if(mode==="table")g.innerHTML=`<div class="tbl-w"><table class="ct"><thead><tr><th></th><th>รหัส</th><th>ชื่อ</th><th>ประเภท</th><th>ธาตุ</th><th>Rarity</th><th>Cost</th><th>CRI</th><th>ATK</th><th>DEF</th>${hasOwn?"<th>มี</th>":""}</tr></thead><tbody>${list.map((c,n)=>`<tr data-n="${n}"${hasOwn&&!own(c)?' class="miss"':""}><td>${c.img?`<img loading="lazy" src="${c.img}" alt="">`:""}</td><td>${c.deck}-${c.no}</td><td><b>${c.name}</b></td><td>${c.type}</td><td>${(c.els&&c.els.length?c.els:c.el?[c.el]:[]).join("/")}</td><td class="num">${c.rar||""}</td><td class="num">${c.cost??c.sc??""}</td><td class="num">${c.cri??""}</td><td class="num">${c.atk??""}</td><td class="num">${c.def??""}</td>${hasOwn?`<td class="num">${own(c)||""}</td>`:""}</tr>`).join("")}</tbody></table></div>`;
+ else if(mode==="series"){let h="",last="";list.forEach((c,n)=>{if(c.deck!==last){last=c.deck;const d=DECKS[c.deck]||{},t=list.filter(x=>x.deck===c.deck),o=t.filter(x=>own(x)).length;h+=`<div class="gh"><span>${c.deck} ${d.name||""}</span><span class="bar"><i style="width:${Math.round(o/t.length*100)}%"></i></span><small>${hasOwn?`สะสมแล้ว ${o}/${t.length}`:t.length+" ใบ"}</small></div>`}h+=tile(c,n)});g.innerHTML=h}
  else g.innerHTML=list.map(tile).join("");
 }
 function show(n){
  cur=(n+list.length)%list.length;const c=list[cur],d=DECKS[c.deck]||{};
- const st=c.type==="Unit"?`<div><small>Cost</small><b>${c.cost}</b></div><div><small>CRI</small><b>${c.cri}</b></div><div><small>ATK</small><b>${c.atk}</b></div><div><small>DEF</small><b>${c.def ?? c.defense ?? "-"}</b></div>`:(c.sc!=null?`<div><small>เธเนเธฒ Element</small><b>${c.sc}</b></div>`:"");
- const ef=c.fx.length?c.fx.map(e=>`<p>${e[0]?`<span class="kw ${e[0].split(" ")[0]}">${e[0]}</span>`:""}${e[1]}</p>`).join(""):'<p style="color:var(--mut)">เนเธกเนเธกเธตเน€เธญเธเน€เธเธเธ•เน</p>';
- $("dlg").innerHTML=`<button class="x" onclick="closeM()" aria-label="เธเธดเธ”">โ•</button><div class="big">${pic(c)}</div><div><h2>${c.name}</h2><div class="code">${c.deck}-${c.no}/${d.total||"?"}</div><div class="tags"><span class="tag t-${c.type}">${c.type}</span>${c.sub?`<span class="tag">${c.sub}</span>`:""}<span class="tag gold">${c.deck} ${d.name||""}</span>${(c.els&&c.els.length?c.els:c.el?[c.el]:[]).map(e=>`<span class="tag" style="background:#fff;color:#111;border:2px solid ${(ELEMENTS[e]||{}).c||"#888"}">${ico(e)} เธเธฒเธ•เธธ${e}</span>`).join("")}${c.rar?`<span class="tag" style="background:#555">Rarity ${c.rar}</span>`:""}${c.rot?`<span class="tag" style="background:#555">Rotation ${c.rot}</span>`:""}</div>${st?`<div class="stats">${st}</div>`:""}${c.tribe?`<h3>เน€เธเนเธฒ</h3><div class="tags"><span class="tag" style="background:#555">${c.tribe}</span></div>`:""}<h3>เธเธฅเธซเธฅเธฑเธ</h3><div class="eff">${ef}</div>${c.fl?`<div class="fl">${c.fl}</div>`:""}<div class="meta">${c.code}${c.art?` ยท เธเธฑเธเธงเธฒเธ”: @${c.art}`:""}${c.rar?` ยท เธเธงเธฒเธกเธซเธฒเธขเธฒเธ: ${c.rar}`:""}</div></div>`;
+ const st=c.type==="Unit"?`<div><small>Cost</small><b>${c.cost}</b></div><div><small>CRI</small><b>${c.cri}</b></div><div><small>ATK</small><b>${c.atk}</b></div><div><small>DEF</small><b>${c.def ?? c.defense ?? "-"}</b></div>`:(c.sc!=null?`<div><small>ค่า Element</small><b>${c.sc}</b></div>`:"");
+ const ef=c.fx.length?c.fx.map(e=>`<p>${e[0]?`<span class="kw ${e[0].split(" ")[0]}">${e[0]}</span>`:""}${e[1]}</p>`).join(""):'<p style="color:var(--mut)">ไม่มีเอฟเฟกต์</p>';
+ $("dlg").innerHTML=`<button class="x" onclick="closeM()" aria-label="ปิด">✕</button><div class="big">${pic(c)}</div><div><h2>${c.name}</h2><div class="code">${c.deck}-${c.no}/${d.total||"?"}</div><div class="tags"><span class="tag t-${c.type}">${c.type}</span>${c.sub?`<span class="tag">${c.sub}</span>`:""}<span class="tag gold">${c.deck} ${d.name||""}</span>${(c.els&&c.els.length?c.els:c.el?[c.el]:[]).map(e=>`<span class="tag" style="background:#fff;color:#111;border:2px solid ${(ELEMENTS[e]||{}).c||"#888"}">${ico(e)} ธาตุ${e}</span>`).join("")}${c.rar?`<span class="tag" style="background:#555">Rarity ${c.rar}</span>`:""}${c.rot?`<span class="tag" style="background:#555">Rotation ${c.rot}</span>`:""}</div>${st?`<div class="stats">${st}</div>`:""}${c.tribe?`<h3>เผ่า</h3><div class="tags"><span class="tag" style="background:#555">${c.tribe}</span></div>`:""}<h3>ผลหลัก</h3><div class="eff">${ef}</div>${c.fl?`<div class="fl">${c.fl}</div>`:""}<div class="meta">${c.code}${c.art?` · นักวาด: @${c.art}`:""}${c.rar?` · ความหายาก: ${c.rar}`:""}</div></div>`;
  $("modal").classList.add("open");
 }
 function closeM(){$("modal").classList.remove("open")}
@@ -233,10 +233,10 @@ async function boot(){
     fx:(c.effects||[]).map(e=>[e.keyword,e.text]),fl:c.flavor,el:c.element,els:c.elements,rar:c.rarity,rot:c.rotation,art:c.artist,img:c.image}));
   try{let o={owned:{}};for(let i=0;i<4;i++){try{const r=await fetch("/api/me/collection",{credentials:"same-origin",cache:"no-store"});if(r.ok){o=await r.json();break}}catch(_){}await new Promise(k=>setTimeout(k,600*(i+1)))}OWN=o.owned||{};window.__AF=window.__AF||{};window.__AF.owned=o.base||o.owned||{}}catch(e){}
   init();window.DB&&DB.init();
- }catch(err){document.getElementById("cnt").textContent="เนเธซเธฅเธ”เธเนเธญเธกเธนเธฅเธเธฒเธ API เนเธกเนเธชเธณเน€เธฃเนเธ: "+err.message}
+ }catch(err){document.getElementById("cnt").textContent="โหลดข้อมูลจาก API ไม่สำเร็จ: "+err.message}
 }
 addEventListener("DOMContentLoaded",boot);
-/* เธเธฑเธเธญเธขเธนเนเนเธเธซเธเนเธฒเน€เธเธก: เนเธ–เธเน€เธกเธเธนเธเธเธชเธธเธ”เธเธญเธเธซเธเนเธฒเธซเธฅเธฑเธเน€เธเนเธเธ•เธฑเธงเธชเธฅเธฑเธ Card List โ” Deckbuilder */
+/* ฝังอยู่ในหน้าเกม: แถบเมนูบนสุดของหน้าหลักเป็นตัวสลับ Card List ↔ Deckbuilder */
 addEventListener("message",e=>{if(e.origin!==location.origin||!e.data)return;
  if(e.data.afView)window.DB&&DB.show&&DB.show(e.data.afView==="deck"?"deck":"cards");
  if(e.data.afOwned){if(Object.keys(e.data.afOwned).length)window.DB&&DB.refreshOwned&&DB.refreshOwned(e.data.afOwned);fetch("/api/me/collection",{credentials:"same-origin",cache:"no-store"}).then(r=>r.json()).then(o=>{OWN=o.owned||{};if(o.base||o.owned)window.DB&&DB.refreshOwned&&DB.refreshOwned(o.base||o.owned);try{render()}catch(_){}}).catch(()=>{})}

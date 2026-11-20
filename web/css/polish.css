@@ -69,7 +69,6 @@ body { color: var(--ink); }
 .site-sw .ind { background: #e6c779; }
 .site-chip { background: rgba(255,255,255,.09); }
 .site-me .av { background: #e6c779; }
-.site-pane.on { animation: paneIn .3s var(--ui-ease) both; }
 .box, .panel, .pbox, .opts, .mdk, .item { background-color: var(--panel); }
 .grid button:hover, .cc:hover { transform: translateY(-3px); }
 .item:hover, .dk:hover { transform: translateY(-2px); }

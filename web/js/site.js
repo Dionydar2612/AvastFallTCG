@@ -200,7 +200,7 @@
     if (tab === cur && !opts.force) return;
     var prev = cur, from = PANE[prev], to = PANE[tab];
     if (to === 'cards') {
-      if (!cardsFrame.getAttribute('src')) cardsFrame.src = cardsFrame.dataset.src + '&v=' + Date.now() + (opts.hash || (tab === 'decks' ? '#deckbuilder' : ''));   // &v= กันเบราว์เซอร์ใช้หน้า /cards/ เก่าจากแคช (เคยทำให้ iframe ไม่มี __AF จึงไม่เห็นการ์ด)
+      if (!cardsFrame.getAttribute('src')) cardsFrame.src = cardsFrame.dataset.src + '&v=11' + (opts.hash || (tab === 'decks' ? '#deckbuilder' : ''));
       else if (ready.cards) tellCards(tab === 'decks' ? 'deck' : 'cards');
     } else if (to === 'hub') {
       if (!hubFrame.getAttribute('src')) hubFrame.src = hubFrame.dataset.src + '#' + tab;
@@ -247,6 +247,10 @@
   var h0 = location.hash.replace(/^#/, ''); h0 = ALIAS[h0] || h0;
   var HUBV = h0 === 'shop' || h0 === 'rewards' ? h0 : 'home';
   hubFrame.src = hubFrame.dataset.src + '#' + HUBV;
+  /* เตรียมหน้า Cards ระหว่างที่ผู้เล่นอยู่ Home เพื่อลดเวลารอเมื่อเปิดแท็บครั้งแรก */
+  var warmCards = function () { if (!cardsFrame.getAttribute('src')) cardsFrame.src = cardsFrame.dataset.src + '&v=11'; };
+  if (window.requestIdleCallback) requestIdleCallback(warmCards, { timeout: 1200 });
+  else setTimeout(warmCards, 500);
   if (/^#(deck=|home|shop|rewards|play|cards|decks|deckbuilder)/.test(location.hash)) { cur = HUBV; fromHash(true); }
 
   window.AFSite = { go: go, openDeck: openDeck, launch: launch, panel: panel, get tab() { return cur; } };
