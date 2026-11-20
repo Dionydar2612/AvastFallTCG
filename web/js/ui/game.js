@@ -43,9 +43,8 @@ const pdOf=()=>ui.pending;
 function freshLog(){const G=ui.G;const f=G.log.slice(ui.seen);ui.seen=G.log.length;return f}
 function cardEl(c,o={}){
   const G=ui.G;const d=c.def;
-  const statsPreview=d.kind==='Unit'?`<span class="chip">ATK ${d.atk}</span><span class="chip">DEF ${d.def}</span><span class="chip">CRI ${d.cri}</span>`:d.kind==='Avatar'&&c.owner>=0&&G.players[c.owner]&&G.players[c.owner].avatar.card.uid===c.uid?`<span class="chip">HP ${G.players[c.owner].avatar.hp}</span>`:'';
   if(o.down)return `<div class="card back ${o.cls||''}" ${o.uid?`data-uid="${c.uid}"`:''}></div>`;
-  return `<div class="card ${cardArt(d.id)} ${o.cls||''}" data-uid="${c.uid}" title="${esc(d.name)}" ${o.style?`style="${o.style}"`:''}>${o.inner||''}</div>`;
+  return `<div class="card ${cardArt(d.id)} ${o.cls||''}" data-uid="${c.uid}" title="${esc(d.name)}">${o.inner||''}</div>`;
 }
 function unitEl(u,hl){
   const G=ui.G;
@@ -108,8 +107,7 @@ function handHTML(){
   const playable=new Set(pd&&pd.kind==='act'&&pd.p===ui.viewer&&ui.cover===null?pd.spec.actions.filter(a=>a.card&&a.card.zone==='hand').map(a=>a.uid):[]);
   const act=pd&&pd.kind==='act'&&pd.p===ui.viewer;
   const hidden=ui.cfg.mode==='spec'&&!ui.peek;
-  const fan=(i)=>{const mid=(P.hand.length-1)/2,t=mid?((i-mid)/mid):0;return `--hand-order:${i};--fan-angle:${(t*12).toFixed(1)}deg;--fan-y:${(Math.abs(t)*Math.abs(t)*8).toFixed(1)}px`};
-  return `<div class="handrow">${P.hand.map((c,i)=>hidden?`<div class="card back handc" style="${fan(i)}"></div>`:cardEl(c,{cls:`handc ${playable.has(c.uid)?'hl':act?'dim':''}`,style:fan(i)})).join('')||'<span class="muted">ไม่มีการ์ดบนมือ</span>'}</div>`;
+  return `<div class="handrow">${P.hand.map(c=>hidden?`<div class="card back handc"></div>`:cardEl(c,{cls:`handc ${playable.has(c.uid)?'hl':act?'dim':''}`})).join('')||'<span class="muted">ไม่มีการ์ดบนมือ</span>'}</div>`;
 }
 function barHTML(){
   const G=ui.G;const pd=pdOf();
@@ -144,7 +142,7 @@ function inspectorHTML(c){
   if(c.zone==='hand'&&c.owner===ui.viewer&&pdOf()&&pdOf().kind==='act'){const w=AF.whyNot(G,c.owner,c);if(w)why=`<div class="note"><b>เล่นตอนนี้ไม่ได้:</b> ${esc(w)}</div>`}
   const cost=d.kind==='Unit'?`Cost ${d.cost}`:d.kind==='Avatar'?'':(d.noCost?'ไม่มีค่าร่าย':`Spend ${d.cost}`);
   const fx=d.fx.map(f=>`<div>${f[0]?`<span class="kw">${esc(f[0])}</span>`:''}${esc(f[1])}</div>`).join('')||'<div class="muted">ไม่มีเอฟเฟกต์</div>';
-  return `<div class="insp"><div class="ihd"><div class="big ${cardArt(d.id)}" title="แตะเพื่อขยาย/ย่อรูปการ์ด"></div><div class="itx"><h3>${esc(d.name)}</h3><div class="kv"><span class="chip">${kindTh(d.kind)}</span>${cost?`<span class="chip">${cost}</span>`:''}${statsPreview}<span class="chip">${esc(d.tribe)}</span><span class="chip">${d.id}</span></div>${live}</div></div><div class="fxl">${fx}</div>${why}${(d.unscripted?'<div class="note"><b>ยังไม่มีสคริปต์เอฟเฟกต์:</b> การ์ดนี้เล่นได้ แต่เอฟเฟกต์ไม่ทำงาน ใช้แถบ "เครื่องมือ" ทำผลเอง</div>':'')+(d.stale?'<div class="note"><b>ข้อความต่างจากที่สคริปต์เขียนไว้:</b> การ์ดถูกแก้ใน card-api เอฟเฟกต์อาจไม่ตรงกับข้อความใหม่</div>':'')}${CARD_NOTES[d.id]?`<div class="note"><b>การตีความของระบบ:</b> ${esc(CARD_NOTES[d.id])}</div>`:''}</div>`;
+  return `<div class="insp"><div class="ihd"><div class="big ${cardArt(d.id)}" title="แตะเพื่อขยาย/ย่อรูปการ์ด"></div><div class="itx"><h3>${esc(d.name)}</h3><div class="kv"><span class="chip">${kindTh(d.kind)}</span>${cost?`<span class="chip">${cost}</span>`:''}<span class="chip">${esc(d.tribe)}</span><span class="chip">${d.id}</span></div>${live}</div></div><div class="fxl">${fx}</div>${why}${(d.unscripted?'<div class="note"><b>ยังไม่มีสคริปต์เอฟเฟกต์:</b> การ์ดนี้เล่นได้ แต่เอฟเฟกต์ไม่ทำงาน ใช้แถบ "เครื่องมือ" ทำผลเอง</div>':'')+(d.stale?'<div class="note"><b>ข้อความต่างจากที่สคริปต์เขียนไว้:</b> การ์ดถูกแก้ใน card-api เอฟเฟกต์อาจไม่ตรงกับข้อความใหม่</div>':'')}${CARD_NOTES[d.id]?`<div class="note"><b>การตีความของระบบ:</b> ${esc(CARD_NOTES[d.id])}</div>`:''}</div>`;
 }
 function panelHTML(){
   const G=ui.G;
@@ -169,7 +167,7 @@ function gameHTML(){
   const btns=`<button class="btn sm" data-act="settings">⚙ ตั้งค่า</button><button class="btn sm" data-act="help">กติกา</button>${ui.cfg.mode==="online"?"":`<button class="btn sm" data-act="restart">เริ่มใหม่</button>`}<button class="btn sm" data-act="surrender">ยอมแพ้</button>`;
   return `<div class="top"><button class="btn sm home" data-act="gohome" title="ไปหน้า Home (เกมยังค้างอยู่ กลับมาเล่นต่อได้)">⌂ Home</button><span class="pill">เทิร์น ${G.turn}</span>${phaseBar()}<span class="spacer"></span><button class="btn sm narrowonly" data-act="panel">📋 การ์ด/บันทึก</button><span class="tbtns">${btns}</span><button class="btn sm onlym" data-act="gmenu" aria-label="เมนู">☰ เมนู</button></div>
   ${ui.gmenu?`<div class="gmenu"><button class="btn" data-act="panel">📋 การ์ด · บันทึก · กติกา</button><button class="btn" data-act="settings">⚙ ตั้งค่า</button><button class="btn" data-act="help">📖 กติกาโดยย่อ</button>${ui.cfg.mode==="online"?"":`<button class="btn" data-act="restart">↻ เริ่มใหม่</button>`}<button class="btn" data-act="surrender">🏳 ยอมแพ้</button><button class="btn" data-act="gohome">⌂ ไปหน้า Home</button></div>`:''}
-  <div class="game" data-ph="${pdOf()&&pdOf().kind||''}"><main style="min-width:0"><section class="duel-half opponent">${sideHTML(opp,true,fresh)}</section><div class="board-controls">${chainHTML()}${barHTML()}</div><section class="duel-half player">${sideHTML(v,false,fresh)}</section><div class="hand-dock">${handHTML()}</div></main>${panelHTML()}</div>
+  <div class="game" data-ph="${pdOf()&&pdOf().kind||''}"><main style="min-width:0">${sideHTML(opp,true,fresh)}${chainHTML()}${barHTML()}${sideHTML(v,false,fresh)}${handHTML()}</main>${panelHTML()}</div>
   ${ui.menu?menuHTML():''}${ui.over?overHTML():''}${pendingModalHTML()}${ui.modal?modalHTML():''}${ui.settings?settingsHTML():''}`;
 }
 function overHTML(){
