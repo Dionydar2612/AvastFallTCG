@@ -8,7 +8,8 @@
   var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (m) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]; }); };
   var BACK = '/assets/card-back.jpg';
   var MODES = [['bot', 'VS บอท'], ['hot', '2 คน · เครื่องเดียว'], ['match', 'จับคู่ออนไลน์'], ['online', 'ออนไลน์กับเพื่อน']];
-  var S = { view: 'home', cards: null, byId: null, own: (window.__AF && window.__AF.owned) || {}, raw: {}, qty: {}, me: null, coins: 0, items: {}, mode: 'bot' };
+  var S = { view: 'home', cards: null, byId: null, own: (window.__AF && window.__AF.owned) || {}, raw: {}, collectionLoaded: false, qty: {}, me: null, coins: 0, items: {}, shopItems: null, mode: 'bot' };
+  var cardsRequest = null, ownedRequest = null;
   try { S.mode = localStorage.getItem('af-lobby-mode') || 'bot'; } catch (e) { }
   if (!MODES.some(function (m) { return m[0] === S.mode; })) S.mode = 'bot';
   var isOl = function () { return S.mode === 'online' || S.mode === 'match'; };   // โหมดที่ใช้เด็คเดียว + เกมออนไลน์
@@ -44,6 +45,7 @@
 
   function loadCards() {
     if (S.cards) return Promise.resolve();
+    if (cardsRequest) return cardsRequest;
     var out = [];
     function page(n) {
       return api('GET', '/api/cards?limit=500&page=' + n).then(function (j) {
@@ -51,9 +53,17 @@
         return n < (j.pages || 1) ? page(n + 1) : null;
       });
     }
-    return page(1).then(function () { S.cards = out; S.byId = {}; out.forEach(function (c) { S.byId[c.id.toLowerCase()] = c; }); });
+    cardsRequest = page(1).then(function () { S.cards = out; S.byId = {}; out.forEach(function (c) { S.byId[c.id.toLowerCase()] = c; }); })
+      .finally(function () { cardsRequest = null; });
+    return cardsRequest;
   }
-  function loadOwned() { return api('GET', '/api/me/collection').then(function (j) { S.raw = j.owned || {}; S.own = j.base || j.owned || {}; return j; }); }
+  function loadOwned(force) {
+    if (S.collectionLoaded && !force) return Promise.resolve({ owned: S.raw, base: S.own });
+    if (ownedRequest) return ownedRequest;
+    ownedRequest = api('GET', '/api/me/collection').then(function (j) { S.raw = j.owned || {}; S.own = j.base || j.owned || {}; S.collectionLoaded = true; return j; })
+      .finally(function () { ownedRequest = null; });
+    return ownedRequest;
+  }
 
   /* ---------- หน้าต่างซ้อน (2 ชั้น: ชั้นบนใช้ดูรายละเอียดการ์ดทับหน้าต่างเปิดซอง) ---------- */
   function openDlg(html, onClose, upper) {
@@ -143,7 +153,8 @@
   function renderHome() {
     try { var m0 = localStorage.getItem('af-lobby-mode'); if (MODES.some(function (m) { return m[0] === m0; })) S.mode = m0; } catch (e) { }
     return Promise.all([api('GET', '/api/me'), api('GET', '/api/updates').catch(function () { return { data: [] }; }), loadCards(), api('GET', '/api/shop').catch(function () { return { data: [] }; }), loadOwned().catch(function () { })]).then(function (r) {
-      var me = r[0], notes = (r[1].data || []).slice(0, 3), shop = (r[3].data || []).slice(0, 3); S.me = me; setCoins(me.user.coins); tell({ afDaily: !!me.dailyReady }); S.items = {}; shop.forEach(function (i) { S.items[i.id] = i; });
+      if (S.view !== 'home') return; // Home อาจโหลดเสร็จหลังผู้เล่นสลับแท็บไปแล้ว
+      var me = r[0], notes = (r[1].data || []).slice(0, 3), shopData = r[3].data || [], shop = shopData.slice(0, 3); S.me = me; S.shopItems = shopData; setCoins(me.user.coins); tell({ afDaily: !!me.dailyReady }); S.items = {}; shopData.forEach(function (i) { S.items[i.id] = i; });
       var st = me.stats, pct = st.totalCards ? Math.round(st.ownedUnique / st.totalCards * 100) : 0;
       var decks = readDecks().sort(function (a, b) { return (b.updated || 0) - (a.updated || 0); });
       var infos = decks.map(deckInfo), okDeck = decks.filter(function (d, i) { return infos[i].ok; })[0] || null;
@@ -438,15 +449,22 @@
       b.disabled = !can; b.textContent = can ? 'ซื้อ' : 'เหรียญไม่พอ'; el.querySelector('[data-total]').parentNode.classList.toggle('short', !can);
     });
   }
+  function drawShop(items) {
+    var packs = items.filter(function (i) { return i.kind === 'pack'; }), starters = items.filter(function (i) { return i.kind === 'starter'; });
+    $('view').innerHTML = '<div class="page"><div class="pagehead"><div><h1>ร้านค้า</h1><p class="mut">ใช้เหรียญซื้อซองการ์ดและ Starter Deck · รับเหรียญฟรีทุกวันที่แท็บ Rewards</p></div><span class="grow"></span><div class="bal"><i class="cn"></i><span>เหรียญของคุณ</span><b data-bal>' + fmt(S.coins) + '</b></div><button type="button" class="btn" data-go="cards">🃏 ดูการ์ดของฉัน</button></div>' +
+      (starters.length ? '<h2>Starter Deck <small>ได้การ์ดครบชุด ใบละ 3 ใบ พร้อมจัดเด็คได้ทันที — เหมาะสำหรับมือใหม่</small></h2><div class="shop">' + starters.map(itemHtml).join('') + '</div>' : '') +
+      (packs.length ? '<h2>ซองการ์ด <small>สุ่มได้ใบหายากเพิ่ม</small></h2><div class="shop">' + packs.map(itemHtml).join('') + '</div>' : '') +
+      (!items.length ? '<div class="box empty">ยังไม่มีสินค้าวางขาย</div>' : '') + '</div>';
+    refreshBuyState(); startCycle();
+  }
   function renderShop() {
-    return Promise.all([api('GET', '/api/shop'), loadCards(), loadOwned().catch(function () { })]).then(function (r) {
-      var items = r[0].data; S.items = {}; items.forEach(function (i) { S.items[i.id] = i; }); setCoins(r[0].coins);
-      var packs = items.filter(function (i) { return i.kind === 'pack'; }), starters = items.filter(function (i) { return i.kind === 'starter'; });
-      $('view').innerHTML = '<div class="page"><div class="pagehead"><div><h1>ร้านค้า</h1><p class="mut">ใช้เหรียญซื้อซองการ์ดและ Starter Deck · รับเหรียญฟรีทุกวันที่แท็บ Rewards</p></div><span class="grow"></span><div class="bal"><i class="cn"></i><span>เหรียญของคุณ</span><b data-bal>' + fmt(S.coins) + '</b></div><button type="button" class="btn" data-go="cards">🃏 ดูการ์ดของฉัน</button></div>' +
-        (starters.length ? '<h2>Starter Deck <small>ได้การ์ดครบชุด ใบละ 3 ใบ พร้อมจัดเด็คได้ทันที — เหมาะสำหรับมือใหม่</small></h2><div class="shop">' + starters.map(itemHtml).join('') + '</div>' : '') +
-        (packs.length ? '<h2>ซองการ์ด <small>สุ่มได้ใบหายากเพิ่ม</small></h2><div class="shop">' + packs.map(itemHtml).join('') + '</div>' : '') +
-        (!items.length ? '<div class="box empty">ยังไม่มีสินค้าวางขาย</div>' : '') + '</div>';
-      refreshBuyState(); startCycle();
+    if (S.shopItems) drawShop(S.shopItems);
+    return api('GET', '/api/shop').then(function (j) {
+      var items = j.data || []; S.shopItems = items; S.items = {}; items.forEach(function (i) { S.items[i.id] = i; }); setCoins(j.coins);
+      if (S.view === 'shop') drawShop(items);  // แสดงสินค้าได้ทันทีโดยไม่รอโหลดการ์ดทั้งชุด
+      Promise.all([loadCards(), loadOwned().catch(function () { })]).then(function () {
+        if (S.view === 'shop') drawShop(items); // เติมภาพและจำนวนสะสมเมื่อข้อมูลเสริมพร้อม
+      }).catch(function () { });
     });
   }
   function buy(id, btn) {
@@ -454,7 +472,7 @@
     btn.disabled = true;
     api('POST', '/api/shop/buy', { itemId: id, qty: q }).then(function (res) {
       setCoins(res.coins); tell({ afOwned: 1 });
-      return loadOwned().catch(function () { }).then(function () { reveal(res); });
+      return loadOwned(true).catch(function () { }).then(function () { reveal(res); });
     }).catch(function (e) { toast(e.message, true); }).then(function () { refreshBuyState(); });
   }
 
@@ -544,8 +562,14 @@
   function untilReset() { return DAY_MS - ((Date.now() + 7 * 3600000) % DAY_MS); }   // เวลาไทย = UTC+7 ไม่มี DST
   function clock(ms) { var s = Math.max(0, Math.ceil(ms / 1000)), p = function (x) { return (x < 10 ? '0' : '') + x; }; return p(Math.floor(s / 3600)) + ':' + p(Math.floor(s % 3600 / 60)) + ':' + p(s % 60); }
   function renderRewards() {
+    if (S.me) drawRewards(S.me);
     return api('GET', '/api/me').then(function (me) {
-      S.me = me; setCoins(me.user.coins); tell({ afDaily: !!me.dailyReady });
+      S.me = me;
+      if (S.view === 'rewards') drawRewards(me);
+    });
+  }
+  function drawRewards(me) {
+      setCoins(me.user.coins); tell({ afDaily: !!me.dailyReady });
       var ready = !!me.dailyReady, amt = me.dailyAmount, t0 = Date.now();
       var tiers = '';
       for (var i = 0; i < RW_DAYS; i++) {
@@ -573,7 +597,6 @@
         if (ms <= 1000 && S.view === 'rewards') { clearInterval(rwTimer); setTimeout(function () { if (S.view === 'rewards') show('rewards'); }, 1500); }   // ข้ามเที่ยงคืน → โหลดสถานะใหม่
       };
       clearInterval(rwTimer); rwTimer = setInterval(tick, 1000);
-    });
   }
 
   /* ---------- สลับหน้า ---------- */
@@ -584,9 +607,11 @@
     document.title = { home: 'Home', shop: 'ร้านค้า', rewards: 'Rewards' }[v] + ' · AvastFall TCG';
     try { history.replaceState(null, '', '#' + v); } catch (e) { }
     tell({ afHubView: v });
+    if (v === 'shop' && !S.shopItems) $('view').innerHTML = '<div class="page"><h1>ร้านค้า</h1><div class="box empty">กำลังโหลดสินค้า…</div></div>';
+    if (v === 'rewards' && !S.me) $('view').innerHTML = '<div class="page"><h1>รางวัลประจำวัน</h1><div class="box empty">กำลังโหลดรางวัล…</div></div>';
+    var vw = $('view'); vw.classList.remove('in'); requestAnimationFrame(function () { if (my === seq) vw.classList.add('in'); }); window.scrollTo(0, 0);
     return RENDER[v]().then(function () {
       if (my !== seq) return;
-      var vw = $('view'); vw.classList.remove('in'); void vw.offsetWidth; vw.classList.add('in'); window.scrollTo(0, 0);
     }).catch(function (e) { if (my === seq) $('view').innerHTML = '<div class="page"><div class="box empty">โหลดข้อมูลไม่สำเร็จ: ' + esc(e.message) + '<br><br><button type="button" class="btn" data-view="' + v + '">ลองใหม่</button></div></div>'; });
   }
 

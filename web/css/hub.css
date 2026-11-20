@@ -21,8 +21,8 @@ button{font:inherit;color:var(--ink)}
 .btn.pri[disabled]:hover{background:var(--gold);color:#111}
 .btn.sm{padding:2px 12px;font-size:.85rem}
 .cn{display:inline-block;width:18px;height:18px;border-radius:50%;vertical-align:-3px;background:radial-gradient(circle at 35% 30%,#fff3b0 0 18%,#ffc20e 19% 62%,#c78f00 63%);box-shadow:0 0 0 2px #7a5600 inset}
-#view.in{animation:viewIn .28s cubic-bezier(.2,.7,.2,1) both}
-@keyframes viewIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+#view.in{animation:viewIn .16s ease-out both}
+@keyframes viewIn{from{opacity:.84}to{opacity:1}}
 
 /* ---------- โหมดเล่น (แถบรองใต้เมนูหลัก) ---------- */
 .subbar{display:flex;align-items:stretch;gap:2px;height:46px;background:var(--sub);color:#fff;padding-right:12px;overflow-x:auto;scrollbar-width:none}
