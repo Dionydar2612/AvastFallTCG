@@ -33,7 +33,7 @@ function cardMap(){
   const m={};const G=ui.G;
   for(const P of G.players){
     m[P.avatar.card.uid]=P.avatar.card;
-    for(const z of [P.deck,P.hand,P.discard,P.domains,P.limbo])for(const c of z)m[c.uid]=c;
+    for(const z of [P.deck,P.hand,P.discard,P.banished||[],P.domains,P.limbo])for(const c of z)m[c.uid]=c;
     for(const u of P.field)if(u){m[u.uid]=u;for(const e of u.equips)m[e.uid]=e}
     for(const c of P.magic)if(c)m[c.uid]=c;
   }
@@ -106,7 +106,7 @@ function elTrackHTML(opp,me){
       return e?`<span class="et ${e.state==='rest'?'rest':'on'}" title="${esc(e.el)} · ${e.state==='rest'?'Rest (ใช้แล้ว)':'Stand (พร้อมใช้)'}">${elIcon(e.el,'100%')}</span>`:`<span class="et off">${i+1}</span>`}).join('');
     const dk=[...new Set([...P.edeck,...P.elems].map(x=>x.el))].map(k=>elIcon(k,12)).join('');
     return `<div class="eth ${cls} ${G.active===p&&G.phase!=='over'?'act':''}" title="Element ${AF.standElems(P).length}/${P.elems.length} พร้อมใช้"><span class="etn"><b>${esc(P.name)}</b> · Element ${AF.standElems(P).length}/${P.elems.length}<small>Deck ${P.edeck.length} ${dk}</small></span><span class="ets">${cells}</span></div>`};
-  return `<div class="etrk">${half(opp,'l')}<span class="eto" title="เทิร์น ${G.turn}"><small>เทิร์น</small>${G.turn}</span>${half(me,'r')}</div>`;
+  return `<div class="etrk">${half(opp,'l')}<button type="button" class="eto bnz" data-zone="banish" data-p="${me}" title="Banish Zone — กดเพื่อดูการ์ดที่ถูก Banish ของทั้งสองฝั่ง (${esc(G.players[opp].name)} ${G.players[opp].banished.length} · ${esc(G.players[me].name)} ${G.players[me].banished.length})"><small>Banish</small><b>${G.players[opp].banished.length}<i>|</i>${G.players[me].banished.length}</b></button>${half(me,'r')}</div>`;
 }
 function phaseBar(){
   const G=ui.G;const order=[['start','เริ่ม'],['draw','จั่ว'],['main','Main'],['attack','Attack'],['ultimate','Ultimate'],['end','จบ']];

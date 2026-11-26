@@ -190,3 +190,19 @@ html.ingame .game .panel .tabs button:hover:not(.on){background:rgba(120,220,255
 .et svg{position:absolute;left:50%;top:50%;width:62%;height:62%;transform:translate(-50%,-50%)}
 .et.rest svg{opacity:.8}
 .eto{overflow:hidden}
+
+/* ===================================================================================
+   Banish Zone (ปุ่มกลางแถบ Element) + มือแบบภาพตัวอย่าง (การ์ดใหญ่ เรียงแถวชิดขอบล่าง โผล่เกือบเต็มใบ)
+   =================================================================================== */
+.eto.bnz{cursor:pointer;font-family:inherit;padding:0;gap:0;grid-auto-flow:row;transition:transform .15s,box-shadow .15s}
+.eto.bnz:hover{transform:scale(1.12);box-shadow:0 0 22px rgba(95,240,224,.95),inset 0 0 10px rgba(95,240,224,.5)}
+.eto.bnz small{display:block;font-size:8px;line-height:1;margin:0}
+.eto.bnz b{display:block;font:800 clamp(11px,calc(var(--cwb)*.34),16px)/1 var(--f-disp,sans-serif);color:#9ffbf0;white-space:nowrap}
+.eto.bnz b i{font-style:normal;opacity:.55;margin:0 2px;font-weight:400}
+.eto.bnz{width:clamp(40px,calc(var(--cwb)*1.1),60px);height:clamp(40px,calc(var(--cwb)*1.1),60px)}
+@media (min-width:1051px){
+  html.ingame .handrow{padding:8px 0 0;min-height:0;overflow:visible;margin-bottom:calc(var(--cwb)*1.5*1.418*-.2)}
+  html.ingame .handrow .card.handc{--cw:calc(var(--cwb)*1.5);margin-left:calc(var(--cwb)*-.1);border-radius:6px;transition:transform .18s}
+  html.ingame .handrow .card.handc:first-child{margin-left:0}
+  html.ingame .handrow .card.handc:hover{transform:translateY(calc(var(--cwb)*-.5)) scale(1.05);z-index:6}
+}

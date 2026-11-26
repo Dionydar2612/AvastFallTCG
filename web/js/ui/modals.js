@@ -66,6 +66,10 @@ function modalHTML(){
   const G=ui.G;
   const close=`<div class="acts"><button class="btn" data-act="closemodal">ปิด</button></div>`;
   if(m.t==='help')return `<div class="ov"><div class="dlg">${`<h2>กติกาโดยย่อ</h2>`}${rulesHTML(false)}${close}</div></div>`;
+  if(m.t==='banish'){   // Banish Zone: แสดงการ์ดที่ถูก Banish ของทั้งสองฝั่งพร้อมกัน
+    const sec=p=>{const P=G.players[p];return `<h3>${esc(P.name)} · ${P.banished.length} ใบ</h3><div class="cgrid">${P.banished.map(c=>`<div class="pc" style="cursor:default"><div class="card ${cardArt(c.def.id)}" data-pop="${c.uid}"></div><small>${esc(c.def.name)}</small></div>`).join('')||'<span class="muted">ยังไม่มีการ์ดถูก Banish</span>'}</div>`};
+    return `<div class="ov"><div class="dlg"><h2>Banish Zone</h2>${sec(1-ui.viewer)}${sec(ui.viewer)}${close}</div></div>`;
+  }
   if(m.t==='discard'){
     const P=G.players[m.p];const pd=pdOf();
     const acts=pd&&pd.kind==='act'&&pd.p===m.p?pd.spec.actions.filter(a=>a.zone==='discard'):[];

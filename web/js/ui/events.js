@@ -80,6 +80,7 @@ root.addEventListener('click',e=>{
     const p=+z.dataset.p;
     if(z.dataset.zone==='avatar'){const pd=pdOf();if(pd&&pd.kind==='attack'&&ui.sel!=null)return answer({attacker:ui.sel,target:'avatar'});if(pd&&pd.kind==='pick'&&pd.spec.kind==='attackTarget')return answer(['avatar'])}
     if(z.dataset.zone==='discard'){ui.modal={t:'discard',p};ui.menu=null;return render()}
+    if(z.dataset.zone==='banish'){ui.modal={t:'banish'};ui.menu=null;return render()}
     if(z.dataset.zone==='deck'){ui.modal={t:'pile',p};return render()}
   }
   if(ui.menu||ui.gmenu){ui.menu=null;ui.gmenu=false;render()}

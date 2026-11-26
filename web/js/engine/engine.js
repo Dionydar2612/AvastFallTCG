@@ -127,7 +127,7 @@ AF.createGame = function (cfg) {
     const P = {
       idx: i, name: G.names[i], deckSeries: d.series, deckName: d.name || null,
       avatar: { card: null, hp: 10, faceUp: false },
-      deck: [], hand: [], discard: [], field: [null, null, null, null], magic: [null, null, null], domains: [],
+      deck: [], hand: [], discard: [], banished: [], field: [null, null, null, null], magic: [null, null, null], domains: [],
       edeck: [], elems: [], limbo: [], used: {}, spellDiscountUntil: -1, counterDiscount: null,
       counterCount: 0, mulliganed: false
     };
@@ -161,6 +161,7 @@ function detach(G, c) {
     case 'deck': P.deck.splice(P.deck.indexOf(c), 1); break;
     case 'hand': P.hand.splice(P.hand.indexOf(c), 1); break;
     case 'discard': P.discard.splice(P.discard.indexOf(c), 1); break;
+    case 'banish': P.banished.splice(P.banished.indexOf(c), 1); break;
     case 'domain': P.domains.splice(P.domains.indexOf(c), 1); break;
     case 'limbo': P.limbo.splice(P.limbo.indexOf(c), 1); break;
     case 'field': { const i = P.field.indexOf(c); if (i >= 0) P.field[i] = null; break; }
@@ -185,6 +186,7 @@ function place(G, c, zone, opts = {}) {
     case 'deckBottom': P.deck.push(c); c.zone = 'deck'; break;
     case 'hand': P.hand.push(c); c.zone = 'hand'; break;
     case 'discard': P.discard.push(c); c.zone = 'discard'; break;
+    case 'banish': P.banished.push(c); c.zone = 'banish'; break;   // Banish Zone: การ์ดที่ถูก Banish (ดูได้ทั้งสองฝั่ง)
     case 'limbo': P.limbo.push(c); c.zone = 'limbo'; break;
     case 'domain': P.domains.push(c); c.zone = 'domain'; recalcCap(G); break;
     case 'magic': { const i = P.magic.indexOf(null); P.magic[i] = c; c.zone = 'magic'; break; }
@@ -199,6 +201,7 @@ function place(G, c, zone, opts = {}) {
   return c;
 }
 AF.place = place;
+AF.banish = (G, c) => place(G, c, 'banish');   // ให้เอฟเฟกต์เรียก: AF.banish(G, card) → ย้ายการ์ดไป Banish Zone ของเจ้าของ
 /* hook ซิงก์: การ์ดที่อยู่บนสนาม/สวมใส่ที่มี fx.deckReturn(G, self, card, fromZone) จะถูกเรียกเมื่อมีการ์ดใดถูกส่งกลับ Main Deck (SD06-004, SD06-017) */
 AF.onDeckReturn = (G, c, z0) => {
   for (const P of G.players) for (const u of P.field) {
