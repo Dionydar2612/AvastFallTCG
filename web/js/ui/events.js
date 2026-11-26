@@ -116,6 +116,7 @@ function handle(act,d,el,e){
     case 'panel':ui.showPanel=!ui.showPanel;return render();
     case 'gohome':ui.showPanel=false;render();return AFSite.go('home');
     case 'settings':ui.settings=true;return render();
+    case 'mat':ui.gmenu=false;render();return AFMat.toggle();   // 🖼 เปลี่ยนสนาม (js/ui/playmat.js)
     case 'pref':{if(d.k==='speed'){ui.cfg.speed=+d.v;saveCfg()}else{prefs[d.k]=d.v==='1';applyPrefs();if(d.k==='hover')hidePop()}return render()}
     case 'closesettings':ui.settings=false;return render();
     case 'setscale':applyScale(+d.v);return render();

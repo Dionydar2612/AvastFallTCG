@@ -1,0 +1,185 @@
+/* สนามเล่น (Playmat) — หน้าเกมเป็นพื้นสนามเต็มจอ + แผงกระจกสีฟ้า + แท่นไม้วางกอง + โล่ HP
+   ครอบเฉพาะตอนอยู่ในเกม (html.ingame) · หน้าอื่นของเว็บไม่เปลี่ยน · โหลดหลังสุด
+   รูปพื้นหลังเปลี่ยนได้จากปุ่ม "🖼 สนาม" (js/ui/playmat.js) */
+
+/* ---------- พื้นหลังสนาม (อยู่นอก #app จึงไม่ถูกวาดซ้ำทุกครั้งที่เกม render) ---------- */
+#matbg{display:none;position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none;background:#0b2414}
+#matbg .mb-img{position:absolute;inset:-24px;background-position:center;background-size:cover;background-repeat:no-repeat;filter:blur(var(--mb-blur,0px));transition:opacity .35s}
+#matbg .mb-dim{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 48%,rgba(0,0,0,0) 38%,rgba(0,14,26,.38) 100%),rgba(0,10,20,var(--mb-dim,.12))}
+html.ingame:has(#siteView[data-tab="play"]){background:#0b2414}
+html.ingame:has(#siteView[data-tab="play"]) body{background:transparent}
+html.ingame:has(#siteView[data-tab="play"]) #matbg{display:block}
+
+/* ---------- ชุดสีกระจก: ตัวแปรเดิมของเกมถูกแทนที่เฉพาะในกระดาน ทุกชิ้นส่วนจึงเปลี่ยนตามอัตโนมัติ ---------- */
+html.ingame .game,
+html.ingame .top:not(.side){
+  --ink:#f2faff;--ink2:#b4d3e4;--line:rgba(132,218,255,.72);--panel:rgba(8,32,60,.58);--paper:rgba(5,20,38,.8);
+  --soft:rgba(255,255,255,.16);--mat:transparent;--teal:#5fd0ff;--tealtint:rgba(70,190,255,.16);
+  --coral:#ff6673;--bad:#ff8f98;--good:#6ee79a;--warn:#ffd36a;--gold:#ffd23f;--sh:none;
+  color:var(--ink);
+}
+
+/* ---------- แถบบน ---------- */
+html.ingame .top:not(.side){
+  background:linear-gradient(rgba(5,24,46,.8),rgba(5,22,42,.58));backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+  border:1.5px solid rgba(132,218,255,.5);border-radius:12px;padding:4px 8px;box-shadow:0 4px 14px rgba(0,0,0,.35),inset 0 0 12px rgba(80,200,255,.12);
+}
+html.ingame .game .btn,html.ingame .top .btn{box-shadow:none;color:#f2faff}
+html.ingame .game .btn:hover,html.ingame .top .btn:hover{color:#111}
+html.ingame .game .btn.pri,html.ingame .top .btn.pri,
+html.ingame .game .btn.pri:hover,html.ingame .top .btn.pri:hover{
+  background:linear-gradient(#ffd84a,#f4a900);color:#111;border-color:#000;box-shadow:0 0 0 2px #000,0 3px 10px rgba(0,0,0,.4);font-weight:800;
+}
+html.ingame .game .btn.pri:hover,html.ingame .top .btn.pri:hover{filter:brightness(1.08)}
+
+/* ---------- ฝั่งผู้เล่น: โปร่งใสให้เห็นพื้นสนาม ---------- */
+html.ingame .side{background:transparent;border:0;box-shadow:none}
+html.ingame .side.act{box-shadow:none}
+html.ingame .side.act::before{content:"";position:absolute;inset:0;border-radius:18px;pointer-events:none;
+  border:1px solid rgba(255,214,70,.35);box-shadow:inset 0 0 36px rgba(255,214,70,.16)}
+html.ingame .side .head{color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.85)}
+html.ingame .zlab{color:#c8f2ff;font-weight:700;text-shadow:0 1px 2px #000,0 0 8px rgba(0,160,255,.7)}
+
+/* ช่อง Magic / Domain / Action Zone = กรอบกระจกฟ้าเรืองแสง */
+html.ingame .zone{background:linear-gradient(rgba(60,160,230,.26),rgba(20,90,170,.34));border:2px solid rgba(132,218,255,.7);
+  box-shadow:0 0 12px rgba(40,170,255,.3),inset 0 0 14px rgba(120,220,255,.22);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
+html.ingame .azone{background:linear-gradient(rgba(60,160,230,.2),rgba(20,90,170,.3));border:2px solid rgba(132,218,255,.6);
+  box-shadow:0 0 16px rgba(40,170,255,.3),inset 0 0 22px rgba(120,220,255,.2);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
+html.ingame .slot{border:1.5px dashed rgba(200,244,255,.6);background:rgba(255,255,255,.07)}
+html.ingame .mslot{border:1.5px dashed rgba(200,244,255,.6);background:rgba(255,255,255,.07)}
+html.ingame .slot.empty{opacity:.8}
+
+/* แท่นไม้วางกองไพ่ (Main Deck / กองทิ้ง) */
+html.ingame .pile{padding:4px 8px 7px;border-radius:9px;border:2px solid #4e3015;
+  background:linear-gradient(180deg,rgba(255,236,190,.3),rgba(0,0,0,.16)),
+    repeating-linear-gradient(90deg,#b8814a 0 21px,#9f6b39 21px 23px,#c18b53 23px 44px,#935f31 44px 46px);
+  box-shadow:0 5px 10px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.38)}
+html.ingame .pile .zlab{color:#fff4d8;text-shadow:0 1px 2px #3a2208}
+html.ingame .pile .mslot{background:rgba(0,0,0,.18);border-color:rgba(255,236,190,.55)}
+
+/* HP = กองโล่ (Security) สีฟ้า */
+html.ingame .hp{gap:2px;filter:drop-shadow(0 0 4px rgba(60,190,255,.7));padding:0;background:none;border:0}
+html.ingame .hp i{width:calc(var(--cwb)*.16);min-width:4px;height:calc(var(--cwb)*.22);min-height:9px;border:0;border-radius:0;
+  clip-path:polygon(0 0,100% 0,100% 62%,50% 100%,0 62%);background:linear-gradient(#a6ecff,#1f7fe0)}
+html.ingame .hp i.off{background:rgba(255,255,255,.2);opacity:.75}
+html.ingame .hpn{color:#fff;text-shadow:0 1px 3px #000,0 0 8px rgba(60,190,255,.8)}
+
+/* Avatar: กรอบหกเหลี่ยมเรืองแสง */
+html.ingame .hexw:not(.hl):not(.tg):not(.dnd-over){background:linear-gradient(160deg,#d4f6ff,#2e9bff)}
+html.ingame .av{filter:drop-shadow(0 0 9px rgba(80,200,255,.6))}
+
+/* ---------- การ์ด ---------- */
+html.ingame .game .card{border:1.5px solid rgba(0,0,0,.75)}
+html.ingame .game .card:not(.hl):not(.tg):not(.sel):not(.dnd-ok):not(.dnd-over){box-shadow:0 4px 9px rgba(0,0,0,.5)}
+html.ingame .game .card.back{border-color:#00131c;background-color:#0a2230}
+html.ingame .eqc{border-color:rgba(0,0,0,.75)}
+html.ingame .el{background:rgba(8,32,60,.7)}
+
+/* ---------- แถบคำสั่งกลางสนาม ---------- */
+html.ingame .game .bar{background:linear-gradient(rgba(6,30,56,.8),rgba(6,22,42,.62));backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+  border:2px solid rgba(132,218,255,.62);box-shadow:0 0 16px rgba(60,180,255,.28),inset 0 0 14px rgba(80,200,255,.14);color:#fff}
+html.ingame .game .bar.you{border-color:var(--gold);box-shadow:0 0 0 2px rgba(255,210,63,.5),0 0 22px rgba(255,210,63,.35),inset 0 0 14px rgba(255,210,63,.1)}
+html.ingame .game .chain{background:rgba(6,22,42,.75);border-color:var(--coral);color:#fff}
+
+/* ---------- แผงข้าง (การ์ด/บันทึก/กติกา) ---------- */
+html.ingame .game .panel{background:linear-gradient(rgba(6,28,52,.84),rgba(6,20,38,.8));backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  border:2px solid rgba(132,218,255,.55)!important;box-shadow:0 6px 22px rgba(0,0,0,.4)!important}
+html.ingame .game .panel .tabs{border-bottom:2px solid rgba(132,218,255,.45)}
+html.ingame .game .panel .tabs button{color:#d8efff;background:transparent}
+html.ingame .game .panel .tabs button.on{background:var(--gold);color:#111}
+html.ingame .game .panel .tabs button:hover:not(.on){background:rgba(120,220,255,.18);color:#fff}
+
+/* ---------- เดสก์ท็อป: มือเรียงไม่ทับกันมาก ให้ใกล้ภาพตัวอย่าง ---------- */
+@media (min-width:1051px){
+  html.ingame .handrow .card{margin-left:calc(var(--cwb)*-.24)}
+  html.ingame .handrow .card:first-child{margin-left:0}
+}
+
+/* ===================================================================================
+   หน้าต่างเปลี่ยนสนาม (#matdlg) — ลอยข้างกระดาน ไม่มีฉากหลังบัง จึงเห็นผลสดขณะเลือก
+   =================================================================================== */
+#matdlg{position:fixed;z-index:120;right:12px;top:58px;width:min(380px,calc(100vw - 24px));max-height:calc(100dvh - 72px);overflow:auto;
+  background:linear-gradient(rgba(7,28,52,.93),rgba(5,20,38,.95));color:#eef8ff;border:2px solid rgba(132,218,255,.7);border-radius:16px;
+  box-shadow:0 12px 40px rgba(0,0,0,.55),0 0 24px rgba(60,180,255,.25);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  font:14px/1.45 var(--f-body,'Noto Sans Thai',sans-serif);animation:matdIn .22s cubic-bezier(.2,.75,.25,1) both}
+#matdlg[hidden]{display:none}
+@keyframes matdIn{from{opacity:0;transform:translateY(-8px) scale(.98)}to{opacity:1;transform:none}}
+#matdlg .md-h{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:12px 14px 6px}
+#matdlg h2{margin:0;font:700 17px/1.2 var(--f-disp,sans-serif);color:#fff}
+#matdlg .md-x{border:1.5px solid rgba(132,218,255,.6);background:rgba(255,255,255,.08);color:#fff;border-radius:99px;width:30px;height:30px;cursor:pointer;font-size:14px}
+#matdlg .md-x:hover{background:var(--gold,#ffd23f);color:#111}
+#matdlg .md-b{padding:4px 14px 14px;display:grid;gap:12px}
+#matdlg .md-sec{font:700 12px/1 var(--f-disp,sans-serif);letter-spacing:.04em;color:#9fd3ee;margin:2px 0 -4px}
+#matdlg .md-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+#matdlg .md-p{position:relative;display:grid;gap:0;padding:0;border:2px solid rgba(132,218,255,.4);border-radius:10px;overflow:hidden;background:#06121f;color:#fff;cursor:pointer;text-align:left}
+#matdlg .md-p:hover{border-color:#fff}
+#matdlg .md-p.on{border-color:var(--gold,#ffd23f);box-shadow:0 0 0 2px rgba(255,210,63,.55),0 0 14px rgba(255,210,63,.4)}
+#matdlg .md-p .th{aspect-ratio:16/9;background-size:cover;background-position:center;background-color:#0a2230}
+#matdlg .md-p b{display:block;padding:4px 8px;font-size:12.5px;font-weight:700;background:rgba(0,0,0,.45)}
+#matdlg .md-p .md-del{position:absolute;right:4px;top:4px;border:0;border-radius:99px;background:rgba(0,0,0,.65);color:#fff;width:24px;height:24px;cursor:pointer;font-size:12px}
+#matdlg .md-p .md-del:hover{background:#c0121f}
+#matdlg .md-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+#matdlg .md-btn{border:2px solid rgba(132,218,255,.7);background:rgba(255,255,255,.1);color:#fff;border-radius:99px;padding:6px 14px;font-weight:700;font-size:13px;line-height:1.2;font-family:inherit;cursor:pointer}
+#matdlg .md-btn:hover{background:var(--gold,#ffd23f);color:#111;border-color:#000}
+#matdlg .md-btn.pri{background:linear-gradient(#ffd84a,#f4a900);color:#111;border-color:#000}
+#matdlg .md-btn.big{flex:1 1 100%;padding:10px 14px;font-size:14px;border-style:dashed}
+#matdlg .md-url{flex:1;min-width:0;border:2px solid rgba(132,218,255,.5);border-radius:99px;padding:6px 12px;background:rgba(0,0,0,.35);color:#fff;font-size:13px;line-height:1.2;font-family:inherit}
+#matdlg .md-url::placeholder{color:#8fb4c8}
+#matdlg label.md-sl{display:grid;gap:4px;font-weight:600;font-size:13px}
+#matdlg label.md-sl span{display:flex;justify-content:space-between}
+#matdlg input[type=range]{width:100%;accent-color:#ffd23f}
+#matdlg .md-hint,#matdlg .md-note{margin:0;font-size:12px;color:#9fc3d8}
+#matdlg .md-msg{margin:0;padding:6px 10px;border-radius:8px;font-size:12.5px;background:rgba(255,211,106,.16);border:1px solid rgba(255,211,106,.5);color:#ffe29a}
+#matdlg .md-msg[hidden]{display:none}
+#matdlg .md-msg.ok{background:rgba(110,231,154,.14);border-color:rgba(110,231,154,.5);color:#b6f5cc}
+#matdlg.drag{outline:3px dashed var(--gold,#ffd23f);outline-offset:-6px}
+@media (max-width:700px){#matdlg{left:8px;right:8px;top:auto;bottom:8px;width:auto;max-height:min(72dvh,560px)}}
+
+/* ===================================================================================
+   การจัดวางสนามตามแบบร่าง (หนึ่งฝั่ง)
+     แถวบน : Magic Area | Unit Zone (4 ช่อง กว้างสุด)        | Main Deck
+     แถวล่าง:            | Domain (ใต้ซ้ายของ Unit) | Avatar+HP | กองทิ้ง
+   ฝั่งคู่ต่อสู้ (.side.top) หมุน 180° หันหน้าเข้าหากัน
+   =================================================================================== */
+.bd{display:grid;width:100%;max-width:calc(var(--cwb)*13.2 + 60px);margin:0 auto;gap:8px 10px;align-items:center;justify-items:center;
+  grid-template-columns:auto minmax(0,1fr) minmax(0,1fr) auto;
+  grid-template-areas:"magic unit unit deck" ". dom av disc"}
+.side.top .bd{grid-template-areas:"disc av dom ." "deck unit unit magic"}
+.bd>.g-magic{grid-area:magic}.bd>.g-unit{grid-area:unit}.bd>.g-deck{grid-area:deck}
+.bd>.g-dom{grid-area:dom}.bd>.g-av{grid-area:av}.bd>.g-disc{grid-area:disc}
+.bd>.g-unit{align-self:stretch}
+.bd>.g-deck,.bd>.g-disc{align-self:center}
+/* มือถือแนวตั้ง: Unit Zone เต็มความกว้าง แล้วแถวล่างเรียงเป็น Magic · Domain · Avatar · Deck · กองทิ้ง */
+@media (max-width:700px){
+  .bd{max-width:none;gap:5px;grid-template-columns:repeat(5,auto);justify-content:space-between;
+    grid-template-areas:"unit unit unit unit unit" "magic dom av deck disc"}
+  .side.top .bd{grid-template-areas:"disc deck av dom magic" "unit unit unit unit unit"}
+}
+.bd>*{min-width:max-content}   /* ไม่ให้ช่องหดจนซ้อนกัน — ถ้าจอแคบ ระบบ fitLayout จะย่อการ์ดลงให้พอดีเอง */
+.bd>.g-unit{min-width:0}
+
+/* ===================================================================================
+   แถบ Element กลางสนาม (แบบ gauge ตัวอย่าง): [ช่อง…2 1] (เทิร์น) [1 2…ช่อง]
+   =================================================================================== */
+.etrk{display:flex;align-items:center;gap:8px;margin:6px 0 2px;padding:4px 10px;border-radius:99px;
+  background:linear-gradient(rgba(5,24,46,.55),rgba(5,20,38,.4));border:1.5px solid rgba(132,218,255,.35);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
+.eth{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;--etw:clamp(17px,calc(var(--cwb)*.56),34px)}
+.eth.l{align-items:flex-end;text-align:right}.eth.r{align-items:flex-start}
+.etn{font:600 11px/1.1 var(--f-disp,sans-serif);color:#cdeaf8;text-shadow:0 1px 2px #000;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.etn b{color:#fff}.etn small{margin-left:8px;font-size:10.5px;color:#9fc3d8}.etn small svg{vertical-align:-2px;margin-left:2px}
+.eth.act .etn b{color:#ffd23f}
+.ets{display:flex;gap:calc(var(--etw)*.14);max-width:100%}
+.eth.l .ets{flex-direction:row-reverse}
+.et{flex:none;width:var(--etw);height:var(--etw);border-radius:50%;display:grid;place-items:center;box-sizing:border-box;font:700 calc(var(--etw)*.42)/1 var(--f-disp,sans-serif);transition:transform .2s,opacity .2s}
+.et.off{background:radial-gradient(circle at 35% 30%,#1c3550,#08121f);border:2px solid rgba(132,218,255,.28);color:rgba(190,225,245,.55)}
+.et.on{background:radial-gradient(circle at 35% 30%,#fff7d6,#ffd23f 55%,#e8a317);border:2px solid #fff3b0;padding:18%;box-shadow:0 0 10px rgba(255,210,63,.75),0 2px 4px rgba(0,0,0,.5)}
+.et.on svg{filter:drop-shadow(0 1px 1px rgba(0,0,0,.4))}
+.et.rest{background:radial-gradient(circle at 35% 30%,#4a5868,#1b2530);border-color:rgba(255,255,255,.3);box-shadow:none;opacity:.6;transform:rotate(90deg) scale(.88)}
+.eto{flex:none;display:grid;place-items:center;align-content:center;width:clamp(34px,calc(var(--cwb)*.95),52px);height:clamp(34px,calc(var(--cwb)*.95),52px);border-radius:50%;
+  background:radial-gradient(circle,#0d4a56,#072a35);border:3px solid #5ff0e0;box-shadow:0 0 14px rgba(95,240,224,.7),inset 0 0 10px rgba(95,240,224,.4);
+  color:#9ffbf0;font:800 clamp(15px,calc(var(--cwb)*.5),24px)/1 var(--f-disp,sans-serif);text-shadow:0 0 8px #5ff0e0}
+.eto small{font-size:8px;font-weight:700;letter-spacing:.04em;color:#bff;margin-bottom:-1px}
+@media (max-width:700px){.etrk{gap:4px;padding:3px 6px}.etn small{display:none}.etn{font-size:10px}.eth{--etw:clamp(13px,calc(var(--cwb)*.6),20px)}}
+.et{overflow:hidden;grid-template-columns:100%;grid-template-rows:100%}
+.et svg{width:100%;height:100%;display:block}
+.etrk{padding:5px 12px 6px}

@@ -81,21 +81,32 @@ function sideHTML(p,isTop,fresh){
   const avHL=hlFor(P.avatar.card.uid);const avT=avatarTargetable(p);
   const hit=fresh.find(l=>l.extra&&l.extra.dmg&&l.p===p);
   const hpbar=`<div class="hp" title="HP ${P.avatar.hp}">${Array.from({length:10},(_,i)=>`<i class="${i<P.avatar.hp?'':'off'}"></i>`).join('')}</div>`;
-  const av=`<div class="av"><div class="hexw ${avT?'tg':avHL==='hl'?'hl':''}" data-uid="${P.avatar.card.uid}" ${avT?`data-zone="avatar" data-p="${p}"`:''}><div class="hex ${cardArt(P.avatar.card.def.id)} ${hit?'hit':''}"></div>${hit?`<span class="float">-${hit.extra.dmg}</span>`:''}</div><div class="hpn">HP ${P.avatar.hp}</div>${hpbar}</div>`;
+  const av=`<div class="av g-av"><div class="hexw ${avT?'tg':avHL==='hl'?'hl':''}" data-uid="${P.avatar.card.uid}" ${avT?`data-zone="avatar" data-p="${p}"`:''}><div class="hex ${cardArt(P.avatar.card.def.id)} ${hit?'hit':''}"></div>${hit?`<span class="float">-${hit.extra.dmg}</span>`:''}</div><div class="hpn">HP ${P.avatar.hp}</div>${hpbar}</div>`;
   const slots=P.field.map(u=>`<div class="slot ${u?'':'empty'}">${u?unitEl(u,(hlFor(u.uid))+(prefs.playFx&&!prefs.motion&&fresh.some(l=>l.extra&&(l.extra.enter===u.uid))?' summon':'')+(fresh.some(l=>l.extra&&l.extra.attack===u.uid)?' atk':'')):''}</div>`).join('');
-  const action=`<div class="azone"><span class="zlab">Action Zone · Unit 4 ช่อง</span><div class="in">${slots}</div></div>`;
+  const action=`<div class="azone g-unit"><span class="zlab">Action Zone · Unit 4 ช่อง</span><div class="in">${slots}</div></div>`;
   const msl=P.magic.map(c=>`<div class="mslot">${c?cardEl(c,{cls:'mini'}):''}</div>`).join('');
   const dsl=Array.from({length:dl},(_,i)=>{const c=P.domains[i];return `<div class="mslot">${c?cardEl(c,{cls:`mini ${hlFor(c.uid)}`}):''}</div>`}).join('');
   const deckTop=P.avatar.card.def.id==='SD02-001'&&P.deck[0]?cardEl(P.deck[0],{cls:'mini'}):`<div class="card back mini"></div>`;
   const dtop=P.discard[P.discard.length-1];
   const dHL=pdOf()&&pdOf().kind==='act'&&pdOf().p===p&&pdOf().spec.actions.some(a=>a.zone==='discard');
-  const eli=`<span class="eli"><span class="eld" title="Element Deck">Element Deck <b>${P.edeck.length}</b>${[...new Set([...P.edeck,...P.elems].map(x=>x.el))].map(k=>elIcon(k,12)).join('')}</span><span class="ela" title="Element ที่พร้อมใช้ / ทั้งหมด">Element <b>${AF.standElems(P).length}/${P.elems.length}</b> <span class="elems">${P.elems.map(e=>`<span class="el ${e.state==='rest'?'rest':''}" title="${e.state==='rest'?'Rest (ใช้แล้ว)':'Stand (พร้อมใช้)'}">${elIcon(e.el,14)}</span>`).join('')||'<span class="muted">ยังไม่มี</span>'}</span></span></span>`;
-  const disc=`<div class="pile ${dHL?'hl':''}" data-zone="discard" data-p="${p}"><span class="zlab">กองทิ้ง</span><div style="position:relative">${dtop?cardEl(dtop,{cls:'mini'}).replace(/data-uid="\d+"/,''):'<div class="mslot"></div>'}<span class="cnt">${P.discard.length}</span></div></div>`;
-  const mid=`<div class="row mid"><div class="zone"><span class="zlab">Magic Area</span><div class="in">${msl}</div></div>${av}<div class="zone"><span class="zlab">Domain</span><div class="in">${dsl}</div></div><div class="pile" data-zone="deck" data-p="${p}"><span class="zlab">Main Deck</span><div style="position:relative">${deckTop}<span class="cnt">${P.deck.length}</span></div></div>${disc}</div>`;
-  const rows=isTop?[mid,action]:[action,mid];
+  const disc=`<div class="pile g-disc ${dHL?'hl':''}" data-zone="discard" data-p="${p}"><span class="zlab">กองทิ้ง</span><div style="position:relative">${dtop?cardEl(dtop,{cls:'mini'}).replace(/data-uid="\d+"/,''):'<div class="mslot"></div>'}<span class="cnt">${P.discard.length}</span></div></div>`;
+  /* จัดวางตามแบบร่าง: แถวบน = Magic Area · Unit Zone (4 ช่อง) · Main Deck / แถวล่าง = Domain · Avatar+HP · กองทิ้ง (ฝั่งบนของคู่ต่อสู้หมุนกลับ 180°) — ตำแหน่งกำหนดใน css/playmat.css (.bd) */
+  const bd=`<div class="bd"><div class="zone g-magic"><span class="zlab">Magic Area</span><div class="in">${msl}</div></div>${action}<div class="pile g-deck" data-zone="deck" data-p="${p}"><span class="zlab">Main Deck</span><div style="position:relative">${deckTop}<span class="cnt">${P.deck.length}</span></div></div><div class="zone g-dom"><span class="zlab">Domain</span><div class="in">${dsl}</div></div>${av}${disc}</div>`;
+  const rows=[bd];
   const handN=P.hand.length;
   const oppHand=isTop?`<div class="hand-opp">${ui.peek?P.hand.map(c=>cardEl(c,{})).join(''):P.hand.map(c=>`<div class="card back"></div>`).join('')}</div>`:'';
-  return `<div class="side ${isTop?'top':'bot'} ${G.active===p&&G.phase!=='over'?'act':''}"><div class="head"><span>${esc(P.name)}</span><span class="pill">${esc(P.deckName||(DATA.raw.DECKS[P.deckSeries]||{}).name||'')}</span><span class="pill">มือ ${handN} ใบ</span>${G.active===p?'<span class="pill" style="background:var(--gold);color:#111">กำลังเล่น</span>':''}${eli}${isTop?oppHand:''}</div>${rows.join('')}</div>`;
+  return `<div class="side ${isTop?'top':'bot'} ${G.active===p&&G.phase!=='over'?'act':''}"><div class="head"><span>${esc(P.name)}</span><span class="pill">${esc(P.deckName||(DATA.raw.DECKS[P.deckSeries]||{}).name||'')}</span><span class="pill">มือ ${handN} ใบ</span>${G.active===p?'<span class="pill" style="background:var(--gold);color:#111">กำลังเล่น</span>':''}${isTop?oppHand:''}</div>${rows.join('')}</div>`;
+}
+/* แถบ Element กลางสนาม (แบบ gauge): ซ้าย = คู่ต่อสู้ · กลาง = เลขเทิร์น · ขวา = ผู้เล่น
+   ช่องเรียง 1…N จากกลางออกด้านนอก · ช่องที่มี Element แสดงไอคอน (Stand สว่าง / Rest จางและหมุน) · ช่องว่างเป็นเลขสีเข้ม */
+function elTrackHTML(opp,me){
+  const G=ui.G;const N=Math.max(8,...G.players.map(P=>P.elems.length+P.edeck.length));
+  const half=(p,cls)=>{const P=G.players[p];
+    const cells=Array.from({length:N},(_,i)=>{const e=P.elems[i];
+      return e?`<span class="et ${e.state==='rest'?'rest':'on'}" title="${esc(e.el)} · ${e.state==='rest'?'Rest (ใช้แล้ว)':'Stand (พร้อมใช้)'}">${elIcon(e.el,'100%')}</span>`:`<span class="et off">${i+1}</span>`}).join('');
+    const dk=[...new Set([...P.edeck,...P.elems].map(x=>x.el))].map(k=>elIcon(k,12)).join('');
+    return `<div class="eth ${cls} ${G.active===p&&G.phase!=='over'?'act':''}" title="Element ${AF.standElems(P).length}/${P.elems.length} พร้อมใช้"><span class="etn"><b>${esc(P.name)}</b> · Element ${AF.standElems(P).length}/${P.elems.length}<small>Deck ${P.edeck.length} ${dk}</small></span><span class="ets">${cells}</span></div>`};
+  return `<div class="etrk">${half(opp,'l')}<span class="eto" title="เทิร์น ${G.turn}"><small>เทิร์น</small>${G.turn}</span>${half(me,'r')}</div>`;
 }
 function phaseBar(){
   const G=ui.G;const order=[['start','เริ่ม'],['draw','จั่ว'],['main','Main'],['attack','Attack'],['ultimate','Ultimate'],['end','จบ']];
@@ -164,10 +175,10 @@ function gameHTML(){
   if(ui.intro)return introHTML();
   if(ui.cover!==null)return `<div class="cover"><div style="display:grid;gap:14px;justify-items:center"><h1>ส่งอุปกรณ์ให้ ${esc(G.players[ui.cover].name)}</h1><p>ให้ผู้เล่นอีกฝั่งหันหน้าหนี แล้วกดเมื่อพร้อม</p><button class="btn" data-act="ready">พร้อมแล้ว</button></div></div>`;
   const opp=1-v;
-  const btns=`<button class="btn sm" data-act="settings">⚙ ตั้งค่า</button><button class="btn sm" data-act="help">กติกา</button>${ui.cfg.mode==="online"?"":`<button class="btn sm" data-act="restart">เริ่มใหม่</button>`}<button class="btn sm" data-act="surrender">ยอมแพ้</button>`;
+  const btns=`<button class="btn sm" data-act="mat" title="เปลี่ยนพื้นหลังสนาม / นำเข้ารูป">🖼 สนาม</button><button class="btn sm" data-act="settings">⚙ ตั้งค่า</button><button class="btn sm" data-act="help">กติกา</button>${ui.cfg.mode==="online"?"":`<button class="btn sm" data-act="restart">เริ่มใหม่</button>`}<button class="btn sm" data-act="surrender">ยอมแพ้</button>`;
   return `<div class="top"><button class="btn sm home" data-act="gohome" title="ไปหน้า Home (เกมยังค้างอยู่ กลับมาเล่นต่อได้)">⌂ Home</button><span class="pill">เทิร์น ${G.turn}</span>${phaseBar()}<span class="spacer"></span><button class="btn sm narrowonly" data-act="panel">📋 การ์ด/บันทึก</button><span class="tbtns">${btns}</span><button class="btn sm onlym" data-act="gmenu" aria-label="เมนู">☰ เมนู</button></div>
-  ${ui.gmenu?`<div class="gmenu"><button class="btn" data-act="panel">📋 การ์ด · บันทึก · กติกา</button><button class="btn" data-act="settings">⚙ ตั้งค่า</button><button class="btn" data-act="help">📖 กติกาโดยย่อ</button>${ui.cfg.mode==="online"?"":`<button class="btn" data-act="restart">↻ เริ่มใหม่</button>`}<button class="btn" data-act="surrender">🏳 ยอมแพ้</button><button class="btn" data-act="gohome">⌂ ไปหน้า Home</button></div>`:''}
-  <div class="game" data-ph="${pdOf()&&pdOf().kind||''}"><main style="min-width:0">${sideHTML(opp,true,fresh)}${chainHTML()}${barHTML()}${sideHTML(v,false,fresh)}${handHTML()}</main>${panelHTML()}</div>
+  ${ui.gmenu?`<div class="gmenu"><button class="btn" data-act="panel">📋 การ์ด · บันทึก · กติกา</button><button class="btn" data-act="mat">🖼 เปลี่ยนสนาม</button><button class="btn" data-act="settings">⚙ ตั้งค่า</button><button class="btn" data-act="help">📖 กติกาโดยย่อ</button>${ui.cfg.mode==="online"?"":`<button class="btn" data-act="restart">↻ เริ่มใหม่</button>`}<button class="btn" data-act="surrender">🏳 ยอมแพ้</button><button class="btn" data-act="gohome">⌂ ไปหน้า Home</button></div>`:''}
+  <div class="game" data-ph="${pdOf()&&pdOf().kind||''}"><main style="min-width:0">${sideHTML(opp,true,fresh)}${elTrackHTML(opp,v)}${chainHTML()}${barHTML()}${sideHTML(v,false,fresh)}${handHTML()}</main>${panelHTML()}</div>
   ${ui.menu?menuHTML():''}${ui.over?overHTML():''}${pendingModalHTML()}${ui.modal?modalHTML():''}${ui.settings?settingsHTML():''}`;
 }
 function overHTML(){
