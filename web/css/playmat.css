@@ -172,7 +172,7 @@ html.ingame .game .panel .tabs button:hover:not(.on){background:rgba(120,220,255
 .eth.l .ets{flex-direction:row-reverse}
 .et{flex:none;width:var(--etw);height:var(--etw);border-radius:50%;display:grid;place-items:center;box-sizing:border-box;font:700 calc(var(--etw)*.42)/1 var(--f-disp,sans-serif);transition:transform .2s,opacity .2s}
 .et.off{background:radial-gradient(circle at 35% 30%,#1c3550,#08121f);border:2px solid rgba(132,218,255,.28);color:rgba(190,225,245,.55)}
-.et.on{background:radial-gradient(circle at 35% 30%,#fff7d6,#ffd23f 55%,#e8a317);border:2px solid #fff3b0;padding:18%;box-shadow:0 0 10px rgba(255,210,63,.75),0 2px 4px rgba(0,0,0,.5)}
+.et.on{background:radial-gradient(circle at 35% 30%,#fff7d6,#ffd23f 55%,#e8a317);border:2px solid #fff3b0;padding:calc(var(--etw)*.14);box-shadow:0 0 10px rgba(255,210,63,.75),0 2px 4px rgba(0,0,0,.5)}
 .et.on svg{filter:drop-shadow(0 1px 1px rgba(0,0,0,.4))}
 .et.rest{background:radial-gradient(circle at 35% 30%,#4a5868,#1b2530);border-color:rgba(255,255,255,.3);box-shadow:none;opacity:.6;transform:rotate(90deg) scale(.88)}
 .eto{flex:none;display:grid;place-items:center;align-content:center;width:clamp(34px,calc(var(--cwb)*.95),52px);height:clamp(34px,calc(var(--cwb)*.95),52px);border-radius:50%;
@@ -183,3 +183,10 @@ html.ingame .game .panel .tabs button:hover:not(.on){background:rgba(120,220,255
 .et{overflow:hidden;grid-template-columns:100%;grid-template-rows:100%}
 .et svg{width:100%;height:100%;display:block}
 .etrk{padding:5px 12px 6px}
+
+/* กันเหรียญบวม: ขนาดเหรียญถูกล็อกด้วย --etw เท่านั้น ไอคอนลอยอยู่ข้างใน (absolute) จึงไม่มีทางขยายเหรียญได้ */
+.et{position:relative;display:block;width:var(--etw);height:var(--etw);min-width:0;max-width:var(--etw);max-height:var(--etw);padding:0;line-height:var(--etw);text-align:center}
+.et.off{line-height:calc(var(--etw) - 4px)}
+.et svg{position:absolute;left:50%;top:50%;width:62%;height:62%;transform:translate(-50%,-50%)}
+.et.rest svg{opacity:.8}
+.eto{overflow:hidden}
