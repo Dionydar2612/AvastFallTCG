@@ -19,8 +19,8 @@ const DEFAULT_API = /^https?:$/.test(location.protocol) ? location.origin : LEGA
 const CACHE_KEY = 'af-cards-cache';
 
 const cid = c => c.deck + '-' + c.no;
-/* ชุดที่ขึ้นต้นด้วย BT (BT01, BT02, ...) ไม่แสดงเป็นเด็คตัวอย่าง แต่ยังเลือกใส่เด็คตัวเองได้ในหน้าสร้างเด็ค */
-const NO_PRESET = /^BT/i;
+/* ชุด Booster/Avatar (BT01, AT01, ...) ไม่แสดงเป็นเด็คตัวอย่าง แต่ยังเลือกใส่เด็คตัวเองได้ในหน้าสร้างเด็ค */
+const NO_PRESET = /^(BT|AT)/i;
 const sigOf = c => [c.name, c.type, c.sub || '', c.cost ?? c.sc ?? '', c.atk ?? '', c.def ?? c.defense ?? '', c.cri ?? '', c.tribe || '', JSON.stringify(c.fx || [])].join('|');
 
 /* ---------------------------------------------------------------- snapshot (ข้อความที่สคริปต์เขียนไว้) */

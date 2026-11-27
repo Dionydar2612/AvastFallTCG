@@ -1,5 +1,5 @@
 /* ระบบเปิดซอง — หน้า /packs.html
-   - หน้าแรก = เลือกชุด (Booster: รหัสขึ้นต้น BT) → เปิดซอง/คอลเลกชันของชุดนั้น · ปุ่ม "← เลือกชุด" ย้อนกลับได้ทุกเมื่อ
+   - หน้าแรก = เลือกชุด (Booster: รหัสขึ้นต้น BT/AT) → เปิดซอง/คอลเลกชันของชุดนั้น · ปุ่ม "← เลือกชุด" ย้อนกลับได้ทุกเมื่อ
    - ดึงการ์ดของชุดจาก /api/cards?deck=XXX — เพิ่มการ์ดผ่าน /admin แล้ว "เข้าซองให้เอง" (รวมใบ SR/SSR/UR ที่เพิ่มทีหลัง)
    - สุ่มด้วย crypto.getRandomValues · คอลเลกชันเก็บใน localStorage ('af-collection-v1')
    - ปรับกติกาซองที่ PACK_DEFAULT (ทุกชุด) หรือ PACKS (เฉพาะบางชุด) ด้านล่าง */
@@ -16,7 +16,7 @@ const PACK_DEFAULT = {
 // ตั้งค่าเฉพาะชุด เช่น  BT02: { size: 10, commonSlots: 8, rareSlot: { R: 80, SR: 20 } }   ·   ปิดชุดนี้จากหน้าเลือกซอง:  BT09: { enabled: false }
 const PACKS = {};
 const cfgOf = deck => Object.assign({}, PACK_DEFAULT, PACKS[deck] || {});
-const isPackSet = id => (PACKS[id] && PACKS[id].enabled !== undefined) ? PACKS[id].enabled : /^BT/i.test(id);
+const isPackSet = id => (PACKS[id] && PACKS[id].enabled !== undefined) ? PACKS[id].enabled : /^(BT|AT)/i.test(id);
 const RANK = ['C', 'R', 'SR', 'SSR', 'UR'];
 const rar = c => String(c.rarity || 'C').trim().toUpperCase();
 const rarClass = c => rar(c).replace(/[^A-Z0-9]/g, '');

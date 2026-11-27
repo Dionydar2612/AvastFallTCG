@@ -154,7 +154,12 @@
     try { var m0 = localStorage.getItem('af-lobby-mode'); if (MODES.some(function (m) { return m[0] === m0; })) S.mode = m0; } catch (e) { }
     return Promise.all([api('GET', '/api/me'), api('GET', '/api/updates').catch(function () { return { data: [] }; }), loadCards(), api('GET', '/api/shop').catch(function () { return { data: [] }; }), loadOwned().catch(function () { })]).then(function (r) {
       if (S.view !== 'home') return; // Home อาจโหลดเสร็จหลังผู้เล่นสลับแท็บไปแล้ว
-      var me = r[0], notes = (r[1].data || []).slice(0, 3), shopData = r[3].data || [], shop = shopData.slice(0, 3); S.me = me; S.shopItems = shopData; setCoins(me.user.coins); tell({ afDaily: !!me.dailyReady }); S.items = {}; shopData.forEach(function (i) { S.items[i.id] = i; });
+      var me = r[0], notes = (r[1].data || []).slice(0, 3), shopData = r[3].data || [];
+      // Home ต้องโชว์สินค้าที่แอดมินเพิ่งเพิ่มด้วย ไม่ใช่ตัดเอาเฉพาะ 3 รายการแรกตาม sort
+      // จัดลำดับสินค้าพิเศษ/สินค้าที่สร้างเองและซอง AT01 ไว้ก่อน แล้วเติมสินค้าปกติให้ครบ 6 รายการ
+      var homePriority = shopData.filter(function (i) { return ['special_pack','mystery_box','bundle','promotion'].indexOf(i.kind) >= 0 || (i.kind === 'pack' && String(i.set || '').toUpperCase() === 'AT01'); });
+      var homeRest = shopData.filter(function (i) { return homePriority.indexOf(i) < 0; });
+      var shop = homePriority.concat(homeRest.slice(0, 3)); S.me = me; S.shopItems = shopData; setCoins(me.user.coins); tell({ afDaily: !!me.dailyReady }); S.items = {}; shopData.forEach(function (i) { S.items[i.id] = i; });
       var st = me.stats, pct = st.totalCards ? Math.round(st.ownedUnique / st.totalCards * 100) : 0;
       var decks = readDecks().sort(function (a, b) { return (b.updated || 0) - (a.updated || 0); });
       var infos = decks.map(deckInfo), okDeck = decks.filter(function (d, i) { return infos[i].ok; })[0] || null;
@@ -204,7 +209,7 @@
             return '<div class="box dk">' + (av ? pic(av) : '<div class="noimg">–</div>') + '<div class="info"><b>' + esc(d.name || 'เด็คใหม่') + '</b><span class="' + (inf.ok ? 'ok' : 'warn') + '">' + (inf.ok ? '✓ พร้อมเล่น' : inf.miss ? '⚠ การ์ดที่มีไม่พอ' : inf.n + '/60 ใบ') + '</span>' +
               '<div class="acts2">' + (inf.ok ? '<button type="button" class="btn sm pri" data-act="playdeck" data-deck="' + esc(d.id) + '">▶ เล่น</button>' : '') + '<button type="button" class="btn sm" data-go="decks" data-deck="' + esc(d.id) + '">แก้ไข</button></div></div></div>';
           }).join('') + '</div>' : '') +
-          (shop.length ? '<h2>แนะนำในร้านค้า<span class="grow"></span><button type="button" class="btn sm" data-go="shop">ดูทั้งหมด ›</button></h2><div class="shop">' + shop.map(itemHtml).join('') + '</div>' : '') +
+          (shop.length ? '<h2>สินค้าแนะนำ / สินค้าใหม่<span class="grow"></span><button type="button" class="btn sm" data-go="shop">ดูทั้งหมด ›</button></h2><div class="shop">' + shop.map(itemHtml).join('') + '</div>' : '') +
           (notes.length ? '<h2>ข่าวอัปเดตล่าสุด</h2><div class="notes">' + notes.map(function (n) {
             return '<div class="box note"><h3>' + esc(n.title) + '</h3><div class="d">' + esc(n.date || String(n.at || '').slice(0, 10)) + '</div><ul>' + (n.items || []).slice(0, 3).map(function (i) { return '<li>' + esc(i) + '</li>'; }).join('') + '</ul></div>';
           }).join('') + '</div>' : '') +
