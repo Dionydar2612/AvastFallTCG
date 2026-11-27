@@ -30,18 +30,20 @@ AF.loadData = function (data) {
     const id = c.deck + '-' + c.no;
     if ((c.key && c.key !== id) || c.variant) continue; // alt-art/variant duplicate of the same card
     const isSpell = c.type === 'Spell';
+    // White is a card attribute, never an Element resource. Mark with isWhite:true, color:'white', or element:'ขาว'.
+    const white = c.isWhite === true || String(c.color || c.cardColor || '').toLowerCase() === 'white' || ['ขาว', 'สีขาว', 'white'].includes(String(c.element || '').toLowerCase()) || (Array.isArray(c.elements) && c.elements.some(e => ['ขาว', 'สีขาว', 'white'].includes(String(e).toLowerCase())));
     const kind = c.type === 'Spell' ? c.sub : c.type; // Avatar Unit Enchant Counter Equipment Domain Ultimate
     const raw = c.cost ?? c.sc;
     AF.defs[id] = {
       id, deck: c.deck, no: c.no, name: c.name, type: c.type, sub: c.sub || null, kind,
-      cost: raw ?? 0, noCost: !!(isSpell || c.type === 'Ultimate') && raw == null,
+      cost: raw ?? 0, noCost: !!(isSpell || c.type === 'Ultimate') && raw == null, isWhite: white,
       atk: c.atk ?? 0, def: (c.def ?? c.defense ?? 0), cri: c.cri ?? 0,
       tribe: c.tribe || '', fx: c.fx || [], fl: c.fl || '',
       el: '', els: [], series: (data.DECKS[c.deck] || {}).name || '',
       rarity: c.rarity || '', artist: c.artist || '', image: c.image || ''
     };
     /* ธาตุของการ์ด: elements[] (Avatar 2 สี) > element > ธาตุของเด็ค · ไม่มีเลย = ไม่ระบุธาตุ (จ่ายด้วยธาตุอะไรก็ได้ ใส่เด็คไหนก็ได้) */
-    const list = Array.isArray(c.elements) && c.elements.length ? c.elements : [c.element || (data.DECKS[c.deck] || {}).el].filter(Boolean);
+    const list = white ? [] : (Array.isArray(c.elements) && c.elements.length ? c.elements : [c.element || (data.DECKS[c.deck] || {}).el].filter(Boolean));
     AF.defs[id].els = [...new Set(list)]; AF.defs[id].el = AF.defs[id].els[0] || '';
     AF.defs[id].needsScript = AF.defs[id].fx.some(f => f[0] !== 'COST' && f[1]);
   }
@@ -83,7 +85,7 @@ AF.edeckOf = function (d) {
 };
 /* กฎจัดเด็ค: Avatar กำหนดธาตุที่ใส่ได้ — การ์ดที่ธาตุทุกสีอยู่ในธาตุของ Avatar หรือการ์ดที่ไม่ระบุธาตุ */
 AF.allowedInDeck = function (av, card) {
-  if (!card || !card.els || !card.els.length) return true;
+  if (!card || card.isWhite || !card.els || !card.els.length) return true;
   const afx = av && av.id && AF.FX && AF.FX[av.id];   // ข้อยกเว้นบน Avatar เช่น BT01-003 (ใส่การ์ดที่มีคำว่า "ดาบ" ได้ทุกธาตุ)
   if (afx && afx.deckAllowCard && afx.deckAllowCard(card)) return true;
   const da = card.id && AF.FX && AF.FX[card.id] && AF.FX[card.id].deckAllow;   // ข้อยกเว้นบนการ์ด เช่น BT01-006 (Avatar ชื่อ ฮัมบาบา)
@@ -733,13 +735,13 @@ function whyNot(G, p, card) {
   if (d.kind === 'Unit') {
     if (fx.cantSummonFromHand) return 'อัญเชิญจากมือไม่ได้ (ดูความสามารถ ANNOUNCE)';
     if (!AF.freeSlot(P)) return `Action Zone เต็ม (${P.fieldCap ?? 4} ช่อง)`;
-    if (standElems(P, fx.anyElementCost || anyElFor(G, p, card) ? null : d.els).length < AF.unitCost(G, p, card)) return `Element ธาตุ${d.els.join('/')}ที่พร้อมใช้ไม่พอ (ต้องการ ${AF.unitCost(G, p, card)})`;
+    if (standElems(P, fx.anyElementCost || anyElFor(G, p, card) || d.isWhite ? null : d.els).length < AF.unitCost(G, p, card)) return `Element ธาตุ${d.els.join('/')}ที่พร้อมใช้ไม่พอ (ต้องการ ${AF.unitCost(G, p, card)})`;
     return null;
   }
   if (d.kind === 'Counter') return 'ใช้ตอบโต้ได้เท่านั้น (ตอนคู่ต่อสู้ทำอะไรบางอย่าง)';
   if (d.kind === 'Enchant' || d.kind === 'Equipment' || d.kind === 'Domain') {
     const cost = spellCost(G, p, card);
-    if (standElems(P, anyElFor(G, p, card) ? null : fx.costEl).length < cost) return `Element${fx.costEl ? 'ธาตุ' + fx.costEl : ''}ที่พร้อมใช้ไม่พอ (ต้องการ ${cost})`;
+    if (standElems(P, anyElFor(G, p, card) || d.isWhite ? null : fx.costEl).length < cost) return `Element${!d.isWhite && fx.costEl ? 'ธาตุ' + fx.costEl : ''}ที่พร้อมใช้ไม่พอ (ต้องการ ${cost})`;
     if (d.kind === 'Enchant' && !P.magic.includes(null)) return 'Magic Area เต็ม 3 ช่อง';
     if (d.kind === 'Equipment') { if (!equipTargets(G, p, card).length) return 'ไม่มี Unit ที่สวมใส่ได้'; }
     if (d.kind === 'Domain') {
@@ -816,7 +818,7 @@ AF.legalAttacks = function (G, p) {
 async function payAndCast(G, p, card, kind) {
   const P = G.players[p]; const fx = FXOF(card);
   const bk = {}; const cost = spellCost(G, p, card, false, bk);
-  await payElems(G, p, cost, anyElFor(G, p, card) ? null : (fx.costEl || null), `ร่าย ${card.def.name}`);   // costEl = ค่าร่ายต้องเป็น Element ธาตุนี้ (เช่น "Spend 1 fire Element")
+  await payElems(G, p, cost, anyElFor(G, p, card) || card.def.isWhite ? null : (fx.costEl || null), `ร่าย ${card.def.name}`);   // costEl = ค่าร่ายต้องเป็น Element ธาตุนี้ (เช่น "Spend 1 fire Element")
   if (bk.book) AF.useBook(G, p);
   if (fx.castLife) { P.avatar.hp -= fx.castLife; log(G, `${P.name} จ่ายพลังชีวิต ${fx.castLife} หน่วย (HP ${P.avatar.hp})`, p); checkEnd(G); }   // ค่าร่ายเป็นพลังชีวิต
   if (P.counterDiscount && P.counterDiscount.turn === G.turn && !P.counterDiscount.used && kind === 'Counter') P.counterDiscount.used = true;
@@ -878,7 +880,7 @@ async function castDomain(G, p, card) {
 }
 async function summonFromHand(G, p, card) {
   const P = G.players[p];
-  const bk = {}; await payElems(G, p, AF.unitCost(G, p, card, bk), FXOF(card).anyElementCost || anyElFor(G, p, card) ? null : card.def.els, `อัญเชิญ ${card.def.name}`);
+  const bk = {}; await payElems(G, p, AF.unitCost(G, p, card, bk), FXOF(card).anyElementCost || anyElFor(G, p, card) || card.def.isWhite ? null : card.def.els, `อัญเชิญ ${card.def.name}`);
   if (bk.book) AF.useBook(G, p);
   place(G, card, 'field', { state: 'stand' });
   log(G, `${P.name} อัญเชิญ ${card.def.name} (Invite ${card.def.cost})`, p, { enter: card.uid });
