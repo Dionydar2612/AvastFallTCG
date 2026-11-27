@@ -134,6 +134,9 @@ AF.createGame = function (cfg) {
     G.players.push(P);
     const mk = id => ({ uid: ++G.uidSeq, def: AF.defs[id], owner: i, zone: 'deck' });
     const av = mk(d.avatar); av.zone = 'avatar'; P.avatar.card = av;
+    av.equips = []; av.mods = []; av.state = 'stand'; av.flags = {};   // AT01: Avatar สวม Equipment/โจมตีได้ (006)
+    { const sec = (AF.FX[av.def.id] || {}).secondAvatar;               // AT01-012: Avatar ใบที่สองที่ใช้คู่กัน
+      if (sec) { const sid = Object.keys(AF.defs).find(k => AF.defs[k].kind === 'Avatar' && AF.defs[k].name.includes(sec)); if (sid) { const a2 = mk(sid); a2.zone = 'avatar'; a2.equips = []; a2.mods = []; a2.state = 'stand'; a2.flags = {}; P.avatar2 = a2; } } }
     for (const [id, n] of Object.entries(d.counts)) for (let k = 0; k < n; k++) P.deck.push(mk(id));
     for (const [el, n] of Object.entries(AF.edeckOf(d))) for (let k = 0; k < n; k++) P.edeck.push({ uid: ++G.uidSeq, el, state: 'stand', owner: i });
     shuffleArr(P.deck, G.rng); shuffleArr(P.edeck, G.rng);
@@ -217,7 +220,7 @@ function attach(G, eq, unit) {
 }
 AF.attach = attach;
 
-AF.freeSlot = P => P.field.indexOf(null) >= 0 && P.field.filter(Boolean).length < (P.fieldCap ?? 4);
+AF.freeSlot = P => P.field.indexOf(null) >= 0 && P.field.filter(Boolean).reduce((n, u) => n + (u.slots || 1), 0) < (P.fieldCap ?? 4);   // u.slots = 2 สำหรับ Legendary (AT01-013)
 /* Domain ที่จำกัดจำนวน Unit (fieldLimit) — ใช้ค่าที่น้อยกว่าของทั้งสองฝ่าย */
 function recalcCap(G) { let cap = 4; for (const P of G.players) for (const d of P.domains) { const f = FXOF(d).fieldLimit; if (f) cap = Math.min(cap, f); } for (const P of G.players) P.fieldCap = cap; }
 AF.recalcCap = recalcCap;
@@ -255,6 +258,12 @@ function aura(G, u, k) {
   return n;
 }
 function stat(G, u, k) {
+  if (u.zone === 'avatar' && u.equips) {   // AT01-006: Avatar ที่สวม Equipment โจมตีด้วย ATK ตั้งต้นของ Avatar
+    let v = k === 'atk' ? (FXOF(u).avatarAtk || 0) : 0;
+    for (const m of u.mods || []) if (m[k]) v += m[k];
+    for (const e of u.equips) { const fe = FXOF(e).equip; if (fe && fe[k]) v += fe[k]; }
+    return Math.max(0, v);
+  }
   if (u.zone !== 'field') return u.def[k] || 0;
   // setBaseAtk ใช้เมื่อเอฟเฟกต์ระบุให้ปรับ ATK ตั้งต้นเป็นค่าใหม่
   // ค่าบวก/ลบจาก modifier อื่นยังคงนำมาคำนวณต่อจาก ATK ตั้งต้นใหม่นี้
@@ -376,6 +385,7 @@ H.draw = draw;
 
 /* ---------------------------------------------------------------- targeting */
 function targetable(G, u, src, byPlayer) {
+  if (u.def.at01Legend) return false;   // AT01-013 ไม่รับเอฟเฟกต์จากการ์ดใดๆ
   // Guinevere style shields etc.
   for (const x of G.players[u.owner].field) {
     if (!x || silenced(G, x)) continue;
@@ -412,6 +422,8 @@ AF.releaseEquips = async (G, host, equips, dest) => {
 async function destroyUnit(G, u, by) {
   if (u.zone !== 'field') return false;
   by = by || { kind: 'effect' };
+  if (AF.guards && AF.guards.some(g => g(G, u, by))) { log(G, `${u.def.name} ไม่ถูกทำลาย`, u.owner); return false; }   // AT01: ตัวป้องกันการทำลายจากสคริปต์การ์ด
+  if (by.kind === 'effect' && by.source && by.source.def.kind === 'Spell' && u.mods && u.mods.some(m => m.flag === 'at01SpellImmune')) return false;
   if (by.kind === 'effect' && H.immuneToEffect(G, u)) { log(G, `${u.def.name} ไม่ถูกทำลายด้วยความสามารถการ์ด`, u.owner); return false; }
   if (by.kind === 'battle') {
     // Counter ที่ป้องกันการทำลายจากการต่อสู้ (เช่น SD07-023)
@@ -436,7 +448,7 @@ async function destroyUnit(G, u, by) {
   const equips = [...u.equips];
   let dest = 'discard';
   if (by.kind === 'battle' && !wasSilenced && fx.returnOnBattleDestroy) dest = 'hand';
-  place(G, u, dest);
+  place(G, u, dest); u.destroyedTurn = G.turn;   // AT01-028 ใช้ตรวจ ANNOUNCE
   const returnAll = equips.some(e => (FXOF(e).equip || {}).returnAllOnHostDestroyed);
   await AF.releaseEquips(G, u, equips, returnAll ? 'hand' : 'discard');
   for (const e of equips) { const f = (FXOF(e).equip || {}).onHostDestroyed; if (f) await f({ G, p: e.owner, self: e, host: u }); }   // Equipment ที่มีผลเมื่อผู้สวมถูกทำลาย (BT01-016)
@@ -446,6 +458,7 @@ async function destroyUnit(G, u, by) {
     log(G, `ADMONISH: ${u.def.name}`, u.owner);
     await fx.admonish({ G, p: u.owner, self: u });
   }
+  if (u.def.at01Legend) G.players[u.owner].at01Lost = true;   // AT01-013: เทียแมทถูกทำลาย = แพ้ทันที
   await emit(G, 'unitDestroyed', { unit: u, by, owner: u.owner, wasSilenced });
   checkEnd(G);
   return true;
@@ -462,7 +475,7 @@ async function emit(G, name, payload) {
     for (const u of P.field) { if (!u) continue; if (!silenced(G, u)) add(u); for (const e of u.equips) add(e); }
     for (const d of P.domains) add(d);
     for (const m of P.magic) if (m && m.linger) add(m);
-    add(P.avatar.card);
+    add(P.avatar.card); if (P.avatar2) add(P.avatar2);
   }
   for (const c of list) {
     if (G.over) return;
@@ -475,7 +488,8 @@ async function emit(G, name, payload) {
 AF.emit = emit;
 
 function checkEnd(G) {
-  const h0 = G.players[0].avatar.hp, h1 = G.players[1].avatar.hp;
+  const dead = P => P.at01Lost || (P.avatar.hp <= 0 && !P.at01Tiamat);   // AT01-013: ขณะมีเทียแมทบนสนามไม่แพ้จาก HP
+  const h0 = dead(G.players[0]) ? 0 : 1, h1 = dead(G.players[1]) ? 0 : 1;
   if (h0 <= 0 || h1 <= 0) {
     const res = h0 <= 0 && h1 <= 0 ? { winner: null, reason: 'HP ของทั้งสองฝ่ายเหลือ 0 พร้อมกัน' } : { winner: h0 <= 0 ? 1 : 0, reason: 'HP ของ Avatar เหลือ 0' };
     G.over = res; throw new GameOver(res);
@@ -561,7 +575,8 @@ AF.useBook = (G, p) => {
 function spellCost(G, p, card, asCounter = false, out = null) {
   const P = G.players[p]; let c = card.def.cost;
   if (c <= 0) return 0;
-  const fi = FXOF(card).freeIf; if (fi && fi(G, p, card)) return 0;   // ร่ายฟรีเมื่อเข้าเงื่อนไข (SD06-014)
+  const fi = FXOF(card).freeIf; if (fi && fi(G, p, card)) return 0;
+  if (card.def.kind === 'Equipment') { const ac = P.avatar.card, m = ac && FXOF(ac).equipCostMod; if (m) c = Math.max(0, c - m); }   // AT01-006: EquipCost -1   // ร่ายฟรีเมื่อเข้าเงื่อนไข (SD06-014)
   if (card.def.type === 'Spell' && P.spellDiscountUntil >= G.turn) c = Math.max(1, c - 1);
   if ((card.def.kind === 'Counter' || asCounter) && P.counterDiscount && P.counterDiscount.turn === G.turn && !P.counterDiscount.used) c = Math.max(1, c - 1);
   const cm = FXOF(P.avatar.card).costMod;   // Avatar ลดค่าร่ายการ์ดบางใบ (SD05-001)
@@ -573,6 +588,7 @@ AF.spellCost = spellCost;
 AF.unitCost = (G, p, card, out = null) => {
   let c = card.def.cost;
   for (const d of G.players[p].domains) { const m = FXOF(d).unitCostMod; if (m) c -= m(G, p, card) || 0; }   // Domain ลดค่าอัญเชิญ (BT01-096)
+  if (G.players[p].at01WaterDisc === G.turn && (card.def.els || []).includes('น้ำ')) c -= 1;   // AT01-008
   c = Math.max(0, c);
   if (c >= 1 && AF.bookHolder(G, p, card)) { c--; if (out) out.book = true; }
   return c;
@@ -607,7 +623,7 @@ function counterOptions(G, r, last, chain) {
     if (!fx.counter.when(G, r, last, chain)) continue;
     const cost = spellCost(G, r, c, true);
     if (standElems(P).length < cost) continue;
-    if (fx.counter.life && P.avatar.hp <= fx.counter.life) continue;
+    if (fx.counter.life && P.avatar.hp <= fx.counter.life && !P.at01Tiamat) continue;
     if (c.def.kind === 'Counter' && !P.magic.includes(null)) continue;
     out.push(c);
   }
@@ -651,6 +667,7 @@ async function runAbility(G, p, card, ab, kind, label, via = null) {
   let tg = null;
   if (ab.targets) { tg = await ab.targets(ctx); if (tg === undefined || tg === false) return false; }
   if (ab.optional) { const yes = await H.yesNo(G, p, `ใช้ความสามารถ ${label || ''} ของ ${card.def.name}?`); if (!yes) return false; }
+  if (AF.abilityGuards) for (const gf of AF.abilityGuards) { if (await gf({ G, p, card, ab, kind, label })) return true; }   // AT01-029: ขัดจังหวะความสามารถ
   log(G, `${G.players[p].name} ใช้ ${label || 'ความสามารถ'} ของ ${card.def.name}`, p, { ability: card.uid });
   const item = {
     kind: kind || 'unit-ability', controller: p, source: via || card,
@@ -659,9 +676,11 @@ async function runAbility(G, p, card, ab, kind, label, via = null) {
     resolve: async (it) => { await ab.resolve({ G, p, self: card, via, item: it }, tg); if (ab.prophecy) { /* handled in resolve */ } }
   };
   await runChain(G, item);
+  await emit(G, 'abilityUsed', { card, player: p, ab });   // AT01-012
   return true;
 }
 AF.runAbility = runAbility;
+AF.gainElement = (G, p) => gainElement(G, p);
 
 async function declareProphecy(G, p, card, onSuccess) {
   const P = G.players[p];
@@ -699,6 +718,7 @@ function abilityList(G, p, phase) {
   };
   const A = card => (FXOF(card).abilities || []);
   add && A(P.avatar.card).forEach(ab => add(P.avatar.card, ab, 'avatar'));
+  if (P.avatar2) A(P.avatar2).forEach(ab => add(P.avatar2, ab, 'avatar'));
   for (const u of P.field) { if (!u || silenced(G, u)) continue; A(u).filter(a => (a.zone || 'field') === 'field').forEach(ab => add(u, ab, 'field')); for (const e of u.equips) A(e).filter(a => a.zone === 'equip').forEach(ab => add(e, ab, 'equip')); if (u.def.swordUnit) A(u).filter(a => a.zone === 'equip').forEach(ab => add(u, ab, 'field')); }
   for (const d of P.domains) A(d).filter(a => a.zone === 'domain').forEach(ab => add(d, ab, 'domain'));
   for (const c of P.discard) A(c).filter(a => a.zone === 'discard').forEach(ab => add(c, ab, 'discard'));
@@ -726,7 +746,7 @@ function whyNot(G, p, card) {
       if (P.domains.some(x => x.def.name === d.name)) return 'ห้ามมี Domain ชื่อซ้ำกัน';
       if (P.domains.length >= AF.DOMAIN_LIMIT) return `Domain Zone เต็ม (${AF.DOMAIN_LIMIT} ใบ)`;
     }
-    if (fx.castLife && P.avatar.hp <= fx.castLife) return `พลังชีวิตไม่พอจ่ายค่าร่าย (ต้องจ่าย ${fx.castLife} และ HP ต้องเหลืออย่างน้อย 1)`;
+    if (fx.castLife && P.avatar.hp <= fx.castLife && !P.at01Tiamat) return `พลังชีวิตไม่พอจ่ายค่าร่าย (ต้องจ่าย ${fx.castLife} และ HP ต้องเหลืออย่างน้อย 1)`;
     if (fx.spell && fx.spell.can && !fx.spell.can({ G, p, self: card })) return fx.spell.cantReason || 'เงื่อนไขการร่ายยังไม่ครบ';
     return null;
   }
@@ -737,7 +757,10 @@ AF.whyNot = whyNot;
 
 function equipTargets(G, p, card) {
   const fx = FXOF(card).equip || {};
-  return G.players[p].field.filter(u => u && (!fx.canEquip || fx.canEquip(G, u, card)) && (u.equips.length === 0 || (fx.extra && fx.extra(G, u, card))));
+  const base = G.players[p].field.filter(u => u && (!fx.canEquip || fx.canEquip(G, u, card)) && (u.equips.length === 0 || (fx.extra && fx.extra(G, u, card))));
+  const ac = G.players[p].avatar.card;   // AT01-006: สวมใส่ Avatar ได้โดยไม่จำกัดเงื่อนไข
+  if (ac && ac.zone === 'avatar' && FXOF(ac).avatarAtk && ac.equips && ac.equips.length === 0) base.push(ac);
+  return base;
 }
 AF.equipTargets = equipTargets;
 
@@ -783,6 +806,9 @@ AF.legalAttacks = function (G, p) {
     const tn = AF.tauntUnits(G, p);
     out.push({ attacker: u, units: tn.length ? tn : O.field.filter(Boolean), avatar: av });
   }
+  { const ac = P.avatar && P.avatar.card;   // AT01-006: Avatar ที่สวม Equipment ประกาศโจมตีได้
+    if (ac && ac.zone === 'avatar' && FXOF(ac).avatarAtk && ac.equips && ac.equips.length && ac.state === 'stand' && !hasFlag(ac, 'noAttack')) {
+      const tn2 = AF.tauntUnits(G, p); out.push({ attacker: ac, units: tn2.length ? tn2 : O.field.filter(Boolean), avatar: AF.avatarAttackable(G, p) }); } }
   return out.filter(a => a.units.length || a.avatar);
 };
 
@@ -910,7 +936,7 @@ async function doAction(G, p, a) {
 /* ---------------------------------------------------------------- attack */
 async function resolveAttack(G, item) {
   const a = item.attacker; const t = item.target; const p = a.owner;
-  if (a.zone !== 'field') return;
+  if (a.zone !== 'field' && !(a.zone === 'avatar' && a.equips)) return;
   if (t === 'avatar') {
     if (!AF.avatarAttackable(G, p) && !hasFlag(a, 'direct')) { log(G, 'การโจมตี Avatar ไม่เป็นผล (ฝ่ายตรงข้ามมี Unit ที่ Stand อยู่)', p); return; }
     const dmg = stat(G, a, 'cri');
@@ -1025,6 +1051,7 @@ async function takeTurn(G) {
   // Start Phase
   G.phase = 'start';
   for (const u of P.field) if (u && u.state === 'rest') AF.setStand(G, u);
+  if (P.avatar.card && P.avatar.card.state === 'rest') P.avatar.card.state = 'stand';
   for (const e of P.elems) e.state = 'stand';
   await emit(G, 'turnStart', { player: p });
   // Draw Phase

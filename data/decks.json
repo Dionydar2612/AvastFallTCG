@@ -60,5 +60,13 @@
   "rotation": "A",
   "rarity": "C",
   "artist": "Takeuchi Takashi"
+ },
+ {
+  "id": "AT01",
+  "name": "AVATAR OF GODS",
+  "total": 45,
+  "rotation": "A",
+  "rarity": "C",
+  "artist": ""
  }
 ]

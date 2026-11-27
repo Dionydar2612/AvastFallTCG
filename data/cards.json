@@ -5544,5 +5544,1155 @@
   ],
   "flavor": "“ดินแดนสรวงสวรรค์ที่พระเจ้าสร้างขึ้น”",
   "image": "/images/BT01-096.jpg"
+ },
+ {
+  "id": "AT01-001",
+  "deck": "AT01",
+  "no": "001",
+  "name": "พญายมราช",
+  "type": "Avatar",
+  "element": "ไฟ",
+  "elements": [
+   "ไฟ",
+   "มืด"
+  ],
+  "rarity": "C",
+  "rotation": "A",
+  "artist": "",
+  "tribe": "ไฟ/นรก/เทพเจ้า",
+  "effects": [
+   {
+    "keyword": "AUTO",
+    "text": "เมื่อ Unit ฝ่ายตรงข้ามถูกทำลายจากการต่อสู้โดย Unit ฝ่ายคุณ เลือกการ์ด 1 ใบจากกองทิ้งฝ่ายตรงข้าม นำออกจากเกม (ความสามารถนี้ทำงานได้สูงสุด 1 ครั้งต่อเทิร์น)"
+   },
+   {
+    "keyword": "ACTIVATE 1/turn",
+    "text": "[Spend 2 Element] เลือก Unit ฝ่ายตรงข้าม 1 ใบ Unit นั้นได้รับ ATK -2 และ DEF -2 จนจบเทิร์น"
+   }
+  ],
+  "flavor": "",
+  "image": "/images/AT01-001.jpg"
+ },
+ {
+  "id": "AT01-002",
+  "deck": "AT01",
+  "no": "002",
+  "name": "เฮสเทีย",
+  "type": "Avatar",
+  "element": "ไฟ",
+  "elements": [
+   "ไฟ",
+   "ทอง"
+  ],
+  "rarity": "C",
+  "rotation": "A",
+  "artist": "",
+  "tribe": "ไฟ/เทพี",
+  "effects": [
+   {
+    "keyword": "ACTIVATE 1/turn",
+    "text": "[Spend 2 Element] เลือก Unit ฝ่ายคุณ 1 ใบ หาก Unit นั้นเป็นธาตุ fire จะไม่ถูกทำลายจนกว่าจะจบเทิร์นถัดไปของอีกฝ่าย ถ้าเป็นธาตุ gold unit ที่ unit ที่เลือกโจมตีจะถูกทำลายทันทีโดยไม่สามารถใช้งาน Counter ได้"
+   }
+  ],
+  "flavor": "",
+  "image": "/images/AT01-002.jpg"
+ },
+ {
+  "id": "AT01-003",
+  "deck": "AT01",
+  "no": "003",
+  "name": "อพอลโล",
+  "type": "Avatar",
+  "element": "ไฟ",
+  "elements": [
+   "ไฟ",
+   "พืช"
+  ],
+  "rarity": "C",
+  "rotation": "A",
+  "artist": "",
+  "tribe": "เทพเจ้า/ดวงอาทิตย์",
+  "effects": [
+   {
+    "keyword": "AUTO",
+    "text": "เมื่อเริ่มเทิร์นของคุณ หากคุณควบคุม Unit ธาตุไฟหรือพืช คุณสามารถเลือก Unit ฝ่ายคุณ 1 ใบ ให้ได้รับ ATK +1 จนจบเทิร์น"
+   },
+   {
+    "keyword": "ACTIVATE 1/turn",
+    "text": "[Spend 2 Element] เลือก Unit ฝ่ายคุณ 1 ใบ ที่มีธาตุไฟหรือพืช Unit นั้นได้รับ ATK +2 และ DEF +1 จนจบเทิร์น"
+   }
+  ],
+  "flavor": "",
+  "image": "/images/AT01-003.jpg"
+ },
+ {
+  "id": "AT01-004",
+  "deck": "AT01",
+  "no": "004",
+  "name": "เทพแห่งการเยียวยา กรานนุส",
+  "type": "Avatar",
+  "element": "ไฟ",
+  "elements": [
+   "ไฟ",
+   "น้ำ"
+  ],
+  "rarity": "C",
+  "rotation": "A",
+  "artist": "",
+  "tribe": "เทพเจ้า/เยียวยา",
+  "effects": [
+   {
+    "keyword": "",
+    "text": "เมื่อเริ่มเกม ผู้เล่นแต่ละคนจะมีพลังชีวิต 20 หน่วย และเมื่อสิ้นสุดเทิร์นของตนเอง ผู้เล่นต้องมีการ์ดบนมือไม่เกิน 3 ใบ หากมีการ์ดเกินกว่าที่กำหนด ต้องเลือกทิ้งการ์ดจนเหลือ 3 ใบ"
+   },
+   {
+    "keyword": "ACTIVATE 1/turn",
+    "text": "ทิ้งการ์ด 3 ใบบนสุดของ main deck ฝ่ายเรา เมื่อทำสำเร็จ เลือกการ์ดจากกองทิ้ง 1 ใบ ขึ้นมือ"
+   }
+  ],
+  "flavor": "",
+  "image": "/images/AT01-004.jpg"
+ },
+ {
+  "id": "AT01-005",
+  "deck": "AT01",
+  "no": "005",
+  "name": "อัคนีเทพ",
+  "type": "Avatar",
+  "element": "ไฟ",
+  "elements": [
+   "ไฟ",
+   "ดิน"
+  ],
+  "rarity": "C",
+  "rotation": "A",
+  "artist": "",
+  "tribe": "ไฟ/เทพเจ้า",
+  "effects": [
+   {
+    "keyword": "AUTO",
+    "text": "เมื่อผู้เล่นทิ้งการ์ดจากมือเพื่อใช้ความสามารถการ์ด สามารถสร้างความเสียหายแก่ Avatar ฝ่ายตรงข้าม 1 หน่วย"
+   },
+   {
+    "keyword": "ACTIVATE 1/turn",
+    "text": "เลือก Unit 2 ใบบนสนามฝ่ายเรา ส่ง Unit 1 ใบไปยังกองทิ้ง และนำ Unit อีก 1 ใบกลับไปวางใต้กองการ์ด จากนั้นฝ่ายตรงข้ามต้องทิ้งการ์ดจากมือ 1 ใบแบบสุ่ม และส่งการ์ดใบบนสุดของกองการ์ดลงกองทิ้ง 1 ใบ"
+   }
+  ],
+  "flavor": "",
+  "image": "/images/AT01-005.jpg"
+ },
+ {
+  "id": "AT01-006",
+  "deck": "AT01",
+  "no": "006",
+  "name": "เทพนักรบปีศาจ อาซูร่า",
+  "type": "Avatar",
+  "element": "ทอง",
+  "elements": [
+   "ทอง",
+   "มืด"
+  ],
+  "rarity": "C",
+  "rotation": "A",
+  "artist": "",
+  "tribe": "เทพเจ้า/นักรบ",
+  "effects": [
+   {
+    "keyword": "",
+    "text": "Avatar นี้สามารถสวมใส่ Equipment ได้โดยไม่จำกัดเงื่อนไขการสวมใส่ และเมื่อสวมใส่ Equipment จะสามารถประกาศโจมตีได้ โดยมี ATK พื้นฐานเท่ากับ 4"
+   },
+   {
+    "keyword": "AUTO",
+    "text": "ค่า EquipCost ในการสวมใส่จะลดลง 1"
+   }
+  ],
+  "flavor": "",
+  "image": "/images/AT01-006.jpg"
+ },
+ {
+  "id": "AT01-007",
+  "deck": "AT01",
+  "no": "007",
+  "name": "อหุระ มาสดา",
+  "type": "Avatar",
+  "element": "ทอง",
+  "elements": [
+   "ทอง",
+   "พืช"
+  ],
+  "rarity": "C",
+  "rotation": "A",
+  "artist": "",
+  "tribe": "เทพเจ้า",
+  "effects": [
+   {
+    "keyword": "",
+    "text": "คุณสามารถใส่การ์ด Unit ธาตุไฟ เข้าเด็คได้ และสามารถใช้ Element ธาตุใดก็ได้ในการจ่าย Cost ของการ์ดเหล่านั้น"
+   },
+   {
+    "keyword": "ACTIVATE 1/turn",
+    "text": "เลือก Unit 1 ใบจากสนามฝ่ายเรา Unit นั้นจะได้รับคุณสมบัติธาตุ 1 อย่างตามการ์ดใบนี้ และได้รับผลเพิ่มเติมตามธาตุที่เลือก: พืช: DEF +2 และไม่ถูกทำลายจากผลของการ์ด SPELL / แสง: CRI +1 และสามารถโจมตี Avatar ฝ่ายตรงข้ามได้โดยตรง"
+   }
+  ],
+  "flavor": "",
+  "image": "/images/AT01-007.jpg"
+ },
+ {
+  "id": "AT01-008",
+  "deck": "AT01",
+  "no": "008",
+  "name": "เทพไททันแห่งแม่น้ำใหญ่ที่ไหลล้อมรอบโลก โอซีอานัส",
+  "type": "Avatar",
+  "element": "ทอง",
+  "elements": [
+   "ทอง",
+   "น้ำ"
+  ],
+  "rarity": "C",
+  "rotation": "A",
+  "artist": "",
+  "tribe": "เทพเจ้า/ไททัน",
+  "effects": [
+   {
+    "keyword": "AUTO",
+    "text": "Unit ธาตุน้ำทุกใบบนสนามจะไม่ได้รับผลจากการทำลายของการ์ดที่ไม่ใช่การ์ด Unit"
+   },
+   {
+    "keyword": "ACTIVATE 1/turn",
+    "text": "เลือก Unit 1 ใบบนสนาม, นำ Unit นั้นขึ้นมือ ในเทิร์นนี้ ค่า Cost ในการอัญเชิญ Unit ธาตุน้ำจะลดลง 1"
+   }
+  ],
+  "flavor": "",
+  "image": "/images/AT01-008.jpg"
+ },
+ {
+  "id": "AT01-009",
+  "deck": "AT01",
+  "no": "009",
+  "name": "เทพีบุคลาธิษฐานแห่งโลก เทอร์รา",
+  "type": "Avatar",
+  "element": "ทอง",
+  "elements": [
+   "ทอง",
+   "ดิน"
+  ],
+  "rarity": "C",
+  "rotation": "A",
+  "artist": "",
+  "tribe": "เทพี",
+  "effects": [
+   {
+    "keyword": "Counter",
+    "text": "ใช้ได้ 1 ครั้งต่อเทิร์น, เมื่อ Unit ฝ่ายตรงข้ามทำลาย Unit ฝ่ายเราสำเร็จ, [spend 2 element] ส่ง Unit นั้นลงกองทิ้ง"
+   },
+   {
+    "keyword": "AUTO",
+    "text": "เมื่อ Unit ฝ่ายเราถูกทำลาย สามารถนำ Unit นั้นกลับขึ้นมือได้ จากนั้น element 1 ใบ เปลี่ยนเป็นสภาพ stand"
+   }
+  ],
+  "flavor": "",
+  "image": "/images/AT01-009.jpg"
+ },
+ {
+  "id": "AT01-010",
+  "deck": "AT01",
+  "no": "010",
+  "name": "เทพีแห่งการล่าสัตว์ อาร์เทมิส",
+  "type": "Avatar",
+  "element": "พืช",
+  "elements": [
+   "พืช",
+   "มืด"
+  ],
+  "rarity": "C",
+  "rotation": "A",
+  "artist": "",
+  "tribe": "เทพี/ดวงจันทร์",
+  "effects": [
+   {
+    "keyword": "AUTO",
+    "text": "เมื่อจบเทิร์นของคุณ หากคุณควบคุม Unit ธาตุพืชหรือมืด คุณสามารถเลือก Unit ฝ่ายตรงข้าม 1 ใบ ไม่สามารถประกาศโจมตีได้ จนจบเทิร์นของอีกฝ่าย"
+   },
+   {
+    "keyword": "ACTIVATE 1/turn",
+    "text": "[Spend 2 Element] เลือก Unit ฝ่ายตรงข้าม 1 ใบ ที่ไม่ใช่ธาตุมืดหรือพืช Unit นั้นถูกลบความสามารถทั้งหมดใน Text Box"
+   }
+  ],
+  "flavor": "",
+  "image": "/images/AT01-010.jpg"
+ },
+ {
+  "id": "AT01-011",
+  "deck": "AT01",
+  "no": "011",
+  "name": "เทพีแห่งความอุดมสมบูรณ์ ทาวเวอเร็ท",
+  "type": "Avatar",
+  "element": "พืช",
+  "elements": [
+   "พืช",
+   "น้ำ"
+  ],
+  "rarity": "C",
+  "rotation": "A",
+  "artist": "",
+  "tribe": "เทพี/มารดา",
+  "effects": [
+   {
+    "keyword": "AUTO",
+    "text": "ทุกครั้งที่ผู้เล่นฝ่ายเราอัญเชิญ Unit จากบนมือสำเร็จ ให้เปลี่ยนสถานะ Element 1 ใบของเราเป็น Stand"
+   }
+  ],
+  "flavor": "",
+  "image": "/images/AT01-011.jpg"
+ },
+ {
+  "id": "AT01-012",
+  "deck": "AT01",
+  "no": "012",
+  "name": "เทพีแห่งเกษตรกรรม ดีมีเทอร์",
+  "type": "Avatar",
+  "element": "พืช",
+  "elements": [
+   "พืช",
+   "ดิน"
+  ],
+  "rarity": "C",
+  "rotation": "A",
+  "artist": "",
+  "tribe": "เทพี/มารดา",
+  "effects": [
+   {
+    "keyword": "",
+    "text": "หากการ์ดใบนี้อยู่ใน Avatar Zone ผู้เล่นสามารถนำ Avatar ที่มีชื่อว่า “เพอร์เซฟนี” มาใช้งานเป็น Avatar อีก 1 ใบได้"
+   },
+   {
+    "keyword": "AUTO",
+    "text": "ใช้ได้ 1 ครั้ง ที่ฝ่ายเราใช้งานความสามารถของการ์ดที่มีชื่อว่า “เพอร์เซฟนี” ผู้เล่นจะได้รับ Element +1"
+   }
+  ],
+  "flavor": "",
+  "image": "/images/AT01-012.jpg"
+ },
+ {
+  "id": "AT01-013",
+  "deck": "AT01",
+  "no": "013",
+  "name": "มังกรผู้เป็นมารดาแห่งสรรพชีวิต เทียแมท",
+  "type": "Avatar",
+  "element": "น้ำ",
+  "elements": [
+   "น้ำ",
+   "มืด"
+  ],
+  "rarity": "C",
+  "rotation": "A",
+  "artist": "",
+  "tribe": "เทพเจ้า/มารดา/มังกร/ต้นกำเนิด",
+  "effects": [
+   {
+    "keyword": "ACTIVATE 1/game",
+    "text": "นำการ์ดใบนี้จาก Avatar Zone เข้าสู่ Action Zone จากนั้นการ์ดใบนี้จะถือเป็น Legendary Unit ที่มี Cost 10 ใช้พื้นที่ 2 ช่อง และมี ATK / DEF พื้นฐาน 10 จากนั้นทำลายการ์ดที่หงายหน้าทุกใบบนสนามฝ่ายตรงข้าม และส่งการ์ดเหล่านั้นลงกองทิ้ง การ์ดใบนี้ได้รับ ATK และ DEF เพิ่มขึ้นถาวรเท่ากับจำนวนการ์ดที่ถูกทำลายจากเอฟเฟกต์นี้ ขณะที่ Unit นี้ยังอยู่บนสนาม เราจะไม่แพ้เกมจากการที่พลังชีวิตเหลือ 0 หรือต่ำกว่า และยังสามารถจ่าย Cost ที่ต้องใช้พลังชีวิตได้ตามปกติ หาก Unit นี้ถูกทำลาย ฝ่ายเราจะแพ้เกมทันที และ Unit นี้จะถูกทำลายด้วยการต่อสู้เท่านั้น จะไม่รับผลของเอฟเฟกต์จากการ์ดใดๆ"
+   }
+  ],
+  "flavor": "",
+  "image": "/images/AT01-013.jpg"
+ },
+ {
+  "id": "AT01-014",
+  "deck": "AT01",
+  "no": "014",
+  "name": "เทพเจ้าแห่งการเก็บเกี่ยวองุ่น ไดอะไนซัส",
+  "type": "Avatar",
+  "element": "น้ำ",
+  "elements": [
+   "น้ำ",
+   "ดิน"
+  ],
+  "rarity": "C",
+  "rotation": "A",
+  "artist": "",
+  "tribe": "ไฟ/นรก/นักรบ",
+  "effects": [
+   {
+    "keyword": "AUTO",
+    "text": "เมื่อมี Unit ฝ่ายเราที่ไม่สามารถเปลี่ยนสภาพได้ในช่วงเริ่มเทิร์นฝ่ายเรา ได้รับ Element +2"
+   },
+   {
+    "keyword": "ACTIVATE 1/turn",
+    "text": "[Spend 5 Element] สร้างความเสียหายใส่พลังชีวิตฝ่ายตรงข้าม 3 หน่วย หากต้องการนำ Element เราทั้งหมดกลับ Element Deck จะทำความเสียหายเพิ่มอีก 2 หน่วย"
+   }
+  ],
+  "flavor": "",
+  "image": "/images/AT01-014.jpg"
+ },
+ {
+  "id": "AT01-015",
+  "deck": "AT01",
+  "no": "015",
+  "name": "ราชินีแห่งโลกหลังความตาย เพอร์เซฟนี",
+  "type": "Avatar",
+  "element": "ดิน",
+  "elements": [
+   "ดิน",
+   "มืด"
+  ],
+  "rarity": "C",
+  "rotation": "A",
+  "artist": "",
+  "tribe": "เทพี/นรก",
+  "effects": [
+   {
+    "keyword": "ACTIVATE 1/turn",
+    "text": "[Spend 2 Element] เลือก Unit ในกองทิ้งฝ่ายเรา 1 ใบ อัญเชิญมาที่ Action Zone ฝ่ายเรา เมื่อทำ เลือก Unit ฝ่ายตรงข้าม 1 ใบ ส่งกลับใต้ Main Deck หากไม่สามารถทำได้ จั่วการ์ด 1 ใบจาก Main Deck"
+   }
+  ],
+  "flavor": "",
+  "image": "/images/AT01-015.jpg"
+ },
+ {
+  "id": "AT01-016",
+  "deck": "AT01",
+  "no": "016",
+  "name": "วิญญาณแห่งแสง",
+  "type": "Unit",
+  "rarity": "C",
+  "rotation": "A",
+  "artist": "",
+  "cost": 1,
+  "atk": 2,
+  "def": 2,
+  "cri": 0,
+  "tribe": "วิญญาณ",
+  "effects": [
+   {
+    "keyword": "ADVENT",
+    "text": "เลือก Element 1 ใบที่อยู่ในสภาพนอน ของเราให้เปลี่ยนสถานะเป็น Stand"
+   }
+  ],
+  "flavor": "",
+  "image": "/images/AT01-016.jpg"
+ },
+ {
+  "id": "AT01-017",
+  "deck": "AT01",
+  "no": "017",
+  "name": "นกพิราบแห่งสันติ",
+  "type": "Unit",
+  "rarity": "C",
+  "rotation": "A",
+  "artist": "",
+  "cost": 1,
+  "atk": 2,
+  "def": 2,
+  "cri": 0,
+  "tribe": "นก/วิญญาณ",
+  "effects": [
+   {
+    "keyword": "ADVENT",
+    "text": "เลือก Unit ฝ่ายเรา 1 ใบ Unit นั้นได้รับ DEF +1 จนจบเทิร์น"
+   }
+  ],
+  "flavor": "",
+  "image": "/images/AT01-017.jpg"
+ },
+ {
+  "id": "AT01-018",
+  "deck": "AT01",
+  "no": "018",
+  "name": "ผู้พิทักษ์ประกายแสง เอรัน",
+  "type": "Unit",
+  "rarity": "C",
+  "rotation": "A",
+  "artist": "",
+  "cost": 1,
+  "atk": 2,
+  "def": 2,
+  "cri": 0,
+  "tribe": "ผู้พิทักษ์",
+  "effects": [
+   {
+    "keyword": "Counter",
+    "text": "ใช้ได้ 1 ครั้งต่อเทิร์น, เมื่อ Unit ฝ่ายตรงข้ามประกาศโจมตี นำการ์ดใบนี้ลงกองทิ้ง ยกเลิกการโจมตีนั้น"
+   }
+  ],
+  "flavor": "",
+  "image": "/images/AT01-018.jpg"
+ },
+ {
+  "id": "AT01-019",
+  "deck": "AT01",
+  "no": "019",
+  "name": "นักบวชแห่งรุ่งอรุณ แอน",
+  "type": "Unit",
+  "rarity": "C",
+  "rotation": "A",
+  "artist": "",
+  "cost": 1,
+  "atk": 3,
+  "def": 3,
+  "cri": 0,
+  "tribe": "นักบวช",
+  "effects": [
+   {
+    "keyword": "ADVENT",
+    "text": "ฟื้นฟูพลังชีวิตให้ Avatar ฝ่ายเรา 1 หน่วย"
+   }
+  ],
+  "flavor": "",
+  "image": "/images/AT01-019.jpg"
+ },
+ {
+  "id": "AT01-020",
+  "deck": "AT01",
+  "no": "020",
+  "name": "อัศวินแห่งคำสัตย์ ทารัน",
+  "type": "Unit",
+  "rarity": "C",
+  "rotation": "A",
+  "artist": "",
+  "cost": 0,
+  "atk": 2,
+  "def": 4,
+  "cri": 0,
+  "tribe": "อัศวิน",
+  "effects": [
+   {
+    "keyword": "AUTO",
+    "text": "เมื่อ Unit ของคุณอีกใบตกเป็นเป้าหมายของการโจมตี คุณสามารถจ่าย 1 Element เพื่อเปลี่ยนเป้าหมายมาที่การ์ดใบนี้แทน"
+   }
+  ],
+  "flavor": "",
+  "image": "/images/AT01-020.jpg"
+ },
+ {
+  "id": "AT01-021",
+  "deck": "AT01",
+  "no": "021",
+  "name": "จิ้งจอกจันทราขาว เรซีเลีย",
+  "type": "Unit",
+  "rarity": "C",
+  "rotation": "A",
+  "artist": "",
+  "cost": 1,
+  "atk": 3,
+  "def": 2,
+  "cri": 0,
+  "tribe": "สัตว์มายา/ดวงจันทร์",
+  "effects": [
+   {
+    "keyword": "ADVENT",
+    "text": "เลือก Unit 1 ใบที่อยู่ในสภาพนอน บนสนามฝ่ายตรงข้าม Unit ที่ถูกเลือกจะไม่สามารถเปลี่ยนสภาพเป็น Stand ได้ หากต้องการ สามารถเลือก Unit 1 ใบบนสนามฝ่ายเราให้ได้รับผลเช่นเดียวกัน จากนั้นจั่วการ์ด 1 ใบจาก Main Deck ฝ่ายเรา"
+   }
+  ],
+  "flavor": "",
+  "image": "/images/AT01-021.jpg"
+ },
+ {
+  "id": "AT01-022",
+  "deck": "AT01",
+  "no": "022",
+  "name": "วัลคีรีแห่งพละกำลัง ธรูด",
+  "type": "Unit",
+  "rarity": "C",
+  "rotation": "A",
+  "artist": "",
+  "cost": 2,
+  "atk": 2,
+  "def": 4,
+  "cri": 0,
+  "tribe": "วัลคีรี",
+  "effects": [
+   {
+    "keyword": "AUTO",
+    "text": "หากฝ่ายตรงข้ามมี Unit มากกว่าเรา สามารถให้ Unit นี้ได้รับ ATK +3 จนจบเทิร์น"
+   }
+  ],
+  "flavor": "",
+  "image": "/images/AT01-022.jpg"
+ },
+ {
+  "id": "AT01-023",
+  "deck": "AT01",
+  "no": "023",
+  "name": "ภูตผีเสื้อแห่งการชำระ นีมซีล",
+  "type": "Unit",
+  "rarity": "C",
+  "rotation": "A",
+  "artist": "",
+  "cost": 1,
+  "atk": 3,
+  "def": 4,
+  "cri": 0,
+  "tribe": "ภูติ",
+  "effects": [
+   {
+    "keyword": "ADVENT",
+    "text": "เมื่อการ์ดนี้เข้าสู่สนาม เลือกการ์ด Enchant หรือ Counter 1 ใบจากกองทิ้งฝ่ายเรา ขึ้นมือ"
+   }
+  ],
+  "flavor": "",
+  "image": "/images/AT01-023.jpg"
+ },
+ {
+  "id": "AT01-024",
+  "deck": "AT01",
+  "no": "024",
+  "name": "สิงโตผู้พิทักษ์สัจธรรม ทรูไลออน",
+  "type": "Unit",
+  "rarity": "C",
+  "rotation": "A",
+  "artist": "",
+  "cost": 1,
+  "atk": 4,
+  "def": 2,
+  "cri": 0,
+  "tribe": "สัตว์พิเศษ",
+  "effects": [
+   {
+    "keyword": "AUTO",
+    "text": "ตราบเท่าที่การ์ดใบนี้ยังอยู่บนสนาม DEF ของ Unit ฝ่ายเราทุกใบ DEF +1 สามารถซ้อนทับได้"
+   }
+  ],
+  "flavor": "",
+  "image": "/images/AT01-024.jpg"
+ },
+ {
+  "id": "AT01-025",
+  "deck": "AT01",
+  "no": "025",
+  "name": "อัครเทวทูตแห่งการพิทักษ์ มีคาเอล",
+  "type": "Unit",
+  "rarity": "C",
+  "rotation": "A",
+  "artist": "",
+  "cost": 2,
+  "atk": 4,
+  "def": 5,
+  "cri": 0,
+  "tribe": "อัครเทวทูต",
+  "effects": [
+   {
+    "keyword": "AUTO",
+    "text": "เมื่อ Unit ของคุณอีกใบตกเป็นเป้าหมายของการโจมตี คุณสามารถจ่าย 1 Element เพื่อเปลี่ยนเป้าหมายมาที่การ์ดใบนี้แทน"
+   }
+  ],
+  "flavor": "",
+  "image": "/images/AT01-025.jpg"
+ },
+ {
+  "id": "AT01-026",
+  "deck": "AT01",
+  "no": "026",
+  "name": "มังกรแห่งแสงนิรันดร์ เหลียง หลง",
+  "type": "Unit",
+  "rarity": "C",
+  "rotation": "A",
+  "artist": "",
+  "cost": 3,
+  "atk": 6,
+  "def": 3,
+  "cri": 0,
+  "tribe": "มังกร/ตำนาน/แสง",
+  "effects": [
+   {
+    "keyword": "ACTIVATE 1/turn",
+    "text": "เลือก Unit ฝ่ายเรา 1 ใบ ปรับ ATK ตั้งต้นของการ์ดใบนั้นให้เท่ากับ ATK ของการ์ดใบนี้"
+   }
+  ],
+  "flavor": "",
+  "image": "/images/AT01-026.jpg"
+ },
+ {
+  "id": "AT01-027",
+  "deck": "AT01",
+  "no": "027",
+  "name": "อัครเทวทูตแห่งการเยียวยารักษา ราฟาเอล",
+  "type": "Unit",
+  "rarity": "C",
+  "rotation": "A",
+  "artist": "",
+  "cost": 2,
+  "atk": 4,
+  "def": 5,
+  "cri": 0,
+  "tribe": "อัครเทวทูต",
+  "effects": [
+   {
+    "keyword": "ADVENT",
+    "text": "เลือก Unit 1 ใบจากกองทิ้งฝ่ายเรา อัญเชิญลงมาที่ Action Zone ฝ่ายเรา เมื่อทำได้รับพลังชีวิตเท่ากับ Cost ของ Unit นั้น"
+   }
+  ],
+  "flavor": "",
+  "image": "/images/AT01-027.jpg"
+ },
+ {
+  "id": "AT01-028",
+  "deck": "AT01",
+  "no": "028",
+  "name": "ฟีนิกซ์ นกเพลิงอมตะ",
+  "type": "Unit",
+  "rarity": "C",
+  "rotation": "A",
+  "artist": "",
+  "cost": 2,
+  "atk": 5,
+  "def": 5,
+  "cri": 0,
+  "tribe": "สัตว์ในตำนาน",
+  "effects": [
+   {
+    "keyword": "ANNOUNCE",
+    "text": "[กองทิ้ง] ถ้าเทิร์นแล้ว การ์ดใบนี้ถูกทำลาย หากต้องการสามารถ ทิ้งการ์ดบนมือ 3 ใบ อัญเชิญการ์ดใบนี้มายัง Action Zone"
+   },
+   {
+    "keyword": "ADVENT",
+    "text": "เลือก Unit ฝ่ายตรงข้าม 1 ใบ เปลี่ยนสภาพการ์ดใบนั้นเป็นนอน หากเลือกการ์ดที่อยู่ในสภาพนอน ทำลาย Unit ใบนั้น"
+   }
+  ],
+  "flavor": "",
+  "image": "/images/AT01-028.jpg"
+ },
+ {
+  "id": "AT01-029",
+  "deck": "AT01",
+  "no": "029",
+  "name": "ผู้เฝ้ามองเหนือสรรพสิ่ง อูตาร์",
+  "type": "Unit",
+  "rarity": "C",
+  "rotation": "A",
+  "artist": "",
+  "cost": 2,
+  "atk": 6,
+  "def": 7,
+  "cri": 0,
+  "tribe": "ผู้เฝ้ามอง",
+  "effects": [
+   {
+    "keyword": "AUTO",
+    "text": "เมื่อฝ่ายตรงข้ามใช้งานความสามารถของ Unit เรา สามารถ Spend 3 element ยกเลิกความสามารถนั้น หากต้องการเราสามารถ จ่ายพลังชีวิต 2 หน่วย ลบความสามารถนั้นออกจาก Text Box"
+   }
+  ],
+  "flavor": "",
+  "image": "/images/AT01-029.jpg"
+ },
+ {
+  "id": "AT01-030",
+  "deck": "AT01",
+  "no": "030",
+  "name": "ผู้พิพากษาแห่งแสงศักดิ์สิทธิ์ เอลทารัน",
+  "type": "Unit",
+  "rarity": "C",
+  "rotation": "A",
+  "artist": "",
+  "cost": 1,
+  "atk": 7,
+  "def": 7,
+  "cri": 0,
+  "tribe": "ผู้พิพากษา",
+  "effects": [
+   {
+    "keyword": "ADVENT",
+    "text": "เลือก Unit ฝ่ายตรงข้าม 1 ใบ ลด ATK และ DEF ของ Unit นั้นลงอย่างละ 3"
+   }
+  ],
+  "flavor": "",
+  "image": "/images/AT01-030.jpg"
+ },
+ {
+  "id": "AT01-031",
+  "deck": "AT01",
+  "no": "031",
+  "name": "โล่แห่งการปฏิเสธ",
+  "type": "Spell",
+  "sub": "Counter",
+  "rarity": "C",
+  "rotation": "A",
+  "artist": "",
+  "cost": 1,
+  "sc": 1,
+  "tribe": "ป้องกัน",
+  "effects": [
+   {
+    "keyword": "COST",
+    "text": "SpellCost: Spend 1 Element"
+   },
+   {
+    "keyword": "",
+    "text": "เมื่อฝ่ายตรงข้ามใช้งานความสามารถของ Unit ยกเลิกความสามารถนั้น"
+   }
+  ],
+  "flavor": "",
+  "image": "/images/AT01-031.jpg"
+ },
+ {
+  "id": "AT01-032",
+  "deck": "AT01",
+  "no": "032",
+  "name": "พันธนาการแห่งแสง",
+  "type": "Spell",
+  "sub": "Counter",
+  "rarity": "C",
+  "rotation": "A",
+  "artist": "",
+  "cost": 2,
+  "sc": 2,
+  "tribe": "ผนึก",
+  "effects": [
+   {
+    "keyword": "COST",
+    "text": "SpellCost: Spend 2 Element"
+   },
+   {
+    "keyword": "",
+    "text": "เมื่อฝ่ายตรงข้ามประกาศโจมตี เลือก Unit ที่กำลังโจมตี 1 ใบ Unit นั้นไม่สามารถโจมตีได้จนจบเทิร์น"
+   }
+  ],
+  "flavor": "",
+  "image": "/images/AT01-032.jpg"
+ },
+ {
+  "id": "AT01-033",
+  "deck": "AT01",
+  "no": "033",
+  "name": "การสลายเวท",
+  "type": "Spell",
+  "sub": "Counter",
+  "rarity": "C",
+  "rotation": "A",
+  "artist": "",
+  "cost": 2,
+  "sc": 2,
+  "tribe": "อาคม",
+  "effects": [
+   {
+    "keyword": "COST",
+    "text": "SpellCost: Spend 2 Element"
+   },
+   {
+    "keyword": "",
+    "text": "เมื่อฝ่ายตรงข้ามใช้งาน Enchant หรือ Counter สามารถยกเลิกผลของการ์ดใบนั้น"
+   }
+  ],
+  "flavor": "",
+  "image": "/images/AT01-033.jpg"
+ },
+ {
+  "id": "AT01-034",
+  "deck": "AT01",
+  "no": "034",
+  "name": "กระจกสะท้อนกรรม",
+  "type": "Spell",
+  "sub": "Counter",
+  "rarity": "C",
+  "rotation": "A",
+  "artist": "",
+  "cost": 3,
+  "sc": 3,
+  "tribe": "อาคม",
+  "effects": [
+   {
+    "keyword": "COST",
+    "text": "SpellCost: Spend 3 Element"
+   },
+   {
+    "keyword": "",
+    "text": "เมื่อ Unit ฝ่ายเรากำลังจะได้รับความเสียหายจากความสามารถของฝ่ายตรงข้าม ลดความเสียหายนั้นลง 2 หน่วย และสร้างความเสียหาย 2 หน่วยใส่พลังชีวิตฝ่ายตรงข้าม"
+   }
+  ],
+  "flavor": "",
+  "image": "/images/AT01-034.jpg"
+ },
+ {
+  "id": "AT01-035",
+  "deck": "AT01",
+  "no": "035",
+  "name": "วินาทีแห่งนิรันดร์",
+  "type": "Spell",
+  "sub": "Counter",
+  "rarity": "C",
+  "rotation": "A",
+  "artist": "",
+  "cost": 2,
+  "sc": 2,
+  "tribe": "อาคม",
+  "effects": [
+   {
+    "keyword": "COST",
+    "text": "SpellCost: Spend 2 Element"
+   },
+   {
+    "keyword": "",
+    "text": "เมื่อฝ่ายตรงข้ามใช้งานความสามารถการ์ดที่มีผลต่อ Unit ตั้งแต่ 2 ใบขึ้นไป ยกเลิกความสามารถนั้น"
+   }
+  ],
+  "flavor": "",
+  "image": "/images/AT01-035.jpg"
+ },
+ {
+  "id": "AT01-036",
+  "deck": "AT01",
+  "no": "036",
+  "name": "พรแห่งปีกสวรรค์",
+  "type": "Spell",
+  "sub": "Enchant",
+  "rarity": "C",
+  "rotation": "A",
+  "artist": "",
+  "cost": 3,
+  "sc": 3,
+  "tribe": "พร",
+  "effects": [
+   {
+    "keyword": "COST",
+    "text": "SpellCost: Spend 3 Element"
+   },
+   {
+    "keyword": "",
+    "text": "เลือก Unit ฝ่ายเรา 1 ใบ Unit นั้นได้รับ ATK +2 และ DEF +2 จนจบเทิร์น"
+   }
+  ],
+  "flavor": "",
+  "image": "/images/AT01-036.jpg"
+ },
+ {
+  "id": "AT01-037",
+  "deck": "AT01",
+  "no": "037",
+  "name": "การคืนสู่ความว่างเปล่า",
+  "type": "Spell",
+  "sub": "Enchant",
+  "rarity": "C",
+  "rotation": "A",
+  "artist": "",
+  "cost": 4,
+  "sc": 4,
+  "tribe": "กฎเกณฑ์",
+  "effects": [
+   {
+    "keyword": "COST",
+    "text": "SpellCost: Spend 4 Element"
+   },
+   {
+    "keyword": "",
+    "text": "Unit ทุกใบที่ DEF เท่ากับ 0 จะส่งลงกองทิ้ง"
+   }
+  ],
+  "flavor": "",
+  "image": "/images/AT01-037.jpg"
+ },
+ {
+  "id": "AT01-038",
+  "deck": "AT01",
+  "no": "038",
+  "name": "การคืนสู่สมดุล",
+  "type": "Spell",
+  "sub": "Enchant",
+  "rarity": "C",
+  "rotation": "A",
+  "artist": "",
+  "cost": 4,
+  "sc": 4,
+  "tribe": "กฎเกณฑ์",
+  "effects": [
+   {
+    "keyword": "COST",
+    "text": "SpellCost: Spend 4 Element"
+   },
+   {
+    "keyword": "",
+    "text": "Unit ทุกใบในสนามที่มีค่า ATK หรือ DEF เพิ่มขึ้นหรือลดลงจากค่าพื้นฐาน ปรับค่าเหล่านั้นกลับคืนสู่ค่าพื้นฐานตั้งต้น"
+   }
+  ],
+  "flavor": "",
+  "image": "/images/AT01-038.jpg"
+ },
+ {
+  "id": "AT01-039",
+  "deck": "AT01",
+  "no": "039",
+  "name": "จุดสูงสุดแห่งการตั้งมั่น",
+  "type": "Spell",
+  "sub": "Enchant",
+  "rarity": "C",
+  "rotation": "A",
+  "artist": "",
+  "cost": 3,
+  "sc": 3,
+  "tribe": "ทักษะ",
+  "effects": [
+   {
+    "keyword": "COST",
+    "text": "SpellCost: Spend 3 Element"
+   },
+   {
+    "keyword": "",
+    "text": "เลือก Unit 1 ใบ ATK +5 และเมื่อจบเทิร์น ส่งการ์ดนั้นออกนอกเกม (Bannish)"
+   }
+  ],
+  "flavor": "",
+  "image": "/images/AT01-039.jpg"
+ },
+ {
+  "id": "AT01-040",
+  "deck": "AT01",
+  "no": "040",
+  "name": "ทลายความดี พิทักษ์ความชั่ว",
+  "type": "Spell",
+  "sub": "Enchant",
+  "rarity": "C",
+  "rotation": "A",
+  "artist": "",
+  "cost": 1,
+  "sc": 1,
+  "tribe": "กฎเกณฑ์",
+  "effects": [
+   {
+    "keyword": "COST",
+    "text": "SpellCost: Spend 1 Element"
+   },
+   {
+    "keyword": "",
+    "text": "เลือก Unit ฝ่ายเรา 1 ใบ ทำลายการ์ดใบนั้น เมื่อทำฝ่ายตรงข้าม จั่วการ์ด 3 ใบจาก Main Deck ของตัวเอง"
+   }
+  ],
+  "flavor": "",
+  "image": "/images/AT01-040.jpg"
+ },
+ {
+  "id": "AT01-041",
+  "deck": "AT01",
+  "no": "041",
+  "name": "โล่เอจิส",
+  "type": "Spell",
+  "sub": "Equipment",
+  "rarity": "C",
+  "rotation": "A",
+  "artist": "",
+  "cost": 3,
+  "tribe": "อาวุธเทพ",
+  "effects": [
+   {
+    "keyword": "COST",
+    "text": "EquipCost: Spend 3 Element"
+   },
+   {
+    "keyword": "",
+    "text": "Unit ที่สวมใส่ได้รับ DEF +2"
+   },
+   {
+    "keyword": "AUTO",
+    "text": "เมื่อ Unit ที่สวมใส่การ์ดใบนี้กำลังจะถูกทำลาย สามารถส่งการ์ดใบนี้ลงกองทิ้งแทนได้ โดย Unit นั้นจะไม่ถูกทำลายและยังคงอยู่บนสนาม"
+   }
+  ],
+  "flavor": "",
+  "image": "/images/AT01-041.jpg"
+ },
+ {
+  "id": "AT01-042",
+  "deck": "AT01",
+  "no": "042",
+  "name": "ดาบแห่งคำพิพากษา ฮิกุรุมะ",
+  "type": "Spell",
+  "sub": "Equipment",
+  "rarity": "C",
+  "rotation": "A",
+  "artist": "",
+  "cost": 3,
+  "tribe": "อาวุธเทพ",
+  "effects": [
+   {
+    "keyword": "COST",
+    "text": "EquipCost: Spend 3 Element"
+   },
+   {
+    "keyword": "",
+    "text": "Unit ที่สวมใส่ได้รับ ATK +2"
+   },
+   {
+    "keyword": "AUTO",
+    "text": "เมื่อ Unit ที่สวมใส่โจมตี Unit ฝ่ายตรงข้าม หาก Unit นั้นถูกทำลายจากการต่อสู้ หากมี Unit ใบอื่นอยู่ ทำลาย Unit ได้อีก 1 ใบ"
+   }
+  ],
+  "flavor": "",
+  "image": "/images/AT01-042.jpg"
+ },
+ {
+  "id": "AT01-043",
+  "deck": "AT01",
+  "no": "043",
+  "name": "มงกุฎแห่งเอกภาพ",
+  "type": "Spell",
+  "sub": "Equipment",
+  "rarity": "C",
+  "rotation": "A",
+  "artist": "",
+  "cost": 3,
+  "tribe": "อาวุธเทพ",
+  "effects": [
+   {
+    "keyword": "COST",
+    "text": "EquipCost: Spend 3 Element"
+   },
+   {
+    "keyword": "",
+    "text": "Unit ที่สวมใส่ได้รับ ATK +1 และ DEF +1"
+   },
+   {
+    "keyword": "AUTO",
+    "text": "Unit ที่สวมใส่การ์ดใบจะไม่ถูกนำออกจาก Action Zone ได้ทุกกรณี"
+   }
+  ],
+  "flavor": "",
+  "image": "/images/AT01-043.jpg"
+ },
+ {
+  "id": "AT01-044",
+  "deck": "AT01",
+  "no": "044",
+  "name": "ดินแดนแห่งปฐมแสง",
+  "type": "Spell",
+  "sub": "Domain",
+  "rarity": "C",
+  "rotation": "A",
+  "artist": "",
+  "cost": 3,
+  "tribe": "สถานที่",
+  "effects": [
+   {
+    "keyword": "COST",
+    "text": "CastCost: Spend 3 Element"
+   },
+   {
+    "keyword": "ACTIVATE 1/turn",
+    "text": "[Main Phase] หากใน Element Zone ของเรามี Element ที่แตกต่างกันตั้งแต่ 2 ธาตุขึ้นไป สามารถเลือก Unit 1 ใบจากบนมือและอัญเชิญลงสนามโดยไม่ต้องจ่าย Cost"
+   }
+  ],
+  "flavor": "",
+  "image": "/images/AT01-044.jpg"
+ },
+ {
+  "id": "AT01-045",
+  "deck": "AT01",
+  "no": "045",
+  "name": "วิหารแห่งสมดุลนิรันดร์",
+  "type": "Spell",
+  "sub": "Domain",
+  "rarity": "C",
+  "rotation": "A",
+  "artist": "",
+  "cost": 3,
+  "tribe": "สถานที่",
+  "effects": [
+   {
+    "keyword": "COST",
+    "text": "CastCost: Spend 3 Element"
+   },
+   {
+    "keyword": "AUTO",
+    "text": "Unit ที่ ATK และ DEF เท่ากันจะไม่ถูกทำลายหรือนำออกจาก Action Zone จากความสามารถการ์ด"
+   }
+  ],
+  "flavor": "",
+  "image": "/images/AT01-045.jpg"
  }
 ]
