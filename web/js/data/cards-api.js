@@ -21,7 +21,7 @@ const CACHE_KEY = 'af-cards-cache';
 const cid = c => c.deck + '-' + c.no;
 /* ชุดที่ขึ้นต้นด้วย BT (BT01, BT02, ...) ไม่แสดงเป็นเด็คตัวอย่าง แต่ยังเลือกใส่เด็คตัวเองได้ในหน้าสร้างเด็ค */
 const NO_PRESET = /^BT/i;
-const sigOf = c => [c.name, c.type, c.sub || '', c.isWhite === true, c.color || c.cardColor || '', c.cost ?? c.sc ?? '', c.atk ?? '', c.def ?? c.defense ?? '', c.cri ?? '', c.tribe || '', JSON.stringify(c.fx || [])].join('|');
+const sigOf = c => [c.name, c.type, c.sub || '', c.cost ?? c.sc ?? '', c.atk ?? '', c.def ?? c.defense ?? '', c.cri ?? '', c.tribe || '', JSON.stringify(c.fx || [])].join('|');
 
 /* ---------------------------------------------------------------- snapshot (ข้อความที่สคริปต์เขียนไว้) */
 const SNAP = AF.SNAPSHOT;
@@ -41,7 +41,7 @@ function normalizeApi(cards, decks, elements) {
     if (c.id && c.id !== c.deck + '-' + c.no) continue; // variants (เช่น SR) ใช้ตัวหลัก
     const t = {
       deck: c.deck, no: c.no, name: c.name, type: c.type, sub: c.sub, cost: c.cost, sc: c.sc, atk: c.atk, def: c.def ?? c.defense, cri: c.cri, tribe: c.tribe,
-      fx: (c.effects || []).map(e => [e.keyword || '', e.text || '']), fl: c.flavor || '', element: c.element, elements: c.elements, isWhite: c.isWhite === true, color: c.color, cardColor: c.cardColor, rarity: c.rarity, artist: c.artist, image: c.image || ''
+      fx: (c.effects || []).map(e => [e.keyword || '', e.text || '']), fl: c.flavor || '', element: c.element, elements: c.elements, rarity: c.rarity, artist: c.artist, image: c.image || ''
     };
     if (t.type === 'Spell' && !t.sub) t.sub = 'Enchant';
     C.push(t);

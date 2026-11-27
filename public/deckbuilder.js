@@ -31,11 +31,9 @@
       if (c.key && c.key !== id) continue;                       // ตัวสลับภาพ (เช่น SR) ใช้ตัวหลัก
       const kind = c.type === 'Spell' ? (c.sub || 'Enchant') : c.type;
       const raw = c.cost != null ? c.cost : c.sc;
-      const white = c.isWhite === true || String(c.color || c.cardColor || '').toLowerCase() === 'white' || ['ขาว', 'สีขาว', 'white'].includes(String(c.element || c.el || '').toLowerCase()) || (Array.isArray(c.elements || c.els) && (c.elements || c.els).some(e => ['ขาว', 'สีขาว', 'white'].includes(String(e).toLowerCase())));
-      const sourceEls = Array.isArray(c.elements) && c.elements.length ? c.elements : Array.isArray(c.els) && c.els.length ? c.els : [c.element || c.el || (DECKS[c.deck] || {}).el].filter(Boolean);
-      const list = white ? [] : sourceEls;
+      const list = Array.isArray(c.els) && c.els.length ? c.els : [c.el || (DECKS[c.deck] || {}).el].filter(Boolean);
       const els = [...new Set(list)];
-      DEFS[id] = { id, isWhite: white, deck: c.deck, no: c.no, name: c.name, kind, cost: raw == null ? 0 : raw, noCost: raw == null, tribe: c.tribe || '', els, img: c.img || '', fx: c.fx || [],
+      DEFS[id] = { id, deck: c.deck, no: c.no, name: c.name, kind, cost: raw == null ? 0 : raw, noCost: raw == null, tribe: c.tribe || '', els, img: c.img || '', fx: c.fx || [],
         rar: c.rar || (DECKS[c.deck] || {}).rar || '', atk: c.atk == null ? null : +c.atk, def: c.def == null ? null : +c.def, cri: c.cri == null ? null : +c.cri,
         tags: String(c.tribe || '').split('/').map(x => x.trim()).filter(Boolean), kws: [...new Set((c.fx || []).map(e => String(e[0] || '').split(' ')[0]).filter(k => k && k !== 'COST'))] };
     }
@@ -70,7 +68,7 @@
      BT01-003 เซนโง มุรามาสะ — ใส่การ์ดที่มีคำว่า "ดาบ" ในชื่อได้ทุกธาตุ (จ่าย Cost ด้วยธาตุใดก็ได้เป็นกฎตอนเล่น เอนจินจัดการอยู่แล้ว) */
   const AV_ALLOW = { 'BT01-003': c => String(c.name || '').includes('ดาบ') };
   const allowed = (av, card) => {
-    if (card.isWhite || !card.els.length) return true;
+    if (!card.els.length) return true;
     const ex = av && AV_ALLOW[av.id];
     if (ex && ex(card)) return true;
     return card.els.every(e => ((av && av.els) || []).includes(e));
