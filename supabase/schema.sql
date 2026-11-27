@@ -84,7 +84,7 @@ create table if not exists public.user_cards (          -- คอลเลกช
 -- ---------- ร้านค้า ----------
 create table if not exists public.shop_items (
   id          text primary key,                        -- เช่น pack-BT01, starter-SD01
-  kind        text not null check (kind in ('pack','starter')),
+  kind        text not null check (kind in ('pack','starter','special_pack','mystery_box','bundle','promotion')),
   set_id      text not null,                           -- ผูกกับ card_sets.id
   name        text not null,
   description text not null default '',
@@ -93,6 +93,11 @@ create table if not exists public.shop_items (
   active      boolean not null default true,
   sort        int not null default 0
 );
+
+-- รองรับสินค้าประเภทใหม่ในร้านค้า (รันซ้ำได้)
+alter table public.shop_items drop constraint if exists shop_items_kind_check;
+alter table public.shop_items add constraint shop_items_kind_check
+  check (kind in ('pack','starter','special_pack','mystery_box','bundle','promotion'));
 
 create table if not exists public.purchases (           -- ประวัติการซื้อ
   id          bigint generated always as identity primary key,

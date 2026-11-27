@@ -400,7 +400,7 @@
   function itemHtml(it) {
     var cards = (S.cards || []).filter(function (c) { return c.deck.toLowerCase() === it.set.toLowerCase() && c.image; });
     var art;
-    if (it.kind === 'pack') {
+    if (['pack','special_pack','mystery_box'].indexOf(it.kind) >= 0) {
       var a = cards[0], b = cards[Math.floor(cards.length / 2)], c = cards[cards.length - 1];
       /* ภาพซอง: ใช้ Avatar ของชุดนี้ วนสลับไปเรื่อย ๆ (ใบหน้า + ใบหลังเอียง) · ถ้าชุดไม่มี Avatar ใช้การ์ด 3 ใบแบบเดิม */
       var avs = cards.filter(function (c0) { return c0.type === 'Avatar' && /^[A-Za-z0-9]+-\d+$/.test(c0.id); });
@@ -410,8 +410,9 @@
         art = '<div class="art pack av" data-i="0" data-av="' + esc(avs.map(function (c0) { return c0.id; }).join(',')) + '">' + avImg(avs[1 % avs.length], 'pb') + avImg(avs[0], 'pf') + '</div>';
       } else art = '<div class="art pack">' + (a ? pic(a) : '') + (c ? pic(c) : '') + (b ? pic(b) : '<img src="' + BACK + '" alt="">') + '</div>';
     } else art = '<div class="art">' + (it.cover ? '<img src="' + esc(it.cover) + '" alt="' + esc(it.name) + '">' : '<img src="' + BACK + '" alt="">') + '</div>';
-    var max = it.kind === 'pack' ? 10 : 3, q = Math.min(S.qty[it.id] || 1, max);
-    var tag = '<span class="tag">' + (it.kind === 'pack' ? 'ซอง ' + (it.size || 8) + ' ใบ' : 'Starter · ' + it.cardCount + ' แบบ ×' + (it.copies || 3)) + '</span>';
+    var randomItem = ['pack','special_pack','mystery_box'].indexOf(it.kind) >= 0;
+    var max = randomItem ? 10 : 3, q = Math.min(S.qty[it.id] || 1, max);
+    var tag = '<span class="tag">' + (randomItem ? ((it.kind === 'mystery_box' ? 'กล่องสุ่ม ' : it.kind === 'special_pack' ? 'ซองพิเศษ ' : 'ซอง ') + (it.size || 8) + ' ใบ') : it.kind === 'starter' ? 'Starter · ' + it.cardCount + ' แบบ ×' + (it.copies || 3) : it.kind === 'bundle' ? 'Bundle · ' + (it.grants || []).length + ' รายการ' : 'โปรโมชั่น · ' + (it.grants || []).length + ' รายการ') + '</span>';
     art = art.replace('>', ' data-info="1" title="กดดูของในสินค้านี้">' + tag);                                   // แทรกป้ายหลังแท็กเปิดของ .art
     var have = (S.cards || []).filter(function (c) { return c.deck.toLowerCase() === it.set.toLowerCase() && /^[A-Za-z0-9]+-\d+$/.test(c.id) && S.own[c.id] > 0; }).length;
     return '<article class="box item" data-id="' + esc(it.id) + '">' + art +
@@ -450,10 +451,12 @@
     });
   }
   function drawShop(items) {
-    var packs = items.filter(function (i) { return i.kind === 'pack'; }), starters = items.filter(function (i) { return i.kind === 'starter'; });
+    var packs = items.filter(function (i) { return ['pack','special_pack'].indexOf(i.kind) >= 0; }), starters = items.filter(function (i) { return i.kind === 'starter'; }), boxes = items.filter(function (i) { return i.kind === 'mystery_box'; }), extras = items.filter(function (i) { return ['bundle','promotion'].indexOf(i.kind) >= 0; });
     $('view').innerHTML = '<div class="page"><div class="pagehead"><div><h1>ร้านค้า</h1><p class="mut">ใช้เหรียญซื้อซองการ์ดและ Starter Deck · รับเหรียญฟรีทุกวันที่แท็บ Rewards</p></div><span class="grow"></span><div class="bal"><i class="cn"></i><span>เหรียญของคุณ</span><b data-bal>' + fmt(S.coins) + '</b></div><button type="button" class="btn" data-go="cards">🃏 ดูการ์ดของฉัน</button></div>' +
       (starters.length ? '<h2>Starter Deck <small>ได้การ์ดครบชุด ใบละ 3 ใบ พร้อมจัดเด็คได้ทันที — เหมาะสำหรับมือใหม่</small></h2><div class="shop">' + starters.map(itemHtml).join('') + '</div>' : '') +
-      (packs.length ? '<h2>ซองการ์ด <small>สุ่มได้ใบหายากเพิ่ม</small></h2><div class="shop">' + packs.map(itemHtml).join('') + '</div>' : '') +
+      (packs.length ? '<h2>ซองการ์ด / ซองพิเศษ <small>สุ่มได้ใบหายากเพิ่ม</small></h2><div class="shop">' + packs.map(itemHtml).join('') + '</div>' : '') +
+      (boxes.length ? '<h2>กล่องสุ่ม <small>ลุ้นรับการ์ดจากชุดที่กำหนด</small></h2><div class="shop">' + boxes.map(itemHtml).join('') + '</div>' : '') +
+      (extras.length ? '<h2>Bundle &amp; โปรโมชั่น <small>รับการ์ดตามรายการที่กำหนด</small></h2><div class="shop">' + extras.map(itemHtml).join('') + '</div>' : '') +
       (!items.length ? '<div class="box empty">ยังไม่มีสินค้าวางขาย</div>' : '') + '</div>';
     refreshBuyState(); startCycle();
   }
@@ -494,9 +497,9 @@
     var base = all.filter(function (c) { return /^[A-Za-z0-9]+-\d+$/.test(c.id); }); if (!base.length) base = all;
     var haveN = base.filter(function (c) { return S.own[c.id] > 0; }).length;
     var head = '<h2>' + esc(it.name) + '</h2><p class="mut" style="margin:0 40px 6px 0">' + esc(it.description) + '</p>' +
-      '<div class="tags"><span class="tg">' + (it.kind === 'pack' ? 'ซองการ์ด ' + (it.size || 8) + ' ใบ' : 'Starter Deck ×' + (it.copies || 3)) + '</span><span class="tg">ชุด ' + esc(it.set) + '</span><span class="tg">สะสมแล้ว ' + haveN + ' / ' + base.length + ' แบบ</span></div>';
+      '<div class="tags"><span class="tg">' + (['pack','special_pack','mystery_box'].indexOf(it.kind) >= 0 ? (it.kind === 'mystery_box' ? 'กล่องสุ่ม ' : it.kind === 'special_pack' ? 'ซองพิเศษ ' : 'ซองการ์ด ') + (it.size || 8) + ' ใบ' : it.kind === 'starter' ? 'Starter Deck ×' + (it.copies || 3) : it.kind === 'bundle' ? 'Bundle' : 'โปรโมชั่น') + '</span><span class="tg">ชุด ' + esc(it.set) + '</span><span class="tg">สะสมแล้ว ' + haveN + ' / ' + base.length + ' แบบ</span></div>';
     var body = '';
-    if (it.kind === 'pack') {
+    if (['pack','special_pack','mystery_box'].indexOf(it.kind) >= 0) {
       var by = {}; all.forEach(function (c) { (by[rarOf(c)] = by[rarOf(c)] || []).push(c); });
       var rars = Object.keys(by).sort(function (a, b) { return rkIdx(a) - rkIdx(b); });
       var size = it.size || 8, cs = it.commonSlots != null ? it.commonSlots : 7, rareSlots = Math.max(0, size - Math.min(cs, size));
@@ -510,14 +513,16 @@
         var list = by[r];
         return '<h3 class="gh">' + esc(r) + ' <small>' + list.length + ' ใบ' + (r === 'C' || !tot ? '' : ' · ' + fmtP(pctOf(r)) + ' ต่อช่องหายาก') + '</small></h3><div class="reveal pv">' + list.map(function (c) { return tile(c); }).join('') + '</div>';
       }).join('');
-    } else {
+    } else if (it.kind === 'starter') {
       var cp = it.copies || 3, groups = {};
       base.forEach(function (c) { (groups[c.type] = groups[c.type] || []).push(c); });
       var types = Object.keys(groups).sort(function (a, b) { var x = TYPE_ORDER.indexOf(a), y = TYPE_ORDER.indexOf(b); return (x < 0 ? 99 : x) - (y < 0 ? 99 : y); });
-      body += '<div class="odds"><b>ได้รับ:</b> การ์ดทุกแบบในชุด ' + esc(it.set) + ' ' + base.length + ' แบบ × ' + cp + ' ใบ = <b>' + (base.length * cp) + ' ใบ</b> (ไม่สุ่ม) · พร้อมจัดเด็คได้ทันที</div>';
-      body += types.map(function (t) {
-        return '<h3 class="gh">' + esc(t) + ' <small>' + groups[t].length + ' แบบ</small></h3><div class="reveal pv">' + groups[t].map(function (c) { return tile(c, '×' + cp); }).join('') + '</div>';
-      }).join('');
+      body += '<div class="odds"><b>ได้รับ:</b> การ์ดทุกแบบในชุด ' + esc(it.set) + ' ' + base.length + ' แบบ × ' + cp + ' ใบ = <b>' + (base.length * cp) + ' ใบ</b> (ไม่สุ่ม)</div>';
+      body += types.map(function (t) { return '<h3 class="gh">' + esc(t) + ' <small>' + groups[t].length + ' แบบ</small></h3><div class="reveal pv">' + groups[t].map(function (c) { return tile(c, '×' + cp); }).join('') + '</div>'; }).join('');
+    } else {
+      var grants = it.grants || [], cardsToShow = grants.map(function(g){ var c=S.byId && S.byId[String(g.id).toLowerCase()]; return c ? {card:c,qty:g.qty} : null; }).filter(Boolean);
+      body += '<div class="odds"><b>ได้รับการ์ดตามรายการที่กำหนด</b> · รวม ' + cardsToShow.reduce(function(n,x){return n+(+x.qty||0)},0) + ' ใบ (ไม่สุ่ม)</div>';
+      body += '<div class="reveal pv">' + cardsToShow.map(function(x){return tile(x.card,'×'+x.qty)}).join('') + '</div>';
     }
     if (!all.length) body = '<p class="mut">ยังไม่มีข้อมูลการ์ดในชุดนี้</p>';
     openDlg(head + '<div class="pvwrap">' + body + '</div><p class="mut center" style="margin:10px 0 0">แตะการ์ดเพื่อดูรายละเอียด</p>');
@@ -526,7 +531,7 @@
   /* ---------- เปิดซอง / รับ Starter ---------- */
   function revClass(c) { var r = String(c.rarity || 'C').toUpperCase(); return r === 'C' ? '' : r === 'R' ? 'rare' : 'srare'; }
   function reveal(res) {
-    var packs = res.packs, i = 0, isPack = res.kind === 'pack';
+    var packs = res.packs, i = 0, isPack = ['pack','special_pack','mystery_box'].indexOf(res.kind) >= 0;
     function draw() {
       var list = packs[i], flipped = 0, last = i >= packs.length - 1;
       var dlg = $('ov').querySelector('.dlg') || openDlg('');
@@ -639,7 +644,7 @@
     var a = t.closest('[data-act]'); if (!a) return;
     var item = a.closest('.item'), id = item && item.dataset.id;
     if (a.dataset.act === 'inc' || a.dataset.act === 'dec') {
-      var it = S.items && S.items[id] || { price: 0, kind: 'pack' }, max = it.kind === 'pack' ? 10 : 3, q = Math.max(1, Math.min(max, (S.qty[id] || 1) + (a.dataset.act === 'inc' ? 1 : -1)));
+      var it = S.items && S.items[id] || { price: 0, kind: 'pack' }, max = ['pack','special_pack','mystery_box'].indexOf(it.kind) >= 0 ? 10 : 3, q = Math.max(1, Math.min(max, (S.qty[id] || 1) + (a.dataset.act === 'inc' ? 1 : -1)));
       S.qty[id] = q; item.querySelector('[data-q]').textContent = q; item.querySelector('[data-total]').textContent = fmt(it.price * q); refreshBuyState();
     } else if (a.dataset.act === 'buy') buy(id, a);
     else if (a.dataset.act === 'play') launch(null);
