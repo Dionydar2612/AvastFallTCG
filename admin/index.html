@@ -138,6 +138,7 @@ button.rar{border-color:#1b4aa8;color:#1b4aa8}
       <button data-t="users"><span class="ic">👤</span>ผู้ใช้</button>
       <button data-t="shop"><span class="ic">🛒</span>ร้านค้า</button>
       <div class="grp">ระบบ</div>
+      <button data-t="system"><span class="ic">🖥️</span>Control Center</button>
       <button data-t="notes"><span class="ic">📣</span>Update Note</button>
       <button data-t="logs"><span class="ic">🧾</span>บันทึกกิจกรรม</button>
       <button data-t="backups"><span class="ic">💾</span>สำรอง / กู้คืน</button>
@@ -241,7 +242,7 @@ button.rar{border-color:#1b4aa8;color:#1b4aa8}
   <section id="t-cards" class="box" hidden>
     <h2>การ์ดทั้งหมด <span id="cardCnt" class="mut"></span></h2>
     <div class="row"><input id="cardQ" placeholder="ค้นหา id / ชื่อ" style="flex:1"><label><input type="checkbox" id="noImgOnly"> เฉพาะที่ยังไม่มีรูป</label></div>
-    <table class="tbl"><thead><tr><th>รูป</th><th>id</th><th>ชื่อ</th><th>ประเภท</th><th>ธาตุ</th><th>Rarity</th><th></th></tr></thead><tbody id="cardRows"></tbody></table>
+    <table class="tbl"><thead><tr><th>รูป</th><th>id</th><th>ชื่อ</th><th>ประเภท</th><th>ธาตุ</th><th>Rarity</th><th></th></tr></thead><tbody id="cardRows"></tbody></table><details style="margin-top:18px"><summary><b>🗄️ การ์ดที่ Archive ไว้</b> <button type="button" id="archiveReload">โหลดรายการ</button></summary><div id="archivedRows" class="shop-list"></div></details>
   </section>
 
   <section id="t-decks" class="box" hidden>
@@ -312,6 +313,20 @@ button.rar{border-color:#1b4aa8;color:#1b4aa8}
       <button id="s-create" class="pri" type="button">สร้างสินค้า</button>
     </div>
     <div class="help">กด “แก้ไข” เพื่อปรับชื่อ ราคา ประเภท และการตั้งค่าของสินค้าแต่ละรายการ · กด “ลบ” เพื่อนำสินค้าออกจากร้าน (ประวัติการซื้อเดิมยังอยู่)</div><div id="shopRows" class="shop-list"></div>
+  </section>
+
+  <section id="t-system" class="box" hidden>
+    <h2>🖥️ Admin Control Center</h2>
+    <p class="mut">สถานะจริงจาก Node.js และ Supabase · Admin ยังคงเข้าได้แม้เปิด Maintenance</p>
+    <div id="sysStatus" class="cards4"><div class="stat">กำลังตรวจสอบระบบ…</div></div>
+    <div class="box"><h3>Maintenance Control</h3><p class="mut">เปิดเฉพาะบริการที่ต้องการปิดปรับปรุง ระบบจะตอบ HTTP 503 พร้อมข้อความแจ้งผู้ใช้ ส่วน Admin และ Health Check ยังคงทำงาน</p>
+      <div id="maintControls" class="quick"></div><label>ข้อความประกาศระหว่างปิดปรับปรุง<input id="maintMessage" maxlength="300" placeholder="เช่น ปิดปรับปรุงเพื่ออัปเดตระบบ จะกลับมาเร็ว ๆ นี้"></label><div class="row"><button class="pri" id="maintSave">บันทึกสถานะ Maintenance</button><span id="maintMsg" class="mut"></span></div>
+    </div>
+    <div class="box"><h3>Snapshot Generator</h3><p class="mut">สร้างไฟล์สำรองจากข้อมูลการ์ดที่ใช้งานอยู่ใน Supabase เมื่อกดปุ่มเท่านั้น และดาวน์โหลด snapshot.js เพื่อนำไปเก็บใน Git/Repository</p><div id="snapshotInfo" class="help">ยังไม่มีข้อมูลการสร้าง Snapshot ในเซสชันนี้</div><button class="pri" id="snapshotGenerate">⚙️ Generate Snapshot (Manual)</button><span id="snapshotMsg" class="mut"></span></div>
+    <div class="box"><h3>📣 System Announcements</h3><p class="mut">ประกาศข่าว อัปเดตแพตช์ คำเตือน และปิดปรับปรุง พร้อมตั้งเวลาเผยแพร่และวันหมดอายุ (ต้องรัน control-center-migration.sql ก่อน)</p>
+      <div class="sd-grid"><label>หัวข้อ<input id="anTitle" maxlength="140"></label><label>ประเภท<select id="anKind"><option value="news">ข่าวสาร</option><option value="patch">Patch Note</option><option value="warning">คำเตือน</option><option value="maintenance">ปิดปรับปรุง</option><option value="emergency">ฉุกเฉิน</option></select></label><label>สถานะ<select id="anStatus"><option value="draft">ฉบับร่าง</option><option value="published">เผยแพร่ทันที</option><option value="scheduled">ตั้งเวลา</option></select></label><label>เผยแพร่เวลา<input id="anPublish" type="datetime-local"></label><label>หมดอายุเวลา<input id="anExpire" type="datetime-local"></label><label><span>ปักหมุด</span><input id="anPinned" type="checkbox"></label></div>
+      <label>รายละเอียด<textarea id="anBody" rows="4" maxlength="5000"></textarea></label><div class="row"><button class="pri" id="anCreate">สร้างประกาศ</button><button id="anReload">รีเฟรชรายการ</button><span id="anMsg" class="mut"></span></div><div id="announcementRows"></div>
+    </div>
   </section>
 
   <section id="t-backups" class="box" hidden>
@@ -400,11 +415,11 @@ function showLogin(info){show($("app"),false);show($("login"));$("loginInfo").te
 $("logout").onclick=async()=>{await fetch("/api/auth/logout",{method:"POST",credentials:"same-origin"});location.href="/"};
 
 /* ---------- tabs ---------- */
-const TABS=["dash","import","single","cards","decks","images","notes","users","shop","logs","backups"];
+const TABS=["dash","import","single","cards","decks","images","notes","users","shop","logs","backups","system"];
 function openTab(t){
   [...$("tabs").querySelectorAll("button")].forEach(x=>x.classList.toggle("on",x.dataset.t===t));
   TABS.forEach(x=>show($("t-"+x),x===t));
-  if(t==="backups")loadBackups();else if(t==="notes")loadNotes();else if(t==="users")loadUsers();else if(t==="shop")loadShop();else if(t==="logs")loadLogs();else if(t==="dash")loadDash();else if(t!=="import")loadAll();
+  if(t==="system")loadSystem();else if(t==="cards")loadArchived();else if(t==="backups")loadBackups();else if(t==="notes")loadNotes();else if(t==="users")loadUsers();else if(t==="shop")loadShop();else if(t==="logs")loadLogs();else if(t==="dash")loadDash();else if(t!=="import")loadAll();
   scrollTo(0,0);
 }
 $("tabs").onclick=e=>{const b=e.target.closest("button");if(b)openTab(b.dataset.t)};
@@ -429,6 +444,26 @@ async function loadDash(){
     $("dashUsers").innerHTML=j.recentUsers.length?`<table class="tbl"><tbody>${j.recentUsers.map(u=>`<tr><td><b>${esc(u.username)}</b></td><td><span class="badge ${u.role==="admin"?"admin":""}">${u.role==="admin"?"แอดมิน":"ผู้เล่น"}</span></td><td class="mut">${esc(new Date(u.created_at).toLocaleDateString("th-TH"))}</td></tr>`).join("")}</tbody></table>`:"ยังไม่มีผู้ใช้";
   }catch(e){$("dashStats").innerHTML=`<div class="msg bad">${esc(e.message)}</div>`}
 }
+
+/* ---------- Admin Control Center ---------- */
+const SYSTEM_SERVICES=[['game','เกมหลัก'],['matchmaking','จับคู่ / ห้องออนไลน์'],['shop','ร้านค้า / ซื้อสินค้า'],['cards','Card List / Deckbuilder'],['global','ปิดบริการทั้งหมด']];
+let systemState=null;
+async function loadSystem(){
+  try{
+    const s=await api('/system/status'); systemState=s;
+    const db=s.database||{}; const fmt=n=>n==null?'—':(n/1024/1024).toFixed(1)+' MB';
+    $('sysStatus').innerHTML=[['API / Node','ทำงาน',`Uptime ${Math.floor(s.uptime_seconds/3600)} ชม. · ${esc(s.node)}`],['Supabase',db.connected?'เชื่อมต่อแล้ว':'ไม่พร้อม',db.latency_ms==null?(db.error||'ยังไม่ได้ตั้งค่า'):db.latency_ms+' ms'],['Memory',fmt(s.memory?.rss_bytes),`Heap ${fmt(s.memory?.heap_used_bytes)} / ${fmt(s.memory?.heap_total_bytes)}`],['Cards',String(s.cards?.active??0),`Archive ${s.cards?.archived??0} ใบ`]].map(([a,b,c])=>`<div class="stat"><span>${esc(a)}</span><b>${esc(b)}</b><span>${esc(c)}</span></div>`).join('');
+    $('maintControls').innerHTML=SYSTEM_SERVICES.map(([k,label])=>`<label class="help" style="display:flex;align-items:center;gap:10px"><input type="checkbox" data-maint="${k}" ${s.maintenance?.[k]?'checked':''}> <b>${esc(label)}</b><span class="mut">${s.maintenance?.[k]?'ปิดบริการ':'เปิดให้บริการ'}</span></label>`).join('');
+    $('maintMessage').value=s.messages?.global||s.messages?.game||'';
+    $('snapshotInfo').textContent=s.snapshot?.generated_at?`สร้างล่าสุด ${new Date(s.snapshot.generated_at).toLocaleString('th-TH')} · ${s.snapshot.cards} cards · SHA-256 ${s.snapshot.sha256}`:'ยังไม่เคยสร้าง Snapshot';
+    await loadAnnouncements();
+  }catch(e){$('sysStatus').innerHTML=`<div class="msg bad">${esc(e.message)}</div>`}
+}
+$('maintSave').onclick=async()=>{try{const maintenance={};document.querySelectorAll('[data-maint]').forEach(x=>maintenance[x.dataset.maint]=x.checked);const messages={};for(const k of Object.keys(maintenance))messages[k]=$('maintMessage').value;await api('/system/maintenance',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({maintenance,messages})});$('maintMsg').textContent='บันทึกแล้ว';await loadSystem()}catch(e){$('maintMsg').textContent=e.message}};
+$('snapshotGenerate').onclick=async()=>{const b=$('snapshotGenerate');b.disabled=true;try{const r=await fetch('/admin/api/system/snapshot/generate',{method:'POST',credentials:'same-origin',headers:{'x-admin':'1'}});if(!r.ok){const j=await r.json().catch(()=>({}));throw new Error(j.error||'Generate ไม่สำเร็จ')}const blob=await r.blob(),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='snapshot.js';a.click();URL.revokeObjectURL(url);$('snapshotMsg').textContent='สร้างและดาวน์โหลด Snapshot แล้ว';await loadSystem()}catch(e){$('snapshotMsg').textContent=e.message}finally{b.disabled=false}};
+async function loadAnnouncements(){try{const j=await api('/announcements');$('announcementRows').innerHTML=(j.data||[]).map(a=>`<div class="msg"><b>${esc(a.title)}</b> · ${esc(a.kind)} · ${esc(a.status)} ${a.pinned?'📌':''}<p>${esc(a.body)}</p><small class="mut">เผยแพร่: ${esc(a.publish_at||'ไม่กำหนด')} · หมดอายุ: ${esc(a.expires_at||'ไม่กำหนด')}</small> <button data-ann-del="${esc(a.id)}" class="del">ลบ</button></div>`).join('')||'<p class="mut">ยังไม่มีประกาศ</p>'}catch(e){$('announcementRows').textContent=e.message}}
+$('anCreate').onclick=async()=>{try{const iso=id=>$(id).value?new Date($(id).value).toISOString():null;await jpost('/announcements',{title:$('anTitle').value,body:$('anBody').value,kind:$('anKind').value,status:$('anStatus').value,publish_at:iso('anPublish'),expires_at:iso('anExpire'),pinned:$('anPinned').checked});$('anTitle').value='';$('anBody').value='';$('anMsg').textContent='สร้างประกาศแล้ว';await loadAnnouncements()}catch(e){$('anMsg').textContent=e.message}};
+$('anReload').onclick=loadAnnouncements;$('announcementRows').onclick=async e=>{const b=e.target.closest('[data-ann-del]');if(!b)return;if(!confirm('ลบประกาศนี้?'))return;try{await api('/announcements/'+encodeURIComponent(b.dataset.annDel),{method:'DELETE'});await loadAnnouncements()}catch(err){alert(err.message)}};
 
 /* ---------- import ---------- */
 let info=null;
@@ -655,8 +690,12 @@ function renderCards(){
 }
 $("cardQ").oninput=renderCards;$("noImgOnly").onchange=renderCards;
 $("cardRows").onclick=async e=>{const eb=e.target.closest("button.edit");if(eb)return startEdit(eb.dataset.id);const rb=e.target.closest("button.rar");if(rb)return openRar(rb.dataset.id);const b=e.target.closest("button.del");if(!b)return;
-  if(!confirm(`ลบการ์ด ${b.dataset.id} ?  (กู้คืนได้จากแท็บสำรอง)`))return;
-  try{await api("/cards/"+encodeURIComponent(b.dataset.id),{method:"DELETE"});loadAll()}catch(e){alert(e.message)}};
+  if(!confirm(`Archive การ์ด ${b.dataset.id} ? การ์ดจะถูกซ่อนจากระบบเล่น แต่สามารถกู้คืนได้`))return;
+  try{await api("/cards/"+encodeURIComponent(b.dataset.id),{method:"DELETE"});loadAll();loadArchived()}catch(e){alert(e.message)}};
+
+async function loadArchived(){try{const j=await api("/cards/archived");const a=j.data||[];$ ("archivedRows").innerHTML=a.map(c=>`<div class="msg"><b>${esc(c.id)} · ${esc(c.name)}</b><small class="mut">Archive: ${esc(c.archived_at||"")}</small><button data-restore-card="${esc(c.id)}">Restore</button></div>`).join("")||'<p class="mut">ไม่มีการ์ดที่ Archive</p>'}catch(e){$("archivedRows").textContent=e.message}}
+$("archiveReload").onclick=loadArchived;
+$("archivedRows").onclick=async e=>{const b=e.target.closest("[data-restore-card]");if(!b)return;if(!confirm(`Restore ${b.dataset.restoreCard} กลับเข้าสู่ระบบ?`))return;try{await api("/cards/"+encodeURIComponent(b.dataset.restoreCard)+"/restore",{method:"POST"});await loadAll();await loadArchived()}catch(err){alert(err.message)}};
 
 /* ---------- decks ---------- */
 const DF=["id","name","total","rotation","element","rarity","artist"];

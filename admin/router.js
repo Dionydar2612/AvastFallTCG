@@ -4,6 +4,8 @@ const path = require("path");
 const express = require("express"), multer = require("multer");
 const updates = require("../lib/updates"), store = require("../lib/store"), imp = require("../lib/importer"), xl = require("../lib/xlsx");
 const auth = require("../lib/auth"), me = require("../lib/me"), supa = require("../lib/supa");
+const systemControl = require("../lib/system-control");
+const fs = require("fs"), crypto = require("crypto");
 const S = store.state;
 
 const router = express.Router();
@@ -40,6 +42,9 @@ api.use(require("../lib/log").auditMutations);   // ทุกการแก้�
 api.use(me.adminRouter);                          // /users · /shop
 
 api.get("/cards", (_req, res) => res.json({ data: S.cards, decks: S.decks, elements: Object.keys(S.elements) }));
+api.get("/cards/archived", (_req, res) => res.json({ data: S.raw.filter(c => c.archived_at).map(c => ({ ...c, archived_at: c.archived_at })) }));
+api.post("/cards/:id/archive", wrapA(async (req, res) => { const ok = await store.setArchived(req.params.id, true); if (!ok) return res.status(404).json({ error: "ไม่พบการ์ด" }); res.json({ ok: true }); }));
+api.post("/cards/:id/restore", wrapA(async (req, res) => { const ok = await store.setArchived(req.params.id, false); if (!ok) return res.status(404).json({ error: "ไม่พบการ์ด" }); res.json({ ok: true }); }));
 const CARD_TYPES = ["Avatar", "Unit", "Spell", "Ultimate"];
 const TYPE_ALIAS = { "อวตาร": "Avatar", "ยูนิต": "Unit", "สเปล": "Spell", "อัลติเมท": "Ultimate", "อัลติเมต": "Ultimate" };
 const typeOf = (raw) => CARD_TYPES.find((x) => x.toLowerCase() === raw.toLowerCase()) || TYPE_ALIAS[raw];
@@ -127,10 +132,9 @@ api.put("/cards/:id", up.single("image"), async (req, res) => {
 });
 
 api.delete("/cards/:id", wrapA(async (req, res) => {
-  const id = req.params.id.toLowerCase();
-  if (!S.raw.some((c) => c.id.toLowerCase() === id)) return res.status(404).json({ error: "ไม่พบการ์ด" });
-  await store.save({ cards: S.raw.filter((c) => c.id.toLowerCase() !== id) }, `delete ${req.params.id}`);
-  res.json({ ok: true });
+  const ok = await store.setArchived(req.params.id, true);
+  if (!ok) return res.status(404).json({ error: "ไม่พบการ์ด" });
+  res.json({ ok: true, archived: true });
 }));
 
 api.put("/decks/:id", wrapA(async (req, res) => {
@@ -255,6 +259,62 @@ api.delete("/updates/:id", async (req, res) => {
   try { (await updates.remove(req.params.id)) ? res.json({ ok: true }) : res.status(404).json({ error: "ไม่พบโน้ตนี้" }); }
   catch (e) { res.status(400).json({ error: e.message }); }
 });
+
+// ---- Scheduled announcements ----
+api.get("/announcements", wrapA(async (_req, res) => {
+  const rows = supa.must(await supa.db.from("system_announcements").select("*").order("created_at", { ascending: false }).limit(200), "announcements");
+  res.json({ data: rows });
+}));
+api.post("/announcements", wrapA(async (req, res) => {
+  const b = req.body || {}, title = String(b.title || "").trim().slice(0, 140), body = String(b.body || "").trim().slice(0, 5000);
+  if (!title || !body) throw new Error("กรุณากรอกหัวข้อและรายละเอียดประกาศ");
+  const kind = ["news","patch","warning","maintenance","emergency"].includes(b.kind) ? b.kind : "news";
+  const status = ["draft","scheduled","published"].includes(b.status) ? b.status : "draft";
+  const row = { id: crypto.randomBytes(8).toString("hex"), title, body, kind, status, publish_at: b.publish_at || null, expires_at: b.expires_at || null, pinned: !!b.pinned };
+  supa.must(await supa.db.from("system_announcements").insert(row), "create announcement"); res.json({ ok: true, data: row });
+}));
+api.put("/announcements/:id", wrapA(async (req, res) => {
+  const b = req.body || {}, patch = {};
+  for (const k of ["title","body","kind","status","publish_at","expires_at","pinned"]) if (b[k] !== undefined) patch[k] = b[k];
+  patch.updated_at = new Date().toISOString();
+  const rows = supa.must(await supa.db.from("system_announcements").update(patch).eq("id", req.params.id).select("*"), "update announcement");
+  if (!rows?.length) return res.status(404).json({ error: "ไม่พบประกาศ" }); res.json({ ok: true, data: rows[0] });
+}));
+api.delete("/announcements/:id", wrapA(async (req, res) => { supa.must(await supa.db.from("system_announcements").delete().eq("id", req.params.id), "delete announcement"); res.json({ ok: true }); }));
+
+// ---- Control Center: health, maintenance, snapshot ----
+api.get("/system/status", wrapA(async (_req, res) => {
+  const c = await systemControl.get();
+  let db = { connected: false, latency_ms: null, error: null };
+  if (supa.enabled) { const t = Date.now(); try { supa.must(await supa.db.from("app_meta").select("key").limit(1), "db ping"); db = { connected: true, latency_ms: Date.now() - t, error: null }; } catch (e) { db.error = e.message; } }
+  const mem = process.memoryUsage();
+  res.json({ ok: true, uptime_seconds: Math.floor(process.uptime()), node: process.version, environment: process.env.NODE_ENV || "development", database: db, memory: { rss_bytes: mem.rss, heap_used_bytes: mem.heapUsed, heap_total_bytes: mem.heapTotal }, cards: { active: S.cards.length, archived: S.raw.filter(x => x.archived_at).length }, maintenance: c.maintenance, updated_at: c.updated_at, snapshot: c.snapshot || snapshotMeta });
+}));
+api.put("/system/maintenance", wrapA(async (req, res) => {
+  const allowed = ["game", "matchmaking", "shop", "cards", "global"], incoming = req.body?.maintenance || {};
+  const maintenance = {};
+  for (const k of allowed) if (incoming[k] !== undefined) { if (typeof incoming[k] !== "boolean") throw new Error(`${k} ต้องเป็น true/false`); maintenance[k] = incoming[k]; }
+  const messages = {};
+  for (const k of allowed) if (req.body?.messages?.[k] !== undefined) messages[k] = String(req.body.messages[k]).slice(0, 300);
+  const saved = await systemControl.update({ maintenance, messages });
+  res.json({ ok: true, maintenance: saved.maintenance, messages: saved.messages });
+}));
+let snapshotMeta = { generated_at: null, sha256: null, cards: 0, decks: 0 };
+function makeSnapshot() {
+  const active = S.raw.filter(c => !c.archived_at);
+  const DECKS = Object.fromEntries(S.decks.map(d => [d.id, { name: d.name || d.id, total: d.total, rot: d.rotation, el: d.element || "", rar: d.rarity, art: d.artist }]));
+  const CARDS = active.filter(c => c.deck && c.no).map(c => ({ deck: c.deck, no: String(c.no), name: c.name, type: c.type, sub: c.sub, cost: c.cost, sc: c.sc, atk: c.atk, def: c.def ?? c.defense, cri: c.cri, tribe: c.tribe, fx: (c.effects || []).map(e => [e.keyword || "", e.text || ""]), fl: c.flavor || "", element: c.element, elements: c.elements, rarity: c.rarity, artist: c.artist || "" }));
+  return `/* Generated manually from Supabase by AvastFall Admin. Do not edit by hand. */\nglobalThis.AF = globalThis.AF || {};\nAF.SNAPSHOT=${JSON.stringify({ DECKS, CARDS, ELEMENTS: S.elements }, null, 1)};\n`;
+}
+api.post("/system/snapshot/generate", wrapA(async (_req, res) => {
+  if (!supa.enabled || supa.startupError) throw new Error("Database ไม่พร้อมใช้งาน จึงไม่สร้าง Snapshot จากข้อมูลที่อาจไม่ครบ");
+  const source = makeSnapshot(), hash = crypto.createHash("sha256").update(source).digest("hex");
+  const target = require("path").join(__dirname, "..", "web", "js", "data", "snapshot.js");
+  fs.writeFileSync(target, source, "utf8");
+  snapshotMeta = { generated_at: new Date().toISOString(), sha256: hash, cards: S.cards.length, decks: S.decks.length };
+  await systemControl.update({ snapshot: snapshotMeta });
+  res.set({ "Content-Type": "application/javascript; charset=utf-8", "Content-Disposition": 'attachment; filename="snapshot.js"' }).send(source);
+}));
 
 // ---- สำรอง/กู้คืน ----
 api.get("/backups", wrapA(async (_req, res) => res.json({ data: await store.listBackups() })));

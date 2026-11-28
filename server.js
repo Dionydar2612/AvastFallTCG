@@ -15,6 +15,7 @@ const supa = require("./lib/supa");
 const auth = require("./lib/auth");
 const me = require("./lib/me");
 const updates = require("./lib/updates");
+const systemControl = require("./lib/system-control");
 const playtest = require("./lib/playtest");
 const log = require("./lib/log");
 const presence = require("./lib/presence");
@@ -55,8 +56,8 @@ function page(file, onGuest) {
 }
 const guestLogin = (_req, res) => res.type("html").send(readTxt("web/login.html"));
 const guestBounce = (_req, res) => res.redirect(302, "/");
-app.get(["/", "/index.html"], page("web/index.html", guestLogin));
-app.get(["/hub.html"], page("web/hub.html", guestBounce));
+app.get(["/", "/index.html"], async (req, res, next) => { try { const m=(await systemControl.get()).maintenance||{}; if(m.global||m.game) return res.status(503).type("html").send(`<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>ปิดปรับปรุง</title><main style="font:16px sans-serif;max-width:600px;margin:15vh auto;padding:24px"><h1>กำลังปิดปรับปรุงระบบ</h1><p>${String((await systemControl.get()).messages?.[m.global?"global":"game"]||"AvastFall TCG จะกลับมาให้บริการเร็ว ๆ นี้").replace(/[<&>]/g, "")}</p><p><a href="/admin">Admin</a></p></main>`); return page("web/index.html", guestLogin)(req,res,next); } catch(e){ next(e); } });
+app.get(["/hub.html"], async (req, res, next) => { try { const m=(await systemControl.get()).maintenance||{}; if(m.global||m.game) return res.status(503).type("html").send("<!doctype html><meta charset=\"utf-8\"><h1>กำลังปิดปรับปรุงระบบ</h1><p>กรุณากลับมาใหม่ภายหลัง</p><a href=\"/admin\">Admin</a>"); return page("web/hub.html", guestBounce)(req,res,next); } catch(e){ next(e); } });
 app.get(["/cards", "/cards/", "/cards/index.html"], page("public/index.html", guestBounce));
 
 // ---------- รูป + หน้าเว็บ ----------
@@ -73,7 +74,20 @@ api.use(rateLimit({ windowMs: 60_000, limit: 240, standardHeaders: true, legacyH
   message: { error: "too_many_requests" } }));
 api.use((req, res, next) => { res.set("Cache-Control", /^\/(me|shop)/.test(req.path) ? "no-store" : "private, max-age=60"); next(); });
 api.get("/health", (_req, res) => res.status(supa.startupError ? 503 : 200).json({ ok: !supa.startupError, cards: S.cards.length, supabase: supa.enabled, error: supa.startupError || undefined }));
+api.get("/system/status", async (_req, res) => { try { const c = await systemControl.get(); res.set("Cache-Control", "no-store").json({ maintenance: c.maintenance, messages: c.messages, updated_at: c.updated_at }); } catch (e) { res.status(503).json({ error: "system_status_unavailable" }); } });
+api.get("/announcements", async (_req, res) => { try { const rows = supa.must(await supa.db.from("system_announcements").select("id,title,body,kind,pinned,publish_at,expires_at").eq("status", "published").order("pinned", { ascending: false }).order("publish_at", { ascending: false }), "announcements"); const now=Date.now(); res.json({ data: rows.filter(x => (!x.publish_at || new Date(x.publish_at).getTime() <= now) && (!x.expires_at || new Date(x.expires_at).getTime() > now)) }); } catch { res.json({ data: [] }); } });
 api.get("/docs", (_req, res) => res.sendFile(path.join(__dirname, "public", "docs.html")));
+// Service gates: Admin and health endpoints remain available during maintenance.
+api.use(async (req, res, next) => {
+  try {
+    const m = (await systemControl.get()).maintenance || {};
+    const path_ = req.path;
+    const safeDuringMaintenance = ["/health", "/docs", "/system/status", "/announcements"].includes(path_);
+    const service = m.global ? "global" : (m.game && !safeDuringMaintenance) ? "game" : path_.startsWith("/shop") ? "shop" : path_.startsWith("/room") || path_.startsWith("/match") ? "matchmaking" : path_.startsWith("/cards") || path_.startsWith("/decks") || path_.startsWith("/elements") ? "cards" : null;
+    if (service && m[service]) return res.status(503).json({ error: "maintenance", service, message: (await systemControl.get()).messages?.[service] || "ระบบกำลังปิดปรับปรุงชั่วคราว" });
+    next();
+  } catch (e) { next(); }
+});
 api.use(auth.requireAuth);                     // ตั้งแต่ตรงนี้ลงไปต้องล็อกอิน
 api.use(auth.sameOrigin);
 api.use(log.auditMutations);                   // เก็บ POST/PUT/DELETE ของผู้ใช้ (ซื้อซอง, รางวัลรายวัน ฯลฯ) ลง audit_logs
@@ -178,7 +192,18 @@ api.get("/filters", (_req, res) => {
 });
 
 // Update Note ที่แอดมินเขียนใน /admin  (เกมดึงไปแสดงให้ผู้เล่นทุกคน ไม่แคชเพื่อให้เห็นของใหม่ทันที)
-api.get("/updates", (_req, res) => { res.set("Cache-Control", "no-cache"); res.json({ data: updates.list() }); });
+api.get("/updates", async (_req, res) => {
+  res.set("Cache-Control", "no-cache");
+  let announcements = [];
+  if (supa.enabled) {
+    try {
+      const rows = supa.must(await supa.db.from("system_announcements").select("id,title,body,kind,pinned,publish_at,expires_at").eq("status", "published").order("pinned", { ascending: false }).order("publish_at", { ascending: false }), "announcements");
+      const now = Date.now();
+      announcements = rows.filter(x => (!x.publish_at || new Date(x.publish_at).getTime() <= now) && (!x.expires_at || new Date(x.expires_at).getTime() > now)).map(x => ({ id: x.id, date: x.publish_at ? new Date(x.publish_at).toISOString().slice(0,10) : new Date().toISOString().slice(0,10), title: x.title, items: [x.body], kind: x.kind, pinned: x.pinned }));
+    } catch (e) { /* migration not installed yet: legacy Update Notes remain available */ }
+  }
+  res.json({ data: [...announcements, ...updates.list()] });
+});
 
 api.use((_req, res) => res.status(404).json({ error: "not_found" }));
 
@@ -194,6 +219,7 @@ app.use((_req, res) => res.status(404).type("text/plain; charset=utf-8").send("�
   // ถ้าเชื่อม/โหลดฐานข้อมูลไม่สำเร็จ ยังเปิดเซิร์ฟเวอร์ไว้ (ให้ Render ไม่ล่ม) แต่บอกสาเหตุที่ /api/health และหน้า login
   try {
     await store.init();                                   // โหลดการ์ดจาก Supabase (ครั้งแรกจะ seed จาก data/*.json ให้)
+    await systemControl.load();
     if (supa.enabled) await me.ensureShopItems();         // สร้างสินค้าในร้านให้ชุดที่ยังไม่มี
     log.startCleanup();
     await updates.init();                                 // โหลด Update Note จาก Supabase (ครั้งแรกจะใส่ข้อมูลเริ่มต้นให้ครั้งเดียว)
