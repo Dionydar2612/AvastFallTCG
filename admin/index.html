@@ -87,6 +87,35 @@ button.rar{border-color:#1b4aa8;color:#1b4aa8}
  .nav{display:flex;gap:4px;flex:none}.nav button{width:auto;white-space:nowrap;padding:6px 12px}
  .main{padding:16px 12px 60px}
 }
+
+/* Shop admin table: keep columns readable and prevent form controls overlapping. */
+#t-shop .shop-table-wrap{width:100%;max-width:100%;overflow-x:auto;overscroll-behavior-x:contain}
+#t-shop table.tbl.shop-table{display:table;width:100%;min-width:1320px;table-layout:fixed;border-collapse:collapse}
+#t-shop .shop-table th,#t-shop .shop-table td{white-space:normal;vertical-align:top;padding:12px 10px}
+#t-shop .shop-table th:nth-child(1){width:290px}
+#t-shop .shop-table th:nth-child(2){width:150px}
+#t-shop .shop-table th:nth-child(3){width:105px}
+#t-shop .shop-table th:nth-child(4){width:110px}
+#t-shop .shop-table th:nth-child(5){width:370px}
+#t-shop .shop-table th:nth-child(6){width:85px}
+#t-shop .shop-table th:nth-child(7){width:95px}
+#t-shop .shop-table th:nth-child(8){width:170px}
+#t-shop .shop-table td input:not([type=checkbox]),
+#t-shop .shop-table td select,
+#t-shop .shop-table td textarea{display:block;box-sizing:border-box;max-width:100%;margin:5px 0 0}
+#t-shop .shop-table td .s-name,
+#t-shop .shop-table td .s-desc{width:100%!important}
+#t-shop .shop-table td .s-kind{width:100%;min-width:0}
+#t-shop .shop-table td .s-set{width:100%!important}
+#t-shop .shop-table td .s-price{width:100%!important}
+#t-shop .shop-table td .s-config{width:100%!important;min-width:0;min-height:130px;resize:vertical;white-space:pre;overflow:auto}
+#t-shop .shop-table td .s-sort{width:100%!important}
+#t-shop .shop-table td .s-active{display:inline-block!important;vertical-align:middle}
+#t-shop .shop-table td:last-child{text-align:left;white-space:normal}
+#t-shop .shop-table td:last-child button{margin:3px 3px 3px 0}
+#t-shop .shop-table td small{display:block;white-space:normal;line-height:1.45;margin-top:6px}
+#t-shop .shop-table tbody tr{height:auto}
+
 </style></head><body><main>
 
 <div id="login" class="box" hidden>
@@ -285,7 +314,7 @@ button.rar{border-color:#1b4aa8;color:#1b4aa8}
       <p class="mut">ซอง/กล่องสุ่มกำหนดจำนวนการ์ดต่อซองได้ · Starter กำหนดจำนวนสำเนา · Bundle/โปรโมชั่นกำหนดรายการการ์ดและจำนวนได้</p>
       <button id="s-create" class="pri" type="button">สร้างสินค้า</button>
     </div>
-    <div class="help">แก้ไขชื่อ, คำอธิบาย, ประเภท, ชุดการ์ด, ราคา, จำนวนการ์ดต่อซอง/สำเนา, รายการการ์ด, ลำดับแสดงผล และสถานะขายได้จากแต่ละรายการ · กดลบเพื่อนำสินค้าออกจากร้าน</div><div style="overflow-x:auto"><table class="tbl"><thead><tr><th>สินค้า / รายละเอียด</th><th>ประเภท</th><th>ชุด</th><th>ราคา</th><th>การตั้งค่า / จำนวนที่ได้รับ (JSON)</th><th>ลำดับ</th><th>ขาย</th><th>จัดการ</th></tr></thead><tbody id="shopRows"></tbody></table></div>
+    <div class="help">แก้ไขชื่อ, คำอธิบาย, ประเภท, ชุดการ์ด, ราคา, จำนวนการ์ดต่อซอง/สำเนา, รายการการ์ด, ลำดับแสดงผล และสถานะขายได้จากแต่ละรายการ · กดลบเพื่อนำสินค้าออกจากร้าน</div><div class="shop-table-wrap"><table class="tbl shop-table"><thead><tr><th>สินค้า / รายละเอียด</th><th>ประเภท</th><th>ชุด</th><th>ราคา</th><th>การตั้งค่า / จำนวนที่ได้รับ (JSON)</th><th>ลำดับ</th><th>ขาย</th><th>จัดการ</th></tr></thead><tbody id="shopRows"></tbody></table></div>
   </section>
 
   <section id="t-backups" class="box" hidden>
