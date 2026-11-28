@@ -21,7 +21,7 @@ button{cursor:pointer;font-weight:700;transition:background .12s}button:hover{ba
 button.pri{background:var(--ink);color:var(--bg)}button.pri:hover{background:var(--gold);color:#111}
 button:disabled{opacity:.4;cursor:not-allowed}button.del{border-color:var(--bad);color:var(--bad)}button.del:hover{background:var(--bad);color:#fff}
 .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0}
-.tbl{width:100%;border-collapse:collapse;display:block;overflow-x:auto}
+.tbl{width:100%;border-collapse:collapse;display:block;overflow-x:auto;overscroll-behavior-x:contain}
 .tbl th{font-size:.8rem;color:var(--mut);text-transform:uppercase;letter-spacing:.04em}
 .tbl th,.tbl td{border-bottom:1px solid var(--soft);padding:8px 10px;text-align:left;vertical-align:middle;white-space:nowrap}
 .tbl tbody tr:hover td{background:var(--pap)}
@@ -41,7 +41,7 @@ button:disabled{opacity:.4;cursor:not-allowed}button.del{border-color:var(--bad)
 .mut{color:var(--mut)}.tag{display:inline-block;border-radius:99px;padding:0 10px;font-size:.8rem;font-weight:700;color:#fff}
 .tag.new{background:var(--ok)}.tag.updated{background:#1b4aa8}
 .thumb{width:36px;height:50px;object-fit:cover;border-radius:4px;border:1px solid var(--mut);vertical-align:middle}
-.drop{border:3px dashed var(--ink);border-radius:14px;padding:26px;text-align:center}.drop.over{background:var(--pap)}
+.drop{border:3px dashed var(--ink);border-radius:14px;padding:26px;text-align:center;overflow-wrap:anywhere}.drop input[type=file]{max-width:100%}.drop.over{background:var(--pap)}
 ul.l{margin:6px 0;padding-left:20px}
 dialog{border:3px solid var(--ink);border-radius:14px;background:var(--card);color:var(--ink);box-shadow:4px 4px 0 var(--ink);padding:18px;max-width:440px;width:92vw}
 dialog::backdrop{background:rgba(0,0,0,.55)}
@@ -88,33 +88,30 @@ button.rar{border-color:#1b4aa8;color:#1b4aa8}
  .main{padding:16px 12px 60px}
 }
 
-/* Shop admin table: keep columns readable and prevent form controls overlapping. */
-#t-shop .shop-table-wrap{width:100%;max-width:100%;overflow-x:auto;overscroll-behavior-x:contain}
-#t-shop table.tbl.shop-table{display:table;width:100%;min-width:1320px;table-layout:fixed;border-collapse:collapse}
-#t-shop .shop-table th,#t-shop .shop-table td{white-space:normal;vertical-align:top;padding:12px 10px}
-#t-shop .shop-table th:nth-child(1){width:290px}
-#t-shop .shop-table th:nth-child(2){width:150px}
-#t-shop .shop-table th:nth-child(3){width:105px}
-#t-shop .shop-table th:nth-child(4){width:110px}
-#t-shop .shop-table th:nth-child(5){width:370px}
-#t-shop .shop-table th:nth-child(6){width:85px}
-#t-shop .shop-table th:nth-child(7){width:95px}
-#t-shop .shop-table th:nth-child(8){width:170px}
-#t-shop .shop-table td input:not([type=checkbox]),
-#t-shop .shop-table td select,
-#t-shop .shop-table td textarea{display:block;box-sizing:border-box;max-width:100%;margin:5px 0 0}
-#t-shop .shop-table td .s-name,
-#t-shop .shop-table td .s-desc{width:100%!important}
-#t-shop .shop-table td .s-kind{width:100%;min-width:0}
-#t-shop .shop-table td .s-set{width:100%!important}
-#t-shop .shop-table td .s-price{width:100%!important}
-#t-shop .shop-table td .s-config{width:100%!important;min-width:0;min-height:130px;resize:vertical;white-space:pre;overflow:auto}
-#t-shop .shop-table td .s-sort{width:100%!important}
-#t-shop .shop-table td .s-active{display:inline-block!important;vertical-align:middle}
-#t-shop .shop-table td:last-child{text-align:left;white-space:normal}
-#t-shop .shop-table td:last-child button{margin:3px 3px 3px 0}
-#t-shop .shop-table td small{display:block;white-space:normal;line-height:1.45;margin-top:6px}
-#t-shop .shop-table tbody tr{height:auto}
+/* ---- Admin Shop: product cards + edit dialog (scoped to #t-shop / #shopDlg) ---- */
+#t-shop .shop-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,290px),1fr));gap:14px;margin-top:10px}
+#t-shop .shop-card{display:flex;flex-direction:column;gap:8px;min-width:0;border:2px solid var(--ink);border-radius:12px;background:var(--card);padding:12px 14px}
+#t-shop .shop-card.off{opacity:.72;border-style:dashed}
+#t-shop .shop-card h4{margin:0;font-size:1rem;line-height:1.3;overflow-wrap:anywhere}
+#t-shop .shop-card .sid{font:12px/1.4 ui-monospace,Menlo,Consolas,monospace;color:var(--mut);overflow-wrap:anywhere}
+#t-shop .shop-card .sdesc{margin:0;font-size:.85rem;color:var(--mut);overflow-wrap:anywhere}
+#t-shop .shop-card dl{display:grid;grid-template-columns:auto minmax(0,1fr);gap:2px 12px;margin:0;font-size:.85rem}
+#t-shop .shop-card dt{color:var(--mut)}#t-shop .shop-card dd{margin:0;overflow-wrap:anywhere}
+#t-shop .shop-card .acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:auto;padding-top:4px}
+#shopDlg{max-width:760px;width:min(94vw,760px);max-height:92vh;overflow:auto;padding:0}
+#shopDlg .sd-head{padding:16px 18px 0}#shopDlg .sd-body{padding:0 18px 6px}
+#shopDlg fieldset{min-width:0;margin:12px 0;padding:10px 12px;border:2px solid var(--soft);border-radius:10px}
+#shopDlg legend{padding:0 6px;font-weight:700}
+#shopDlg .sd-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,160px),1fr));gap:10px}
+#shopDlg label{display:flex;flex-direction:column;gap:3px;font-size:.85rem;font-weight:700}
+#shopDlg label.chk{flex-direction:row;align-items:center;align-self:end;min-height:34px}
+#shopDlg input:not([type=checkbox]),#shopDlg select,#shopDlg textarea{width:100%;font-weight:400}
+#shopDlg input[type=checkbox]{width:18px;height:18px;accent-color:var(--ink)}
+#shopDlg .sd-sub{margin:12px 0 4px;font-size:.85rem;font-weight:700}
+#shopDlg details{margin:12px 0;border:2px solid var(--soft);border-radius:10px;padding:8px 12px}
+#shopDlg summary{cursor:pointer;font-weight:700}
+#shopDlg .sd-json{min-height:150px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.85rem;white-space:pre;overflow:auto;resize:vertical}
+#shopDlg .sd-foot{position:sticky;bottom:0;display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px;padding:12px 18px;background:var(--card);border-top:2px solid var(--soft)}
 
 </style></head><body><main>
 
@@ -294,7 +291,7 @@ button.rar{border-color:#1b4aa8;color:#1b4aa8}
   <section id="t-shop" class="box" hidden>
     <h2>ร้านค้า</h2>
     <p class="mut">จัดการสินค้าซอง/Starter เดิม และสร้างสินค้าพิเศษได้ เช่น ซองพิเศษ, กล่องสุ่ม, Bundle และโปรโมชั่น</p>
-    <div id="shopMsg" class="msg" hidden></div>
+    <div id="shopMsg" class="msg" role="status" aria-live="polite" hidden></div>
     <div class="box" style="margin:12px 0">
       <h3>＋ เพิ่มสินค้าใหม่</h3>
       <div class="row">
@@ -305,16 +302,16 @@ button.rar{border-color:#1b4aa8;color:#1b4aa8}
       <div class="row">
         <label>ชื่อสินค้า <input id="s-new-name" placeholder="ชื่อที่แสดงในร้าน" maxlength="120" style="min-width:240px"></label>
         <label>ราคา (เหรียญ) <input id="s-new-price" type="number" min="0" value="100" style="width:120px"></label>
-        <label>จำนวนการ์ดต่อซอง <input id="s-new-size" type="number" min="1" max="30" value="8" style="width:100px"></label><label>จำนวนสำเนา Starter <input id="s-new-copies" type="number" min="1" max="10" value="3" style="width:100px"></label><label>ลำดับแสดงผล <input id="s-new-sort" type="number" value="500" style="width:100px"></label>
+        <label data-sk="random">จำนวนการ์ดต่อซอง <input id="s-new-size" type="number" min="1" max="30" value="8" style="width:100px"></label><label data-sk="starter">จำนวนสำเนา Starter <input id="s-new-copies" type="number" min="1" max="10" value="3" style="width:100px"></label><label>ลำดับแสดงผล <input id="s-new-sort" type="number" value="500" style="width:100px"></label>
       </div>
       <label style="display:block;margin:8px 0">คำอธิบาย <input id="s-new-desc" placeholder="รายละเอียดสินค้า / เงื่อนไขโปรโมชั่น" maxlength="300" style="width:100%"></label>
-      <label style="display:block;margin:8px 0">รายการการ์ดสำหรับ Bundle/โปรโมชั่น <span class="mut">(ใส่รหัสการ์ด:จำนวนต่อบรรทัด เช่น BT02-001:2)</span>
+      <label data-sk="grants" style="display:block;margin:8px 0">รายการการ์ดสำหรับ Bundle/โปรโมชั่น <span class="mut">(ใส่รหัสการ์ด:จำนวนต่อบรรทัด เช่น BT02-001:2)</span>
         <textarea id="s-new-grants" rows="4" placeholder="BT02-001:2&#10;BT02-005:1" style="width:100%"></textarea>
       </label>
       <p class="mut">ซอง/กล่องสุ่มกำหนดจำนวนการ์ดต่อซองได้ · Starter กำหนดจำนวนสำเนา · Bundle/โปรโมชั่นกำหนดรายการการ์ดและจำนวนได้</p>
       <button id="s-create" class="pri" type="button">สร้างสินค้า</button>
     </div>
-    <div class="help">แก้ไขชื่อ, คำอธิบาย, ประเภท, ชุดการ์ด, ราคา, จำนวนการ์ดต่อซอง/สำเนา, รายการการ์ด, ลำดับแสดงผล และสถานะขายได้จากแต่ละรายการ · กดลบเพื่อนำสินค้าออกจากร้าน</div><div class="shop-table-wrap"><table class="tbl shop-table"><thead><tr><th>สินค้า / รายละเอียด</th><th>ประเภท</th><th>ชุด</th><th>ราคา</th><th>การตั้งค่า / จำนวนที่ได้รับ (JSON)</th><th>ลำดับ</th><th>ขาย</th><th>จัดการ</th></tr></thead><tbody id="shopRows"></tbody></table></div>
+    <div class="help">กด “แก้ไข” เพื่อปรับชื่อ ราคา ประเภท และการตั้งค่าของสินค้าแต่ละรายการ · กด “ลบ” เพื่อนำสินค้าออกจากร้าน (ประวัติการซื้อเดิมยังอยู่)</div><div id="shopRows" class="shop-list"></div>
   </section>
 
   <section id="t-backups" class="box" hidden>
@@ -324,6 +321,50 @@ button.rar{border-color:#1b4aa8;color:#1b4aa8}
   </section>
   </div>
 </div>
+
+<dialog id="shopDlg" aria-labelledby="sd-title">
+  <div class="sd-head"><h2 id="sd-title" style="margin:0">แก้ไขสินค้า</h2><p class="mut" style="margin:0">รหัสสินค้า <code id="sd-id"></code></p></div>
+  <div class="sd-body">
+    <fieldset><legend>ข้อมูลทั่วไป</legend>
+      <div class="sd-grid">
+        <label>ชื่อสินค้า<input id="sd-name" maxlength="120"></label>
+        <label>ประเภท<select id="sd-kind"></select></label>
+        <label>ชุดการ์ด<input id="sd-set" maxlength="20"></label>
+      </div>
+      <label style="margin-top:10px">คำอธิบาย<textarea id="sd-desc" rows="2" maxlength="300"></textarea></label>
+    </fieldset>
+    <fieldset><legend>การขาย</legend>
+      <div class="sd-grid">
+        <label>ราคา (เหรียญ)<input id="sd-price" type="number" min="0" step="1"></label>
+        <label>ลำดับแสดงผล<input id="sd-sort" type="number" step="1"></label>
+        <label class="chk"><input id="sd-active" type="checkbox"> วางขาย</label>
+      </div>
+    </fieldset>
+    <fieldset id="sd-random"><legend>การสุ่มซอง</legend>
+      <div class="sd-grid">
+        <label>จำนวนการ์ดต่อซอง (1–30)<input id="sd-size" type="number" min="1" max="30" step="1"></label>
+        <label>ช่อง Common<input id="sd-common" type="number" min="0" step="1"></label>
+        <label>unknownWeight<input id="sd-unknown" type="number" min="0" step="any"></label>
+        <label class="chk"><input id="sd-nodup" type="checkbox"> ไม่ให้การ์ดซ้ำในซอง</label>
+      </div>
+      <p class="sd-sub">น้ำหนักความหายากของช่อง Rare</p>
+      <div class="sd-grid" id="sd-rare"></div>
+    </fieldset>
+    <fieldset id="sd-starter"><legend>Starter Deck</legend>
+      <label>จำนวนสำเนาต่อการ์ด (1–10)<input id="sd-copies" type="number" min="1" max="10" step="1"></label>
+    </fieldset>
+    <fieldset id="sd-grantsBox"><legend>การ์ดที่ได้รับ</legend>
+      <label>รหัสการ์ด:จำนวน ต่อบรรทัด เช่น BT02-001:2<textarea id="sd-grants" rows="5" spellcheck="false" style="font-family:ui-monospace,Menlo,Consolas,monospace"></textarea></label>
+    </fieldset>
+    <details id="sd-adv"><summary>ขั้นสูง: แก้ Config เป็น JSON</summary>
+      <p class="mut" id="sd-jsonNote" style="margin:6px 0">แสดงค่าตามช่องด้านบน หากแก้ JSON เอง ระบบจะบันทึกตาม JSON นี้</p>
+      <textarea id="sd-json" class="sd-json" spellcheck="false" aria-label="Config (JSON)"></textarea>
+      <div class="row"><button type="button" id="sd-jsonReset" hidden>รีเซ็ตจากช่องด้านบน</button></div>
+    </details>
+    <div id="sd-msg" class="msg bad" role="alert" hidden></div>
+  </div>
+  <div class="sd-foot"><button type="button" id="sd-cancel">ยกเลิก</button><button type="button" class="pri" id="sd-save">บันทึก</button></div>
+</dialog>
 
 <dialog id="rarDlg">
   <h2 style="margin-top:0">＋ เพิ่มความหายาก</h2>
@@ -653,7 +694,8 @@ async function loadBackups(){
 }
 $("bakRows").onclick=async e=>{const b=e.target.closest("button");if(!b)return;
   if(!confirm("กู้คืนข้อมูลชุดนี้? (สถานะปัจจุบันจะถูกสำรองไว้ก่อน)"))return;
-  try{await jpost("/backups/restore",{name:b.dataset.n});alert("กู้คืนแล้ว");loadAll();loadBackups()}catch(err){alert(err.message)}};
+  if(b.disabled)return;b.disabled=true;
+  try{await jpost("/backups/restore",{name:b.dataset.n});alert("กู้คืนแล้ว");loadAll();loadBackups()}catch(err){alert(err.message)}finally{b.disabled=false}};
 
 /* ---------- Update Note ---------- */
 let NOTES=[],editingNote=null;
@@ -664,12 +706,14 @@ function renderNotes(){
 }
 function resetNoteForm(){editingNote=null;$("nt-title").value="";$("nt-items").value="";$("nt-date").value=todayStr();$("noteSave").textContent="💾 โพสต์ Update Note";show($("noteCancel"),false)}
 $("noteSave").onclick=async()=>{
+  const nb=$("noteSave");if(nb.disabled)return;
   const body={title:$("nt-title").value,date:$("nt-date").value,items:$("nt-items").value};
+  nb.disabled=true;
   try{
     if(editingNote)await api("/updates/"+encodeURIComponent(editingNote),{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
     else await jpost("/updates",body);
     $("noteMsg").innerHTML='<div class="msg ok">บันทึกแล้ว ผู้เล่นจะเห็นเมื่อเปิดหรือรีเฟรชหน้าเกม</div>';resetNoteForm();loadNotes();
-  }catch(e){$("noteMsg").innerHTML=`<div class="msg bad">${esc(e.message)}</div>`}
+  }catch(e){$("noteMsg").innerHTML=`<div class="msg bad">${esc(e.message)}</div>`}finally{nb.disabled=false}
 };
 $("noteCancel").onclick=resetNoteForm;
 $("noteList").onclick=async e=>{
@@ -682,7 +726,7 @@ resetNoteForm();
 
 
 /* ---------- ผู้ใช้ / ร้านค้า ---------- */
-const flash=(id,msg,bad)=>{const el=$(id);el.textContent=msg;el.className="msg "+(bad?"bad":"ok");show(el);setTimeout(()=>show(el,false),3500)};
+const flash=(id,msg,bad)=>{const el=$(id);clearTimeout(el._t);el.textContent=msg;el.className="msg "+(bad?"bad":"ok");el.setAttribute("role",bad?"alert":"status");show(el);if(!bad)el._t=setTimeout(()=>show(el,false),3500)};
 let USERS=[],ONL_MS=100000;
 const statusOf=u=>u.last_seen_at&&Date.now()-new Date(u.last_seen_at)<ONL_MS?`<span class="st-ok"><i class="dot on"></i>ออนไลน์</span>`:`<span class="mut"><i class="dot"></i>${esc(ago(u.last_seen_at))}</span>`;
 async function loadUsers(){
@@ -699,57 +743,129 @@ $("userQ").oninput=drawUsers;
 $("userRows").onclick=async e=>{const b=e.target.closest(".u-save");if(!b)return;const tr=b.closest("tr");
   const was=(USERS.find(u=>u.id===tr.dataset.id)||{}).role;
   if(was!=="admin"&&tr.querySelector(".u-role").value==="admin"&&!confirm("ตั้งผู้ใช้นี้เป็นแอดมิน? เขาจะแก้การ์ด ราคา และผู้ใช้อื่นได้ทั้งหมด"))return;
+  if(b.disabled)return;b.disabled=true;
   try{await api("/users/"+tr.dataset.id,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({role:tr.querySelector(".u-role").value,coins:tr.querySelector(".u-coins").value})});flash("userMsg","บันทึกแล้ว");const u=USERS.find(x=>x.id===tr.dataset.id);if(u){u.role=tr.querySelector(".u-role").value;u.coins=+tr.querySelector(".u-coins").value}}
-  catch(err){flash("userMsg",err.message,true)}};
-async function loadShop(){
-  const j=await api("/shop");
-  const kinds={pack:"ซองการ์ด",starter:"Starter Deck",special_pack:"ซองพิเศษ",mystery_box:"กล่องสุ่ม",bundle:"Bundle",promotion:"โปรโมชั่น"};
-  const opts=Object.entries(kinds).map(([v,t])=>`<option value="${v}">${t}</option>`).join("");
-  $("shopRows").innerHTML=j.data.map(i=>`<tr data-id="${esc(i.id)}">
-    <td style="min-width:230px"><b>${esc(i.id)}</b><input class="s-name" value="${esc(i.name)}" maxlength="120" placeholder="ชื่อสินค้า" style="width:100%;margin-top:5px"><textarea class="s-desc" maxlength="300" rows="2" placeholder="คำอธิบาย" style="width:100%;margin-top:4px">${esc(i.description||"")}</textarea></td>
-    <td><select class="s-kind">${opts}</select></td>
-    <td><input class="s-set" value="${esc(i.set_id||i.set||"")}" maxlength="20" style="width:90px"></td>
-    <td><input class="s-price" type="number" min="0" step="1" value="${Number(i.price)||0}" style="width:90px"></td>
-    <td style="min-width:240px"><textarea class="s-config" rows="5" spellcheck="false" style="width:100%;min-width:220px;font-family:monospace">${esc(JSON.stringify(i.config||{},null,2))}</textarea><small class="mut">size = จำนวนการ์ดต่อซอง · copies = สำเนา Starter · grants = รายการการ์ด Bundle/โปรโมชั่น</small></td>
-    <td><input class="s-sort" type="number" value="${Number(i.sort)||0}" style="width:70px"></td>
-    <td><label class="chk"><input class="s-active" type="checkbox"${i.active?" checked":""}> วางขาย</label></td>
-    <td style="white-space:nowrap"><button class="s-save pri">บันทึก</button> <button class="s-delete" style="color:#b22">ลบ</button></td>
-  </tr>`).join("")||'<tr><td colspan="8" class="mut">ยังไม่มีสินค้า</td></tr>';
-  for(const tr of $("shopRows").querySelectorAll("tr[data-id]")) tr.querySelector(".s-kind").value=j.data.find(x=>x.id===tr.dataset.id)?.kind||"pack";
+  catch(err){flash("userMsg",err.message,true)}finally{b.disabled=false}};
+const SHOP_KINDS={pack:"ซองการ์ด",starter:"Starter Deck",special_pack:"ซองพิเศษ",mystery_box:"กล่องสุ่ม",bundle:"Bundle",promotion:"โปรโมชั่น"};
+const SHOP_RARITY_DEFAULT={R:88,SR:12,SSR:3,UR:1};
+const shopGroup=k=>["pack","special_pack","mystery_box"].includes(k)?"random":k==="starter"?"starter":"grants";
+let shopItems=[],shopEditing=null,shopBusy=false,shopJsonDirty=false;
+const JSON_HDR={"Content-Type":"application/json"};
+function shopNote(msg,bad){const el=$("shopMsg");clearTimeout(shopNote.t);el.textContent=msg;el.className="msg "+(bad?"bad":"ok");show(el);if(!bad)shopNote.t=setTimeout(()=>show(el,false),3500)}
+function parseGrants(text){
+  return String(text||"").split(/\r?\n/).map(x=>x.trim()).filter(Boolean).map(line=>{
+    const m=line.match(/^([^:：]+)[:：](\d+)$/); if(!m)throw new Error("รูปแบบรายการการ์ดไม่ถูกต้อง: "+line);
+    return {id:m[1].trim(),qty:Number(m[2])};
+  });
 }
+const grantsText=g=>(Array.isArray(g)?g:[]).map(x=>`${x.id}:${x.qty}`).join("\n");
+function shopSummary(i){
+  const c=i.config||{},g=shopGroup(i.kind);
+  if(g==="random")return `สุ่ม ${Number(c.size)||8} ใบต่อซอง`;
+  if(g==="starter")return `${Number(c.copies)||3} สำเนาต่อการ์ด`;
+  const a=Array.isArray(c.grants)?c.grants:[];
+  return `${a.length} รายการ · รวม ${a.reduce((s,x)=>s+(Number(x.qty)||0),0)} ใบ`;
+}
+const shopCard=i=>`<article class="shop-card${i.active?"":" off"}" data-id="${esc(i.id)}">
+  <div><h4>${esc(i.name)}</h4><div class="sid">${esc(i.id)}</div></div>
+  <div><span class="badge">${esc(SHOP_KINDS[i.kind]||i.kind)}</span> <span class="badge">${i.active?"วางขาย":"ปิดขาย"}</span></div>
+  ${i.description?`<p class="sdesc">${esc(i.description)}</p>`:""}
+  <dl><dt>ชุดการ์ด</dt><dd>${esc(i.set_id||i.set||"-")}</dd><dt>ราคา</dt><dd>${Number(i.price)||0} เหรียญ</dd><dt>ที่ได้รับ</dt><dd>${esc(shopSummary(i))}</dd><dt>ลำดับ</dt><dd>${Number(i.sort)||0}</dd></dl>
+  <div class="acts"><button type="button" class="s-edit pri">แก้ไข</button><button type="button" class="s-delete del">ลบ</button></div>
+</article>`;
+async function loadShop(focusId){
+  const box=$("shopRows");
+  if(!shopItems.length)box.innerHTML='<p class="mut">กำลังโหลด…</p>';
+  try{const j=await api("/shop");shopItems=j.data||[]}
+  catch(err){if(!shopItems.length)box.innerHTML="";shopNote(err.message,true);return}
+  box.innerHTML=shopItems.map(shopCard).join("")||'<p class="mut">ยังไม่มีสินค้า</p>';
+  if(focusId){const b=box.querySelector(`[data-id="${CSS.escape(focusId)}"] .s-edit`);if(b)b.focus()}
+}
+/* ---- สร้างสินค้าใหม่: แสดงเฉพาะช่องที่ตรงกับประเภท ---- */
+function newKindApply(){const g=shopGroup($("s-new-kind").value);document.querySelectorAll("#t-shop [data-sk]").forEach(el=>show(el,el.dataset.sk===g))}
+$("s-new-kind").onchange=newKindApply;newKindApply();
 $("s-create").onclick=async()=>{
+  const btn=$("s-create"); if(btn.disabled)return; show($("shopMsg"),false);
   try{
-    const kind=$("s-new-kind").value, config={};
-    if(["pack","special_pack","mystery_box"].includes(kind)) config.size=Number($("s-new-size").value||8);
-    else if(kind==="starter") config.copies=Number($("s-new-copies").value||3);
-    else config.grants=$("s-new-grants").value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean).map(line=>{
-      const m=line.match(/^([^:：]+)[:：](\d+)$/); if(!m)throw new Error("รูปแบบรายการการ์ดไม่ถูกต้อง: "+line);
-      return {id:m[1].trim(),qty:Number(m[2])};
-    });
-    await api("/shop",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({
+    const kind=$("s-new-kind").value,g=shopGroup(kind),config={};
+    if(g==="random")config.size=Number($("s-new-size").value||8);
+    else if(g==="starter")config.copies=Number($("s-new-copies").value||3);
+    else config.grants=parseGrants($("s-new-grants").value);
+    btn.disabled=true;
+    await api("/shop",{method:"POST",headers:JSON_HDR,body:JSON.stringify({
       id:$("s-new-id").value,kind,set_id:$("s-new-set").value,name:$("s-new-name").value,
       price:$("s-new-price").value,description:$("s-new-desc").value,config,sort:$("s-new-sort").value,active:true
     })});
-    flash("shopMsg","สร้างสินค้าแล้ว"); $("s-new-id").value=""; $("s-new-name").value=""; $("s-new-desc").value=""; $("s-new-grants").value=""; await loadShop();
-  }catch(err){flash("shopMsg",err.message,true)}
+    shopNote("สร้างสินค้าแล้ว");$("s-new-id").value="";$("s-new-name").value="";$("s-new-desc").value="";$("s-new-grants").value="";await loadShop();
+  }catch(err){shopNote(err.message,true)}
+  finally{btn.disabled=false}
+};
+/* ---- แก้ไขสินค้า (dialog) ---- */
+$("sd-kind").innerHTML=Object.entries(SHOP_KINDS).map(([v,t])=>`<option value="${v}">${t}</option>`).join("");
+function sdError(msg){const el=$("sd-msg");el.textContent=msg;show(el)}
+function sdRarity(map){$("sd-rare").innerHTML=Object.entries(map).map(([k,v])=>`<label>${esc(k)}<input type="number" min="0" step="any" data-r="${esc(k)}" value="${esc(v)}"></label>`).join("")}
+function sdApplyKind(){const g=shopGroup($("sd-kind").value);show($("sd-random"),g==="random");show($("sd-starter"),g==="starter");show($("sd-grantsBox"),g==="grants")}
+function sdNum(id,label){const v=$(id).value.trim();if(v==="")throw new Error("กรอก"+label);return Number(v)}
+function sdBuildConfig(){
+  const item=shopItems.find(x=>x.id===shopEditing)||{},kind=$("sd-kind").value,g=shopGroup(kind);
+  const orig=item.config&&typeof item.config==="object"&&!Array.isArray(item.config)?item.config:{};
+  const cfg=shopGroup(item.kind||kind)===g?JSON.parse(JSON.stringify(orig)):{};
+  if(g==="random"){
+    cfg.size=sdNum("sd-size","จำนวนการ์ดต่อซอง");cfg.commonSlots=sdNum("sd-common","จำนวนช่อง Common");
+    const rs={};
+    for(const inp of $("sd-rare").querySelectorAll("input[data-r]")){if(inp.value.trim()==="")throw new Error("กรอกน้ำหนักความหายาก "+inp.dataset.r);rs[inp.dataset.r]=Number(inp.value)}
+    cfg.rareSlot=rs;cfg.unknownWeight=sdNum("sd-unknown","unknownWeight");cfg.noDupInPack=$("sd-nodup").checked;
+  }else if(g==="starter")cfg.copies=sdNum("sd-copies","จำนวนสำเนา");
+  else cfg.grants=parseGrants($("sd-grants").value);
+  return cfg;
+}
+function sdSyncJson(){if(shopJsonDirty)return;try{$("sd-json").value=JSON.stringify(sdBuildConfig(),null,2)}catch{}}
+function sdSetDirty(on){shopJsonDirty=on;show($("sd-jsonReset"),on);$("sd-jsonNote").textContent=on?"คุณแก้ JSON เอง — เมื่อกดบันทึก ระบบจะใช้ JSON นี้แทนค่าในช่องด้านบน":"แสดงค่าตามช่องด้านบน หากแก้ JSON เอง ระบบจะบันทึกตาม JSON นี้"}
+function openShopEdit(id){
+  const i=shopItems.find(x=>x.id===id); if(!i)return;
+  shopEditing=i.id;const c=i.config&&typeof i.config==="object"&&!Array.isArray(i.config)?i.config:{};
+  $("sd-id").textContent=i.id;$("sd-name").value=i.name||"";$("sd-desc").value=i.description||"";
+  $("sd-kind").value=i.kind;$("sd-set").value=i.set_id||i.set||"";
+  $("sd-price").value=Number(i.price)||0;$("sd-sort").value=Number(i.sort)||0;$("sd-active").checked=!!i.active;
+  const size=Number(c.size)||8;
+  $("sd-size").value=size;$("sd-common").value=c.commonSlots??Math.min(7,size);$("sd-unknown").value=c.unknownWeight??1;$("sd-nodup").checked=c.noDupInPack!==false;
+  sdRarity(c.rareSlot&&typeof c.rareSlot==="object"&&Object.keys(c.rareSlot).length?c.rareSlot:SHOP_RARITY_DEFAULT);
+  $("sd-copies").value=c.copies??3;$("sd-grants").value=grantsText(c.grants);
+  $("sd-json").value=JSON.stringify(c,null,2);sdSetDirty(false);$("sd-adv").open=false;
+  show($("sd-msg"),false);sdApplyKind();$("shopDlg").showModal();$("sd-name").focus();
+}
+$("sd-kind").onchange=()=>{sdApplyKind();sdSyncJson()};
+$("shopDlg").addEventListener("input",e=>{if(e.target.id==="sd-json")sdSetDirty(true);else sdSyncJson()});
+$("sd-jsonReset").onclick=()=>{sdSetDirty(false);sdSyncJson()};
+$("shopDlg").addEventListener("cancel",e=>{if(shopBusy)e.preventDefault()});
+$("sd-cancel").onclick=()=>{if(!shopBusy)$("shopDlg").close()};
+$("sd-save").onclick=async()=>{
+  if(shopBusy)return; show($("sd-msg"),false);
+  let config;
+  try{
+    if(shopJsonDirty){try{config=JSON.parse($("sd-json").value||"{}")}catch{throw new Error("Config ต้องเป็น JSON ที่ถูกต้อง")}}
+    else config=sdBuildConfig();
+  }catch(err){sdError(err.message);return}
+  const id=shopEditing,btn=$("sd-save");
+  shopBusy=true;btn.disabled=true;btn.textContent="กำลังบันทึก…";
+  try{
+    await api("/shop/"+encodeURIComponent(id),{method:"PUT",headers:JSON_HDR,body:JSON.stringify({
+      name:$("sd-name").value,description:$("sd-desc").value,kind:$("sd-kind").value,set_id:$("sd-set").value,
+      price:$("sd-price").value,config,sort:$("sd-sort").value,active:$("sd-active").checked
+    })});
+    $("shopDlg").close();shopNote("บันทึกการแก้ไขสินค้าแล้ว");await loadShop(id);
+  }catch(err){sdError(err.message)}
+  finally{shopBusy=false;btn.disabled=false;btn.textContent="บันทึก"}
 };
 $("shopRows").onclick=async e=>{
-  const tr=e.target.closest("tr[data-id]"); if(!tr)return;
-  if(e.target.closest(".s-save")){
-    try{
-      let config; try{config=JSON.parse(tr.querySelector(".s-config").value||"{}")}catch{throw new Error("Config ต้องเป็น JSON ที่ถูกต้อง")}
-      await api("/shop/"+encodeURIComponent(tr.dataset.id),{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({
-        name:tr.querySelector(".s-name").value,description:tr.querySelector(".s-desc").value,
-        kind:tr.querySelector(".s-kind").value,set_id:tr.querySelector(".s-set").value,
-        price:tr.querySelector(".s-price").value,config,sort:tr.querySelector(".s-sort").value,
-        active:tr.querySelector(".s-active").checked
-      })});
-      flash("shopMsg","บันทึกการแก้ไขสินค้าแล้ว"); await loadShop();
-    }catch(err){flash("shopMsg",err.message,true)}
-  }else if(e.target.closest(".s-delete")){
-    if(!confirm(`ยืนยันลบสินค้า ${tr.dataset.id} ? ประวัติการซื้อเดิมจะยังคงอยู่`))return;
-    try{await api("/shop/"+encodeURIComponent(tr.dataset.id),{method:"DELETE"});flash("shopMsg","ลบสินค้าแล้ว");await loadShop()}
-    catch(err){flash("shopMsg",err.message,true)}
+  const card=e.target.closest("[data-id]"); if(!card)return; const id=card.dataset.id;
+  if(e.target.closest(".s-edit")){show($("shopMsg"),false);openShopEdit(id)}
+  else if(e.target.closest(".s-delete")){
+    const btn=e.target.closest(".s-delete"); if(btn.disabled)return;
+    if(!confirm(`ยืนยันลบสินค้า ${id} ? ประวัติการซื้อเดิมจะยังคงอยู่`))return;
+    btn.disabled=true;show($("shopMsg"),false);
+    try{await api("/shop/"+encodeURIComponent(id),{method:"DELETE"});shopNote("ลบสินค้าแล้ว");await loadShop()}
+    catch(err){shopNote(err.message,true);btn.disabled=false}
   }
 };
 
