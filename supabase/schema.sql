@@ -109,6 +109,12 @@ create table if not exists public.purchases (           -- ประวัติ
 );
 create index if not exists purchases_user_idx on public.purchases (user_id, at desc);
 
+-- รายการสินค้าที่แอดมินลบ เพื่อป้องกันระบบสร้างสินค้าชุด BT/AT/SD กลับมาอัตโนมัติ
+create table if not exists public.shop_item_suppressions (
+  id text primary key,
+  suppressed_at timestamptz not null default now()
+);
+
 -- ---------- Update Note (ข่าวอัปเดตที่แอดมินเขียนใน /admin) + ค่าระบบเล็ก ๆ ----------
 create table if not exists public.update_notes (
   id          text primary key,

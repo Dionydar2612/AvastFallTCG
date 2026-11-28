@@ -270,22 +270,22 @@ button.rar{border-color:#1b4aa8;color:#1b4aa8}
       <h3>＋ เพิ่มสินค้าใหม่</h3>
       <div class="row">
         <label>รหัสสินค้า <input id="s-new-id" placeholder="เช่น special-BT02" maxlength="64"></label>
-        <label>ประเภท <select id="s-new-kind"><option value="special_pack">ซองพิเศษ (สุ่ม)</option><option value="mystery_box">กล่องสุ่ม (สุ่มหลายใบ)</option><option value="bundle">Bundle (กำหนดการ์ด)</option><option value="promotion">โปรโมชั่น (กำหนดการ์ด)</option></select></label>
+        <label>ประเภท <select id="s-new-kind"><option value="pack">ซองการ์ด (สุ่ม)</option><option value="starter">Starter Deck</option><option value="special_pack">ซองพิเศษ (สุ่ม)</option><option value="mystery_box">กล่องสุ่ม (สุ่มหลายใบ)</option><option value="bundle">Bundle (กำหนดการ์ด)</option><option value="promotion">โปรโมชั่น (กำหนดการ์ด)</option></select></label>
         <label>ชุดการ์ด <input id="s-new-set" placeholder="เช่น BT02 / SD07" maxlength="20"></label>
       </div>
       <div class="row">
         <label>ชื่อสินค้า <input id="s-new-name" placeholder="ชื่อที่แสดงในร้าน" maxlength="120" style="min-width:240px"></label>
         <label>ราคา (เหรียญ) <input id="s-new-price" type="number" min="0" value="100" style="width:120px"></label>
-        <label>จำนวนการ์ดสุ่ม <input id="s-new-size" type="number" min="1" max="30" value="8" style="width:100px"></label>
+        <label>จำนวนการ์ดต่อซอง <input id="s-new-size" type="number" min="1" max="30" value="8" style="width:100px"></label><label>จำนวนสำเนา Starter <input id="s-new-copies" type="number" min="1" max="10" value="3" style="width:100px"></label><label>ลำดับแสดงผล <input id="s-new-sort" type="number" value="500" style="width:100px"></label>
       </div>
       <label style="display:block;margin:8px 0">คำอธิบาย <input id="s-new-desc" placeholder="รายละเอียดสินค้า / เงื่อนไขโปรโมชั่น" maxlength="300" style="width:100%"></label>
       <label style="display:block;margin:8px 0">รายการการ์ดสำหรับ Bundle/โปรโมชั่น <span class="mut">(ใส่รหัสการ์ด:จำนวนต่อบรรทัด เช่น BT02-001:2)</span>
         <textarea id="s-new-grants" rows="4" placeholder="BT02-001:2&#10;BT02-005:1" style="width:100%"></textarea>
       </label>
-      <p class="mut">ซองพิเศษ/กล่องสุ่มจะสุ่มจากชุดที่ระบุ โดยใช้ค่าโอกาสและรูปแบบซองมาตรฐาน · Bundle/โปรโมชั่นจะมอบการ์ดตามรายการที่กำหนด</p>
+      <p class="mut">ซอง/กล่องสุ่มกำหนดจำนวนการ์ดต่อซองได้ · Starter กำหนดจำนวนสำเนา · Bundle/โปรโมชั่นกำหนดรายการการ์ดและจำนวนได้</p>
       <button id="s-create" class="pri" type="button">สร้างสินค้า</button>
     </div>
-    <table class="tbl"><thead><tr><th>สินค้า</th><th>ประเภท</th><th>ราคา (เหรียญ)</th><th>วางขาย</th><th></th></tr></thead><tbody id="shopRows"></tbody></table>
+    <div class="help">แก้ไขชื่อ, คำอธิบาย, ประเภท, ชุดการ์ด, ราคา, จำนวนการ์ดต่อซอง/สำเนา, รายการการ์ด, ลำดับแสดงผล และสถานะขายได้จากแต่ละรายการ · กดลบเพื่อนำสินค้าออกจากร้าน</div><div style="overflow-x:auto"><table class="tbl"><thead><tr><th>สินค้า / รายละเอียด</th><th>ประเภท</th><th>ชุด</th><th>ราคา</th><th>การตั้งค่า / จำนวนที่ได้รับ (JSON)</th><th>ลำดับ</th><th>ขาย</th><th>จัดการ</th></tr></thead><tbody id="shopRows"></tbody></table></div>
   </section>
 
   <section id="t-backups" class="box" hidden>
@@ -674,30 +674,55 @@ $("userRows").onclick=async e=>{const b=e.target.closest(".u-save");if(!b)return
   catch(err){flash("userMsg",err.message,true)}};
 async function loadShop(){
   const j=await api("/shop");
-  $("shopRows").innerHTML=j.data.map(i=>`<tr data-id="${esc(i.id)}"><td><b>${esc(i.name)}</b><div class="mut">${esc(i.id)}</div></td><td>${({pack:"ซองการ์ด",starter:"Starter Deck",special_pack:"ซองพิเศษ",mystery_box:"กล่องสุ่ม",bundle:"Bundle",promotion:"โปรโมชั่น"})[i.kind]||i.kind}</td>
-    <td><input class="s-price" type="number" min="0" step="10" value="${i.price|0}" style="width:110px"></td>
-    <td><label class="chk"><input class="s-active" type="checkbox"${i.active?" checked":""}> วางขาย</label></td><td><button class="s-save">บันทึก</button></td></tr>`).join("")||'<tr><td colspan="5" class="mut">ยังไม่มีสินค้า (จะสร้างให้อัตโนมัติจากชุดการ์ด BT…/SD…)</td></tr>';
+  const kinds={pack:"ซองการ์ด",starter:"Starter Deck",special_pack:"ซองพิเศษ",mystery_box:"กล่องสุ่ม",bundle:"Bundle",promotion:"โปรโมชั่น"};
+  const opts=Object.entries(kinds).map(([v,t])=>`<option value="${v}">${t}</option>`).join("");
+  $("shopRows").innerHTML=j.data.map(i=>`<tr data-id="${esc(i.id)}">
+    <td style="min-width:230px"><b>${esc(i.id)}</b><input class="s-name" value="${esc(i.name)}" maxlength="120" placeholder="ชื่อสินค้า" style="width:100%;margin-top:5px"><textarea class="s-desc" maxlength="300" rows="2" placeholder="คำอธิบาย" style="width:100%;margin-top:4px">${esc(i.description||"")}</textarea></td>
+    <td><select class="s-kind">${opts}</select></td>
+    <td><input class="s-set" value="${esc(i.set_id||i.set||"")}" maxlength="20" style="width:90px"></td>
+    <td><input class="s-price" type="number" min="0" step="1" value="${Number(i.price)||0}" style="width:90px"></td>
+    <td style="min-width:240px"><textarea class="s-config" rows="5" spellcheck="false" style="width:100%;min-width:220px;font-family:monospace">${esc(JSON.stringify(i.config||{},null,2))}</textarea><small class="mut">size = จำนวนการ์ดต่อซอง · copies = สำเนา Starter · grants = รายการการ์ด Bundle/โปรโมชั่น</small></td>
+    <td><input class="s-sort" type="number" value="${Number(i.sort)||0}" style="width:70px"></td>
+    <td><label class="chk"><input class="s-active" type="checkbox"${i.active?" checked":""}> วางขาย</label></td>
+    <td style="white-space:nowrap"><button class="s-save pri">บันทึก</button> <button class="s-delete" style="color:#b22">ลบ</button></td>
+  </tr>`).join("")||'<tr><td colspan="8" class="mut">ยังไม่มีสินค้า</td></tr>';
+  for(const tr of $("shopRows").querySelectorAll("tr[data-id]")) tr.querySelector(".s-kind").value=j.data.find(x=>x.id===tr.dataset.id)?.kind||"pack";
 }
 $("s-create").onclick=async()=>{
-  const kind=$("s-new-kind").value, config={};
-  if(kind==="special_pack"||kind==="mystery_box") config.size=Number($("s-new-size").value||8);
-  else {
-    config.grants=$("s-new-grants").value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean).map(line=>{
+  try{
+    const kind=$("s-new-kind").value, config={};
+    if(["pack","special_pack","mystery_box"].includes(kind)) config.size=Number($("s-new-size").value||8);
+    else if(kind==="starter") config.copies=Number($("s-new-copies").value||3);
+    else config.grants=$("s-new-grants").value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean).map(line=>{
       const m=line.match(/^([^:：]+)[:：](\d+)$/); if(!m)throw new Error("รูปแบบรายการการ์ดไม่ถูกต้อง: "+line);
       return {id:m[1].trim(),qty:Number(m[2])};
     });
-  }
-  try{
     await api("/shop",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({
       id:$("s-new-id").value,kind,set_id:$("s-new-set").value,name:$("s-new-name").value,
-      price:$("s-new-price").value,description:$("s-new-desc").value,config,active:true
+      price:$("s-new-price").value,description:$("s-new-desc").value,config,sort:$("s-new-sort").value,active:true
     })});
     flash("shopMsg","สร้างสินค้าแล้ว"); $("s-new-id").value=""; $("s-new-name").value=""; $("s-new-desc").value=""; $("s-new-grants").value=""; await loadShop();
   }catch(err){flash("shopMsg",err.message,true)}
 };
-$("shopRows").onclick=async e=>{const b=e.target.closest(".s-save");if(!b)return;const tr=b.closest("tr");
-  try{await api("/shop/"+tr.dataset.id,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({price:tr.querySelector(".s-price").value,active:tr.querySelector(".s-active").checked})});flash("shopMsg","บันทึกแล้ว")}
-  catch(err){flash("shopMsg",err.message,true)}};
+$("shopRows").onclick=async e=>{
+  const tr=e.target.closest("tr[data-id]"); if(!tr)return;
+  if(e.target.closest(".s-save")){
+    try{
+      let config; try{config=JSON.parse(tr.querySelector(".s-config").value||"{}")}catch{throw new Error("Config ต้องเป็น JSON ที่ถูกต้อง")}
+      await api("/shop/"+encodeURIComponent(tr.dataset.id),{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({
+        name:tr.querySelector(".s-name").value,description:tr.querySelector(".s-desc").value,
+        kind:tr.querySelector(".s-kind").value,set_id:tr.querySelector(".s-set").value,
+        price:tr.querySelector(".s-price").value,config,sort:tr.querySelector(".s-sort").value,
+        active:tr.querySelector(".s-active").checked
+      })});
+      flash("shopMsg","บันทึกการแก้ไขสินค้าแล้ว"); await loadShop();
+    }catch(err){flash("shopMsg",err.message,true)}
+  }else if(e.target.closest(".s-delete")){
+    if(!confirm(`ยืนยันลบสินค้า ${tr.dataset.id} ? ประวัติการซื้อเดิมจะยังคงอยู่`))return;
+    try{await api("/shop/"+encodeURIComponent(tr.dataset.id),{method:"DELETE"});flash("shopMsg","ลบสินค้าแล้ว");await loadShop()}
+    catch(err){flash("shopMsg",err.message,true)}
+  }
+};
 
 async function loadLogs(){
   try{
