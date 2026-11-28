@@ -5,7 +5,7 @@ const express = require("express"), multer = require("multer");
 const updates = require("../lib/updates"), store = require("../lib/store"), imp = require("../lib/importer"), xl = require("../lib/xlsx");
 const auth = require("../lib/auth"), me = require("../lib/me"), supa = require("../lib/supa");
 const systemControl = require("../lib/system-control");
-const fs = require("fs"), crypto = require("crypto");
+const crypto = require("crypto");
 const S = store.state;
 
 const router = express.Router();
@@ -309,8 +309,6 @@ function makeSnapshot() {
 api.post("/system/snapshot/generate", wrapA(async (_req, res) => {
   if (!supa.enabled || supa.startupError) throw new Error("Database ไม่พร้อมใช้งาน จึงไม่สร้าง Snapshot จากข้อมูลที่อาจไม่ครบ");
   const source = makeSnapshot(), hash = crypto.createHash("sha256").update(source).digest("hex");
-  const target = require("path").join(__dirname, "..", "web", "js", "data", "snapshot.js");
-  fs.writeFileSync(target, source, "utf8");
   snapshotMeta = { generated_at: new Date().toISOString(), sha256: hash, cards: S.cards.length, decks: S.decks.length };
   await systemControl.update({ snapshot: snapshotMeta });
   res.set({ "Content-Type": "application/javascript; charset=utf-8", "Content-Disposition": 'attachment; filename="snapshot.js"' }).send(source);
